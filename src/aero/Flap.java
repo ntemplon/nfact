@@ -16,7 +16,8 @@ public class Flap {
         
     }
     
-    
+        public int i = 5;
+        
     // Public Methods
 //    public double foo() {
 //        return Flaps.cfcFor(1, 2.3);

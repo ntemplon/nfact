@@ -24,7 +24,7 @@ import geometry.angle.Angle;
  * @author NathanT
  */
 public abstract class Wing {
-    
+
     // Protected Static Methods
     protected static double getDataMeasureFor(Angle angle) {
         double measure = angle.measure(Angle.AngleType.DEGREES);
@@ -33,16 +33,23 @@ public abstract class Wing {
         }
         return measure;
     }
-    
+
     public abstract WingPlanform getPlanform();
+
     public abstract double spanEfficiency();
+
     public abstract WingSection sectionAt(double station);
-    
+
     public abstract double cl(Angle alpha);
+
     public abstract double cd(Angle alpha);
+
     public abstract double cpm(Angle alpha);
+
     public abstract SingleVariableFunction clFunction();
+
     public abstract SingleVariableFunction cdFunction();
-    public abstract SingleVariableFunction cpmFunction();
     
+    public abstract SingleVariableFunction cpmFunction();
+
 }

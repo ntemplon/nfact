@@ -40,7 +40,6 @@ import java.util.Map;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import log.Logger;
 
 /**
  *

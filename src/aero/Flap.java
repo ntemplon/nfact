@@ -15,8 +15,6 @@ public class Flap {
     public Flap(Wing container, double chordFraction) {
         
     }
-    
-        public int i = 5;
         
     // Public Methods
 //    public double foo() {

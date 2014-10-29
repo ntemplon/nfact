@@ -61,7 +61,7 @@ public class LambertSolver {
         }
         
         double beta0 = 2.0 * Math.asin(Math.sqrt( (semiPerim - chord) / (2.0 * sma)));
-        if (theta.measure(Angle.AngleType.RADIANS) > Math.PI) {
+        if (theta.getMeasure(Angle.AngleType.RADIANS) > Math.PI) {
             beta = new Angle((2.0 * Math.PI) - beta0);
         }
         else {

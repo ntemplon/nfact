@@ -75,7 +75,7 @@ public class Angle {
      *
      * @return Returns the angle measure in radians.
      */
-    public double measure() {
+    public double getMeasure() {
         return measure;
     }
 
@@ -87,7 +87,7 @@ public class Angle {
      * angle reported in
      * @return Returns the angle measure in radians or degrees, as specified.
      */
-    public double measure(AngleType type) {
+    public double getMeasure(AngleType type) {
 
         switch (type) {
 
@@ -109,20 +109,20 @@ public class Angle {
      * @param range The range to return the measure of the angle in
      * @return Returns the measure of the angle in the specified range, in radians.
      */
-    public double measure(MeasureRange range) {
+    public double getMeasure(MeasureRange range) {
         switch (range) {
             case FullCircle:
-                return this.measure();
+                return this.getMeasure();
 
             case PlusMin180:
-                if (this.measure() < Math.PI) {
-                    return this.measure();
+                if (this.getMeasure() < Math.PI) {
+                    return this.getMeasure();
                 } else {
-                    return (this.measure() - (2 * Math.PI));
+                    return (this.getMeasure() - (2 * Math.PI));
                 }
 
             default:
-                return this.measure();
+                return this.getMeasure();
         }
     }
     
@@ -132,8 +132,8 @@ public class Angle {
      * @param range The range to measure the angle in
      * @return Returns the measure of the angle in the specified range and units
      */
-    public double measure(AngleType type, MeasureRange range) {
-        double radVal = this.measure(range);
+    public double getMeasure(AngleType type, MeasureRange range) {
+        double radVal = this.getMeasure(range);
         switch(type) {
             case DEGREES:
                 return radVal * (180.0 / Math.PI);
@@ -352,7 +352,7 @@ public class Angle {
      * angles.
      */
     public Angle add(Angle other) {
-        return new Angle(this.measure() + other.measure());
+        return new Angle(this.getMeasure() + other.getMeasure());
     }
 
     /**
@@ -363,7 +363,7 @@ public class Angle {
      * a given scalar.
      */
     public Angle scalarMultiply(double scalar) {
-        return new Angle(this.measure() * scalar);
+        return new Angle(this.getMeasure() * scalar);
     }
 
     /**
@@ -377,7 +377,7 @@ public class Angle {
         if (!(other instanceof Angle)) {
             return false;
         }
-        return doubleEquals(((Angle) other).measure(), this.measure());
+        return doubleEquals(((Angle) other).getMeasure(), this.getMeasure());
     }
 
     /**
@@ -407,16 +407,18 @@ public class Angle {
      * Changes the angles measure to be between 0 and 2 PI, inclusive.
      */
     private void correctValueRange() {
-        while (measure < 0.0) {
-            measure += (2 * Math.PI);
-        }
-        while (measure > (2.0 * Math.PI)) {
-            measure -= (2.0 * Math.PI);
-        }
-
-        // Correct 2 PI to 0
-        if (doubleEquals(measure, 2.0 * Math.PI)) {
-            measure = 0.0;
-        }
+//        while (measure < 0.0) {
+//            measure += (2 * Math.PI);
+//        }
+//        while (measure > (2.0 * Math.PI)) {
+//            measure -= (2.0 * Math.PI);
+//        }
+//
+//        // Correct 2 PI to 0
+//        if (doubleEquals(measure, 2.0 * Math.PI)) {
+//            measure = 0.0;
+//        }
+        double frac2Pi = this.measure / (2 * Math.PI);
+        this.measure -= ((int)frac2Pi)*(2 * Math.PI);
     }
 }

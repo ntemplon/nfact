@@ -36,7 +36,7 @@ public final class Flaps {
         dClfPERdCl = 15.341 * Math.pow(perCtlSface, 5) - 35.383 * Math.pow(perCtlSface, 4) + 29.895 * Math.pow(perCtlSface, 3) - 11.148 * Math.pow(perCtlSface, 2) + 2.2949 * perCtlSface;
         dClfPERdDel = -2.575 * perCtlSface + 2.575;
 
-        return (dClfPERdDel * flapDelf.measure(AngleType.RADIANS) + cLSurface * dClfPERdCl) * (sSurface / sRef);
+        return (dClfPERdDel * flapDelf.getMeasure(AngleType.RADIANS) + cLSurface * dClfPERdCl) * (sSurface / sRef);
     }
 
     // Hacky-Cheaty stuff

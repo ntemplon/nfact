@@ -28,7 +28,7 @@ public class Airfoil {
     
     // Protected Static Methods
     protected double getDataMeasureFor(Angle angle) {
-        double measure = angle.measure(AngleType.DEGREES);
+        double measure = angle.getMeasure(AngleType.DEGREES);
         if (measure > 180) {
             measure = measure * -1.0;
         }

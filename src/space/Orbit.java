@@ -77,14 +77,14 @@ public class Orbit {
         double cosBigOmega = nHat.dot(iHat);
         double nDotJ = nHat.dot(jHat);
         Angle bigOmega0 = new Angle(cosBigOmega, TrigFunction.COSINE);
-        if (doubleEquals(inclination.measure(), 0.0)) {
+        if (doubleEquals(inclination.getMeasure(), 0.0)) {
             rightAscOfAscendingNode = new Angle(0.0);
         }
         else if (nDotJ < Math.PI) {
             rightAscOfAscendingNode = bigOmega0;
         }
         else {
-            rightAscOfAscendingNode = new Angle(2.0 * Math.PI - bigOmega0.measure(), AngleType.RADIANS);
+            rightAscOfAscendingNode = new Angle(2.0 * Math.PI - bigOmega0.getMeasure(), AngleType.RADIANS);
         }
         
         // Calculate the argument of periapsis, little omega
@@ -98,7 +98,7 @@ public class Orbit {
             argOfPeri = littleOmega0;
         }
         else {
-            argOfPeri = new Angle(2.0 * Math.PI - littleOmega0.measure(), AngleType.RADIANS);
+            argOfPeri = new Angle(2.0 * Math.PI - littleOmega0.getMeasure(), AngleType.RADIANS);
         }
     }
     
@@ -266,18 +266,18 @@ public class Orbit {
         double cosEccAnom = (eccentricity + f.cos()) / (1 + eccentricity * f.cos());
         Angle eccAnom0 = new Angle(cosEccAnom, TrigFunction.COSINE);
         Angle eccAnom;
-        if (f.measure() < Math.PI) {
+        if (f.getMeasure() < Math.PI) {
             eccAnom = eccAnom0;
         }
         else {
-            eccAnom = new Angle(2.0 * Math.PI - eccAnom0.measure());
+            eccAnom = new Angle(2.0 * Math.PI - eccAnom0.getMeasure());
         }
         
         Angle meanAnom = eccAnom.add(new Angle(eccAnom.sin() * -1.0 * eccentricity));
         
         double meanMotion = Math.sqrt(centralBody.gravParam() / (semiMajorAxis * semiMajorAxis * semiMajorAxis));
         
-        return meanAnom.measure() / meanMotion;
+        return meanAnom.getMeasure() / meanMotion;
     }
     
     

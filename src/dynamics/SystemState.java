@@ -8,8 +8,26 @@ package dynamics;
 /**
  *
  * @author nathant
- * @param <TState>
  */
-public interface SystemState {
+public abstract class SystemState {
+    
+    // Fields
+    private double time;
+    
+    
+    // Properties
+    /**
+     * @return the time in seconds
+     */
+    public double getTime() {
+        return time;
+    }
+
+    /**
+     * @param time the time in seconds to set
+     */
+    public void setTime(double time) {
+        this.time = time;
+    }
     
 }

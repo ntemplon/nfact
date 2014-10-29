@@ -27,7 +27,7 @@ public abstract class Wing {
 
     // Protected Static Methods
     protected static double getDataMeasureFor(Angle angle) {
-        double measure = angle.measure(Angle.AngleType.DEGREES);
+        double measure = angle.getMeasure(Angle.AngleType.DEGREES);
         if (measure > 180) {
             measure = measure * -1.0;
         }

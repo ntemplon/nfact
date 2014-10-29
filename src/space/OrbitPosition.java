@@ -104,7 +104,7 @@ public class OrbitPosition {
         else {
             trueAnomaly = new Angle(2 * Math.PI - Math.acos(cosTrueAnom));
         }
-        JOptionPane.showMessageDialog(null, trueAnomaly.measure());
+        JOptionPane.showMessageDialog(null, trueAnomaly.getMeasure());
     }
     
     

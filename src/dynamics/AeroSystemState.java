@@ -12,18 +12,16 @@ import geometry.angle.Angle;
  *
  * @author nathant
  */
-public class AeroSystemState implements SystemState {
+public class AeroSystemState extends DynamicSystemState {
 
     // Fields
     private FluidState fluidState;
-
-    private double xVelocity;
-    private double zVelocity;
-    private double angularVelocity;
-
-    private double xPosition;
-    private double zPosition;
-    private Angle angularPosition;
+    
+    private double cl;
+    private double cd;
+    private double cpm;
+    
+    private double thrust;
 
 
     // Properties
@@ -40,97 +38,61 @@ public class AeroSystemState implements SystemState {
     protected void setFluidState(FluidState state) {
         this.fluidState = state;
     }
-
+    
     /**
-     * @return the xVelocity
+     * @return the cl
      */
-    public double getXVelocity() {
-        return xVelocity;
+    public double getCl() {
+        return cl;
     }
 
     /**
-     * @param xVelocity the xVelocity to set
+     * @param cl the cl to set
      */
-    public void setXVelocity(double xVelocity) {
-        this.xVelocity = xVelocity;
+    public void setCl(double cl) {
+        this.cl = cl;
     }
 
     /**
-     * @return the zVelocity
+     * @return the cd
      */
-    public double getZVelocity() {
-        return zVelocity;
+    public double getCd() {
+        return cd;
     }
 
     /**
-     * @param zVelocity the zVelocity to set
+     * @param cd the cd to set
      */
-    public void setZVelocity(double zVelocity) {
-        this.zVelocity = zVelocity;
+    public void setCd(double cd) {
+        this.cd = cd;
     }
 
     /**
-     * @return the angularVelocity
+     * @return the cpm
      */
-    public double getAngularVelocity() {
-        return angularVelocity;
+    public double getCpm() {
+        return cpm;
     }
 
     /**
-     * @param angularVelocity the angularVelocity to set
+     * @param cpm the cpm to set
      */
-    public void setAngularVelocity(double angularVelocity) {
-        this.angularVelocity = angularVelocity;
+    public void setCpm(double cpm) {
+        this.cpm = cpm;
+    }
+    
+    /**
+     * @return the thrust in pounds
+     */
+    public double getThrust() {
+        return thrust;
     }
 
     /**
-     * @return the xPosition
+     * @param thrust the thrust in pounds to set
      */
-    public double getXPosition() {
-        return xPosition;
-    }
-
-    /**
-     * @param xPosition the xPosition to set
-     */
-    public void setXPosition(double xPosition) {
-        this.xPosition = xPosition;
-    }
-
-    /**
-     * @return the zPosition
-     */
-    public double getZPosition() {
-        return zPosition;
-    }
-
-    /**
-     * @param zPosition the zPosition to set
-     */
-    public void setZPosition(double zPosition) {
-        this.zPosition = zPosition;
-    }
-
-    /**
-     * @return the angularPosition
-     */
-    public Angle getAngularPosition() {
-        return angularPosition;
-    }
-
-    /**
-     * @param angularPosition the angularPosition to set
-     */
-    public void setAngularPosition(Angle angularPosition) {
-        this.angularPosition = angularPosition;
-    }
-
-    /**
-     *
-     * @return the total speed
-     */
-    public double getSpeed() {
-        return Math.sqrt(this.getXVelocity() * this.getXVelocity() + this.getZVelocity() * this.getZVelocity());
+    public void setThrust(double thrust) {
+        this.thrust = thrust;
     }
 
     /**
@@ -156,7 +118,7 @@ public class AeroSystemState implements SystemState {
      */
     public Angle getFlightPathAngle() {
         Angle fpa = new Angle(this.getZVelocity() / this.getXVelocity(), Angle.TrigFunction.TANGENT);
-        if (Double.isNaN(fpa.measure())) {
+        if (Double.isNaN(fpa.getMeasure())) {
             fpa = new Angle(Math.PI / 2);
         }
         return fpa;
@@ -175,5 +137,5 @@ public class AeroSystemState implements SystemState {
     public AeroSystemState() {
 
     }
-
+    
 }

@@ -44,9 +44,10 @@ public class TestSystem extends AerodynamicSystem {
         state.setXPosition(0);
         state.setXVelocity(0);
         state.setZPosition(0);
-        state.setZVelocity(5);
+        state.setZVelocity(0.1);
         
-        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95 + 459, 2116 * 0.95);
+        // Air on a hot day
+        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68);
         state.setFluidState(fluid);
         
         return state;
@@ -77,20 +78,30 @@ public class TestSystem extends AerodynamicSystem {
     }
 
     @Override
-    public double getThrust(double time) {
-        return this.engine.getThrustAt(time);
+    public double getThrust(AeroSystemState state) {
+        double thrust = this.engine.getThrustAt(state.getTime());
+        state.setThrust(thrust);
+        return thrust;
     }
     
     public double getCl(AeroSystemState state) {
-        return 4.5891 * state.getAngleOfAttack().measure(AngleType.RADIANS, MeasureRange.PlusMin180);
+        double cl = 4.5891 * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
+        state.setCl(cl);
+        return cl;
     }
     
     public double getCd(AeroSystemState state) {
-        return 0.02 + ((getCl(state) * getCl(state)) / (Math.PI * 0.87 * 6.3));
+        double cd = 0.02 + ((getCl(state) * getCl(state)) / (Math.PI * 0.87 * 6.3));
+        state.setCd(0.02);
+        return cd;
     }
     
     public double getCpm(AeroSystemState state) {
-        return -0.096 + -0.3735 * state.getAngleOfAttack().measure(AngleType.RADIANS, MeasureRange.PlusMin180);
+        double cpm = -0.096 + -0.3735 * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) +
+                (-6.3) * state.getAngularVelocity();
+//        double cpm = 0;
+        state.setCpm(cpm);
+        return cpm;
     }
     
 }

@@ -16,7 +16,6 @@
  */
 package aero;
 
-import function.SingleVariableFormulaFunction;
 import function.SingleVariableFunction;
 
 /**
@@ -42,19 +41,19 @@ public class RectangularWingPlanform extends WingPlanform{
         // Calculate fixed parameters
         this.area = chord * span;
         
-        this.leadingEdgeFunction = new SingleVariableFormulaFunction(-1 * this.span, this.span) {
+        this.leadingEdgeFunction = new SingleVariableFunction(-1 * this.span, this.span) {
             @Override
             public Double evaluate(Double input) {
                 return 0.0;
             }
         };
-        this.trailingEdgeFunction = new SingleVariableFormulaFunction(-1 * this.span, this.span) {
+        this.trailingEdgeFunction = new SingleVariableFunction(-1 * this.span, this.span) {
             @Override
             public Double evaluate(Double input) {
                 return RectangularWingPlanform.this.chord;
             }
         };
-        this.quarterChordLocation = new SingleVariableFormulaFunction(-1 * this.span, this.span) {
+        this.quarterChordLocation = new SingleVariableFunction(-1 * this.span, this.span) {
             @Override
             public Double evaluate(Double input) {
                 return RectangularWingPlanform.this.chord / 4.0;

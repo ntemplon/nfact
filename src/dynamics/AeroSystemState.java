@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package aero;
+package dynamics;
 
 import aero.fluid.FluidState;
 import geometry.angle.Angle;
@@ -12,7 +12,7 @@ import geometry.angle.Angle;
  *
  * @author nathant
  */
-public class AeroSystemStatus {
+public class AeroSystemState implements SystemState {
 
     // Fields
     private FluidState fluidState;
@@ -20,10 +20,11 @@ public class AeroSystemStatus {
     private double xVelocity;
     private double zVelocity;
     private double angularVelocity;
-    
+
     private double xPosition;
     private double zPosition;
     private Angle angularPosition;
+
 
     // Properties
     /**
@@ -81,7 +82,7 @@ public class AeroSystemStatus {
     public void setAngularVelocity(double angularVelocity) {
         this.angularVelocity = angularVelocity;
     }
-    
+
     /**
      * @return the xPosition
      */
@@ -131,56 +132,48 @@ public class AeroSystemStatus {
     public double getSpeed() {
         return Math.sqrt(this.getXVelocity() * this.getXVelocity() + this.getZVelocity() * this.getZVelocity());
     }
-    
+
     /**
-     * 
-     * @return the dynamic pressure of the current state, in pounds per square foot
+     *
+     * @return the dynamic pressure of the current state, in pounds per square
+     * foot
      */
     public double getDynamicPressure() {
         return 0.5 * this.fluidState.getDensity() * this.getSpeed() * this.getSpeed();
     }
-    
+
     /**
-     * 
+     *
      * @return the mach number of the system state
      */
     public double getMachNumber() {
         return this.getSpeed() / this.getFluidState().getSpeedOfSound();
     }
-    
+
     /**
-     * 
+     *
      * @return the flight path angle
      */
     public Angle getFlightPathAngle() {
-        return new Angle(this.getZVelocity() / this.getXVelocity(), Angle.TrigFunction.TANGENT);
+        Angle fpa = new Angle(this.getZVelocity() / this.getXVelocity(), Angle.TrigFunction.TANGENT);
+        if (Double.isNaN(fpa.measure())) {
+            fpa = new Angle(Math.PI / 2);
+        }
+        return fpa;
     }
-    
+
     /**
-     * 
-     * @return the angle of attack of the aircraft 
+     *
+     * @return the angle of attack of the aircraft
      */
     public Angle getAngleOfAttack() {
         return this.getAngularPosition().add(this.getFlightPathAngle().scalarMultiply(-1.0));
     }
 
-    // Initialization
-    public AeroSystemStatus() {
 
-    }
-    
-    // Public Methods
-    public AeroSystemStatus copy() {
-        AeroSystemStatus clone = new AeroSystemStatus();
-        clone.setFluidState(this.fluidState);
-        clone.setXVelocity(xVelocity);
-        clone.setZVelocity(zVelocity);
-        clone.setAngularVelocity(angularVelocity);
-        clone.setXPosition(xPosition);
-        clone.setZPosition(zPosition);
-        clone.setAngularPosition(angularPosition);
-        
-        return clone;
+    // Initialization
+    public AeroSystemState() {
+
     }
 
 }

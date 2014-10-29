@@ -16,7 +16,6 @@
  */
 package aero;
 
-import function.SingleVariableFormulaFunction;
 import function.SingleVariableFunction;
 import geometry.angle.Angle;
 
@@ -45,7 +44,7 @@ public class TrapezoidalWing extends Wing {
     
     private void generateCoeffFunctions() {
         // CL
-        this.liftCoeff = new SingleVariableFormulaFunction(this.airfoil.clFunction().domainMin, this.airfoil.clFunction().domainMax) {
+        this.liftCoeff = new SingleVariableFunction(this.airfoil.clFunction().domainMin, this.airfoil.clFunction().domainMax) {
             @Override
             public Double evaluate(Double input) {
                 return 0.8 * airfoil.cl(input);
@@ -53,7 +52,7 @@ public class TrapezoidalWing extends Wing {
         };
         
         // CD
-        this.dragCoeff = new SingleVariableFormulaFunction(this.airfoil.cdFunction().domainMin, this.airfoil.cdFunction().domainMax) {
+        this.dragCoeff = new SingleVariableFunction(this.airfoil.cdFunction().domainMin, this.airfoil.cdFunction().domainMax) {
             @Override
             public Double evaluate(Double input) {
                 double cd0 = 0.04;
@@ -64,7 +63,7 @@ public class TrapezoidalWing extends Wing {
         };
         
         // CPM
-        this.pmCoeff = new SingleVariableFormulaFunction(this.airfoil.cpmFunction().domainMin, this.airfoil.cpmFunction().domainMax) {
+        this.pmCoeff = new SingleVariableFunction(this.airfoil.cpmFunction().domainMin, this.airfoil.cpmFunction().domainMax) {
             @Override
             public Double evaluate(Double input) {
                 return airfoil.cpm(input);

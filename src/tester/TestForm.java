@@ -5,9 +5,11 @@
  */
 package tester;
 
+import dynamics.TestSystem;
 import function.Function.FuncPoint;
 import function.SingleVariableFunction;
 import function.SingleVariableTableFunction;
+import javax.swing.JOptionPane;
 import propulsion.rocket.HobbyRocketEngine;
 
 /**
@@ -93,6 +95,11 @@ public class TestForm extends javax.swing.JFrame {
         contentPanel.setLayout(new java.awt.GridBagLayout());
 
         simulateButton.setText("Run Simulation");
+        simulateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                simulateButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -137,6 +144,24 @@ public class TestForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void simulateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simulateButtonActionPerformed
+        TestSystem system = new TestSystem(engine);
+        
+        double maxQ = 0;
+        double maxH = 0;
+        for(int i = 0; i < 70; i++) {
+            system.updateState(0.05);
+            if (system.getState().getDynamicPressure() > maxQ) {
+                maxQ = system.getState().getDynamicPressure();
+            }
+            if (system.getState().getZPosition()> maxQ) {
+                maxH = system.getState().getZPosition();
+            }
+        }
+        
+        JOptionPane.showMessageDialog(this, "Simulation Comipleted!\n  MaxQ:  " + maxQ + "\n  MaxH:  " + maxH);
+    }//GEN-LAST:event_simulateButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -148,7 +173,7 @@ public class TestForm extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Metal".equals(info.getName())) {
+                if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }

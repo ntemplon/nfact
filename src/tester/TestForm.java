@@ -5,17 +5,67 @@
  */
 package tester;
 
+import function.Function.FuncPoint;
+import function.SingleVariableFunction;
+import function.SingleVariableTableFunction;
+import propulsion.rocket.HobbyRocketEngine;
+
 /**
  *
  * @author nathant
  */
 public class TestForm extends javax.swing.JFrame {
 
+    // Static Methods
+    public static HobbyRocketEngine getRocketEngine() {
+        SingleVariableFunction thrust = new SingleVariableTableFunction(0.0, 1.808, new FuncPoint[] {
+            new FuncPoint(0.0, 0.0),
+            new FuncPoint(0.006, 0.260),
+            new FuncPoint(0.008, 1.684),
+            new FuncPoint(0.010, 7.589),
+            new FuncPoint(0.012, 14.522),
+            new FuncPoint(0.014, 14.148),
+            new FuncPoint(0.016, 13.225),
+            new FuncPoint(0.018, 16.841),
+            new FuncPoint(0.020, 19.110),
+            new FuncPoint(0.022, 20.482),
+            new FuncPoint(0.026, 21.130),
+            new FuncPoint(0.028, 22.128),
+            new FuncPoint(0.032, 21.953),
+            new FuncPoint(0.038, 22.975),
+            new FuncPoint(0.074, 21.878),
+            new FuncPoint(0.124, 21.454),
+            new FuncPoint(0.376, 22.327),
+            new FuncPoint(0.680, 22.352),
+            new FuncPoint(0.994, 20.606),
+            new FuncPoint(1.246, 18.661),
+            new FuncPoint(1.282, 13.923),
+            new FuncPoint(1.316, 13.923),
+            new FuncPoint(1.360, 10.033),
+            new FuncPoint(1.424, 6.542),
+            new FuncPoint(1.504, 4.771),
+            new FuncPoint(1.598, 4.347),
+            new FuncPoint(1.656, 3.674),
+            new FuncPoint(1.676, 1.145),
+            new FuncPoint(1.678, 0.312),
+            new FuncPoint(1.714, 1.145),
+            new FuncPoint(1.734, 0.312),
+            new FuncPoint(1.808, 0)
+        });
+        
+        return new HobbyRocketEngine(thrust);
+    }
+    
+    // Fields
+    private final HobbyRocketEngine engine;
+    
     /**
      * Creates new form TestForm
      */
     public TestForm() {
         initComponents();
+        
+        this.engine = getRocketEngine();
     }
 
     /**
@@ -26,9 +76,63 @@ public class TestForm extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
+        contentPanel = new javax.swing.JPanel();
+        simulateButton = new javax.swing.JButton();
+        enginePanel = new javax.swing.JPanel();
+        rocketEngineLabel = new javax.swing.JLabel();
+        engineTextField = new javax.swing.JTextField();
+        fillerPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        getContentPane().setLayout(new java.awt.GridBagLayout());
+        setTitle("NFACalc");
+        setMinimumSize(new java.awt.Dimension(500, 300));
+
+        contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));
+        contentPanel.setLayout(new java.awt.GridBagLayout());
+
+        simulateButton.setText("Run Simulation");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_END;
+        contentPanel.add(simulateButton, gridBagConstraints);
+
+        enginePanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Engine Selection"));
+        enginePanel.setLayout(new java.awt.GridBagLayout());
+
+        rocketEngineLabel.setFont(new java.awt.Font("Dialog", 0, 10)); // NOI18N
+        rocketEngineLabel.setText("Rocket Engine");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
+        enginePanel.add(rocketEngineLabel, gridBagConstraints);
+
+        engineTextField.setText("G-78");
+        engineTextField.setToolTipText("");
+        engineTextField.setEnabled(false);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        enginePanel.add(engineTextField, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        enginePanel.add(fillerPanel, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.FIRST_LINE_START;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.2;
+        contentPanel.add(enginePanel, gridBagConstraints);
+
+        getContentPane().add(contentPanel, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -44,7 +148,7 @@ public class TestForm extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Metal".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -69,5 +173,11 @@ public class TestForm extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel contentPanel;
+    private javax.swing.JPanel enginePanel;
+    private javax.swing.JTextField engineTextField;
+    private javax.swing.JPanel fillerPanel;
+    private javax.swing.JLabel rocketEngineLabel;
+    private javax.swing.JButton simulateButton;
     // End of variables declaration//GEN-END:variables
 }

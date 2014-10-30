@@ -97,9 +97,20 @@ public class TestSystem extends AerodynamicSystem {
     }
     
     public double getCpm(AeroSystemState state) {
-//        double cpm = -0.096 + -0.3735 * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) +
-//                (-8) * state.getAngularVelocity();
-        double cpm = 0;
+        double cpm0 = -0.096;
+        double cpmAlpha = -3.73;
+        double cpmQ = -8.0;
+        double zThrust = 2.0 / 12.0;
+        
+        double cpmFromAlpha = cpmAlpha * state.getAngleOfAttack().getMeasure(AngleType.RADIANS);
+        double cpmFromQ = cpmQ * state.getAngularVelocity();
+
+        double thrust = this.getThrust(state);
+        double thrustPitchMoment = -1 * zThrust * thrust;
+        double cpmt = (thrustPitchMoment / (state.getDynamicPressure() * 2.4 * 0.5291));
+        
+        double cpm = cpm0 + cpmFromAlpha + cpmFromQ + cpmt;
+        
         state.setCpm(cpm);
         return cpm;
     }

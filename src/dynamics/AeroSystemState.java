@@ -129,7 +129,8 @@ public class AeroSystemState extends DynamicSystemState {
      * @return the angle of attack of the aircraft
      */
     public Angle getAngleOfAttack() {
-        return this.getAngularPosition().add(this.getFlightPathAngle().scalarMultiply(-1.0));
+        return new Angle(this.getAngularPosition().getMeasure() - this.getFlightPathAngle().getMeasure());
+//        return this.getAngularPosition().add(this.getFlightPathAngle().scalarMultiply(-1.0));
     }
 
 

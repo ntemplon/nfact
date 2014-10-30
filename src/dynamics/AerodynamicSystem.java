@@ -182,8 +182,6 @@ public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState
 
         state.setXAcceleration(xForce / this.getMass());
         state.setZAcceleration(zForce / this.getMass());
-
-        // Should this have the Math.PI / 180.0?  The other spreadsheet assumes the units are degrees, but I am not so sure...
         state.setAngularAcceleration(pitchMoment / this.getIyy());
     }
 

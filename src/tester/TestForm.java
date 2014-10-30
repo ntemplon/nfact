@@ -27,42 +27,7 @@ public class TestForm extends javax.swing.JFrame {
 
     // Static Methods
     public static HobbyRocketEngine getRocketEngine() {
-        SingleVariableFunction thrust = new SingleVariableTableFunction(0.0, 1.808, new FuncPoint[]{
-            new FuncPoint(0.0, 0.0),
-            new FuncPoint(0.006, 0.260),
-            new FuncPoint(0.008, 1.684),
-            new FuncPoint(0.010, 7.589),
-            new FuncPoint(0.012, 14.522),
-            new FuncPoint(0.014, 14.148),
-            new FuncPoint(0.016, 13.225),
-            new FuncPoint(0.018, 16.841),
-            new FuncPoint(0.020, 19.110),
-            new FuncPoint(0.022, 20.482),
-            new FuncPoint(0.026, 21.130),
-            new FuncPoint(0.028, 22.128),
-            new FuncPoint(0.032, 21.953),
-            new FuncPoint(0.038, 22.975),
-            new FuncPoint(0.074, 21.878),
-            new FuncPoint(0.124, 21.454),
-            new FuncPoint(0.376, 22.327),
-            new FuncPoint(0.680, 22.352),
-            new FuncPoint(0.994, 20.606),
-            new FuncPoint(1.246, 18.661),
-            new FuncPoint(1.282, 13.923),
-            new FuncPoint(1.316, 13.923),
-            new FuncPoint(1.360, 10.033),
-            new FuncPoint(1.424, 6.542),
-            new FuncPoint(1.504, 4.771),
-            new FuncPoint(1.598, 4.347),
-            new FuncPoint(1.656, 3.674),
-            new FuncPoint(1.676, 1.145),
-            new FuncPoint(1.678, 0.312),
-            new FuncPoint(1.714, 1.145),
-            new FuncPoint(1.734, 0.312),
-            new FuncPoint(1.808, 0)
-        });
-
-        return new HobbyRocketEngine(thrust);
+        return HobbyRocketEngine.G25;
     }
 
     // Fields
@@ -154,14 +119,25 @@ public class TestForm extends javax.swing.JFrame {
     private void simulateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simulateButtonActionPerformed
         TestSystem system = new TestSystem(engine);
 
-        File file = new File("/home/nathant/output.csv");
+        File file = new File("/home/nathan/output.csv");
         try (FileWriter fw = new FileWriter(file)) {
             try (PrintWriter pw = new PrintWriter(fw)) {
 
+                AeroSystemState state = system.getState();
+                pw.println("Time,X Pos,Z Pos,Theta,X Vel,Z Vel,Omega,Speed,Q,Flight Path,Angle of Attack,CL,CD,CPM,Thrust,X Accel,Z Accel,Angle Accel");
+                pw.println(state.getTime() + "," + state.getXPosition() + "," + state.getZPosition() + ","
+                        + state.getAngularPosition().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + ","
+                        + state.getXVelocity() + "," + state.getZVelocity() + "," + state.getAngularVelocity() + "," + state.getSpeed() + ","
+                        + state.getDynamicPressure() + "," + state.getFlightPathAngle().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180)
+                        + "," + state.getAngleOfAttack().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + "," + state.getCl()
+                        + "," + state.getCd() + "," + state.getCpm() + "," + state.getThrust() + "," + state.getXAcceleration() + ","
+                        + state.getZAcceleration() + "," + state.getAngularAcceleration());
+
                 double maxQ = 0;
                 double maxH = 0;
-                pw.println("Time,X Pos,Z Pos,Theta,X Vel,Z Vel,Omega,Speed,Q,Flight Path,Angle of Attack,CL,CD,CPM,Thrust,X Accel,Z Accel,Angle Accel");
-                for (int i = 0; i < 10000; i++) {
+                boolean thresholdReached = false;
+                int i = 0;
+                while(system.getState().getZVelocity() > 0 || !thresholdReached) {
                     system.updateState(0.0005);
                     if (system.getState().getDynamicPressure() > maxQ) {
                         maxQ = system.getState().getDynamicPressure();
@@ -169,14 +145,22 @@ public class TestForm extends javax.swing.JFrame {
                     if (system.getState().getZPosition() > maxQ) {
                         maxH = system.getState().getZPosition();
                     }
-                    AeroSystemState state = system.getState();
-                    pw.println(state.getTime() + "," + state.getXPosition() + "," + state.getZPosition() + "," +
-                            state.getAngularPosition().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + "," +
-                            state.getXVelocity() + "," + state.getZVelocity() + "," + state.getAngularVelocity() + "," + state.getSpeed() + "," + 
-                            state.getDynamicPressure() + "," + state.getFlightPathAngle().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) +
-                            "," + state.getAngleOfAttack().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + "," + state.getCl() +
-                            "," + state.getCd() + "," + state.getCpm() + "," + state.getThrust() + "," + state.getXAcceleration() + "," +
-                            state.getZAcceleration() + "," + state.getAngularAcceleration());
+                    if (system.getState().getDynamicPressure() > 1) {
+                        thresholdReached = true;
+                    }
+                    state = system.getState();
+
+                    if ((i + 1) % 100 == 0) {
+                        pw.println(state.getTime() + "," + state.getXPosition() + "," + state.getZPosition() + ","
+                                + state.getAngularPosition().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + ","
+                                + state.getXVelocity() + "," + state.getZVelocity() + "," + state.getAngularVelocity() + "," + state.getSpeed() + ","
+                                + state.getDynamicPressure() + "," + state.getFlightPathAngle().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180)
+                                + "," + state.getAngleOfAttack().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + "," + state.getCl()
+                                + "," + state.getCd() + "," + state.getCpm() + "," + state.getThrust() + "," + state.getXAcceleration() + ","
+                                + state.getZAcceleration() + "," + state.getAngularAcceleration());
+                    }
+                    
+                    i++;
                 }
 
                 JOptionPane.showMessageDialog(this, "Simulation Comipleted!\n  MaxQ:  " + maxQ + "\n  MaxH:  " + maxH);

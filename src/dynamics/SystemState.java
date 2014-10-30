@@ -8,8 +8,9 @@ package dynamics;
 /**
  *
  * @author nathant
+ * @param <TState>
  */
-public abstract class SystemState {
+public abstract class SystemState<TState extends SystemState> {
     
     // Fields
     private double time;

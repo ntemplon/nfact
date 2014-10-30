@@ -193,9 +193,13 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
         int upperBound = points.size() - 1;
         int lowerBound = 0;
         int guess = (upperBound + lowerBound) / 2;
+        
+        double startGuess = guess;
+        boolean guessRepeated = false;
 
-        while (!((points.get(guess).x <= val) && (points.get(guess + 1).x > val))) {
-            if (points.get(guess + 1).x <= val) {
+        while (!((points.get(guess).x < val) && (points.get(guess + 1).x > val)) && !guessRepeated) {
+            startGuess = guess;
+            if (points.get(guess + 1).x < val) {
                 lowerBound = guess;
                 guess = (upperBound + lowerBound) / 2;
             }
@@ -203,6 +207,7 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
                 upperBound = guess;
                 guess = (upperBound + lowerBound) / 2;
             }
+            guessRepeated = (startGuess == guess);
         }
 
         return guess;

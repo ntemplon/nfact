@@ -10,8 +10,9 @@ import geometry.angle.Angle;
 /**
  *
  * @author nathant
+ * @param <TState>
  */
-public class DynamicSystemState extends SystemState {
+public class DynamicSystemState<TState extends DynamicSystemState> extends SystemState<TState> {
     
     // Fields
     private double xAcceleration;

@@ -92,14 +92,14 @@ public class TestSystem extends AerodynamicSystem {
     
     public double getCd(AeroSystemState state) {
         double cd = 0.02 + ((getCl(state) * getCl(state)) / (Math.PI * 0.87 * 6.3));
-        state.setCd(0.02);
+        state.setCd(cd);
         return cd;
     }
     
     public double getCpm(AeroSystemState state) {
-        double cpm = -0.096 + -0.3735 * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) +
-                (-6.3) * state.getAngularVelocity();
-//        double cpm = 0;
+//        double cpm = -0.096 + -0.3735 * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) +
+//                (-8) * state.getAngularVelocity();
+        double cpm = 0;
         state.setCpm(cpm);
         return cpm;
     }

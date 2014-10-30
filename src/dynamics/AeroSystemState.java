@@ -138,4 +138,24 @@ public class AeroSystemState extends DynamicSystemState {
 
     }
     
+    public AeroSystemState(AeroSystemState copy) {
+        this.setTime(copy.getTime());
+        
+        this.setXAcceleration(copy.getXAcceleration());
+        this.setZAcceleration(copy.getZAcceleration());
+        this.setAngularAcceleration(copy.getAngularAcceleration());
+        this.setXVelocity(copy.getXVelocity());
+        this.setZVelocity(copy.getZVelocity());
+        this.setAngularVelocity(copy.getAngularVelocity());
+        this.setXPosition(copy.getXPosition());
+        this.setZPosition(copy.getZPosition());
+        this.setAngularPosition(copy.getAngularPosition());
+        
+        this.setThrust(copy.getThrust());
+        this.setCl(copy.getCl());
+        this.setCd(copy.getCd());
+        this.setCpm(copy.getCpm());
+        this.setFluidState(copy.getFluidState());
+    }
+    
 }

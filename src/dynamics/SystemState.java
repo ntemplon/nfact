@@ -5,30 +5,58 @@
  */
 package dynamics;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author nathant
  * @param <TState>
  */
-public abstract class SystemState<TState extends SystemState> {
+public abstract class SystemState{
+    
+    // Constants
+    public static final StateVariable<Double> TIME = new StateVariable("Time");
+    
     
     // Fields
-    private double time;
+    private final Map<StateVariable, Object> values;
     
     
     // Properties
-    /**
-     * @return the time in seconds
-     */
-    public double getTime() {
-        return time;
+    public Collection<StateVariable> getVariables() {
+        return this.values.keySet();
     }
-
-    /**
-     * @param time the time in seconds to set
-     */
-    public void setTime(double time) {
-        this.time = time;
+    
+    public <T> T get(StateVariable<T> variable) {
+        if (variable == null || !this.values.containsKey(variable)) {
+            return null;
+        }
+        return (T)this.values.get(variable);
+    }
+    
+    public <T> void set(StateVariable<T> variable, T value) {
+        this.values.put(variable, value);
+    }
+    
+    
+    // Initialization
+    public SystemState(StateVariable[] variables) {
+        this.values = new HashMap<>();
+        
+        this.values.put(TIME, 0.0);
+        for(StateVariable variable : variables) {
+            this.values.put(variable, null);
+        }
+    }
+    
+    public SystemState(SystemState other) {
+        this.values = new HashMap<>();
+        
+        other.getVariables().stream().forEach((variable) -> {
+            this.values.put(variable, other.get(variable));
+        });
     }
     
 }

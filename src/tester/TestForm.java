@@ -6,16 +6,16 @@
 package tester;
 
 import dynamics.AeroSystemState;
-import dynamics.TestSystem;
-import function.Function.FuncPoint;
-import function.SingleVariableFunction;
-import function.SingleVariableTableFunction;
-import geometry.angle.Angle;
-import geometry.angle.Angle.AngleType;
+import dynamics.StateVariable;
+import dynamics.RocketPlane;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import javax.swing.JOptionPane;
 import propulsion.rocket.HobbyRocketEngine;
 
@@ -117,33 +117,36 @@ public class TestForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void simulateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simulateButtonActionPerformed
-        TestSystem system = new TestSystem(engine);
+        RocketPlane system = new RocketPlane(engine);
 
-        File file = new File("/home/nathan/output.csv");
+        File file = new File("/home/nathant/output.csv");
         try (FileWriter fw = new FileWriter(file)) {
             try (PrintWriter pw = new PrintWriter(fw)) {
 
                 AeroSystemState state = system.getState();
-                pw.println("Time,X Pos,Z Pos,Theta,X Vel,Z Vel,Omega,Speed,Q,Flight Path,Angle of Attack,CL,CD,CPM,Thrust,X Accel,Z Accel,Angle Accel");
-                pw.println(state.getTime() + "," + state.getXPosition() + "," + state.getZPosition() + ","
-                        + state.getAngularPosition().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + ","
-                        + state.getXVelocity() + "," + state.getZVelocity() + "," + state.getAngularVelocity() + "," + state.getSpeed() + ","
-                        + state.getDynamicPressure() + "," + state.getFlightPathAngle().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180)
-                        + "," + state.getAngleOfAttack().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + "," + state.getCl()
-                        + "," + state.getCd() + "," + state.getCpm() + "," + state.getThrust() + "," + state.getXAcceleration() + ","
-                        + state.getZAcceleration() + "," + state.getAngularAcceleration());
+                Collection<StateVariable> stateVariables = state.getVariables();
+                List<StateVariable> varList = new ArrayList<>(stateVariables);
+                Collections.sort(varList);
+                varList.stream().forEach((variable) -> {
+                    pw.print(variable.getName() + ",");
+                });
+                pw.println();
+                for (StateVariable variable : varList) {
+                    pw.print(state.get(variable) + ",");
+                }
+                pw.println();
 
                 double maxQ = 0;
                 double maxH = 0;
                 boolean thresholdReached = false;
                 int i = 0;
-                while(system.getState().getZVelocity() > 0 || !thresholdReached) {
+                while (system.getState().get(AeroSystemState.Z_VEL) > 0 || system.getState().get(AeroSystemState.THRUST) > 0 || !thresholdReached) {
                     system.updateState(0.0005);
                     if (system.getState().getDynamicPressure() > maxQ) {
                         maxQ = system.getState().getDynamicPressure();
                     }
-                    if (system.getState().getZPosition() > maxQ) {
-                        maxH = system.getState().getZPosition();
+                    if (system.getState().get(AeroSystemState.Z_POS) > maxH) {
+                        maxH = system.getState().get(AeroSystemState.Z_POS);
                     }
                     if (system.getState().getDynamicPressure() > 1) {
                         thresholdReached = true;
@@ -151,15 +154,12 @@ public class TestForm extends javax.swing.JFrame {
                     state = system.getState();
 
                     if ((i + 1) % 100 == 0) {
-                        pw.println(state.getTime() + "," + state.getXPosition() + "," + state.getZPosition() + ","
-                                + state.getAngularPosition().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + ","
-                                + state.getXVelocity() + "," + state.getZVelocity() + "," + state.getAngularVelocity() + "," + state.getSpeed() + ","
-                                + state.getDynamicPressure() + "," + state.getFlightPathAngle().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180)
-                                + "," + state.getAngleOfAttack().getMeasure(AngleType.DEGREES, Angle.MeasureRange.PlusMin180) + "," + state.getCl()
-                                + "," + state.getCd() + "," + state.getCpm() + "," + state.getThrust() + "," + state.getXAcceleration() + ","
-                                + state.getZAcceleration() + "," + state.getAngularAcceleration());
+                        for (StateVariable variable : varList) {
+                            pw.print(state.get(variable) + ",");
+                        }
+                        pw.println();
                     }
-                    
+
                     i++;
                 }
 

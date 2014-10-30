@@ -7,6 +7,7 @@ package dynamics;
 
 import aero.fluid.FluidState;
 import geometry.angle.Angle;
+import util.ArrayUtil;
 
 /**
  *
@@ -14,94 +15,39 @@ import geometry.angle.Angle;
  */
 public class AeroSystemState extends DynamicSystemState {
 
-    // Fields
-    private FluidState fluidState;
+    // Constants
+    public static final StateVariable<FluidState> FLUID_STATE = new StateVariable("Fluid State");
+    public static final StateVariable<Double> CL = new StateVariable("CL");
+    public static final StateVariable<Double> CD = new StateVariable("CD");
+    public static final StateVariable<Double> CPM = new StateVariable("CPM");
+    public static final StateVariable<Double> THRUST = new StateVariable("Thrust");
     
-    private double cl;
-    private double cd;
-    private double cpm;
+    public static final StateVariable<Double> CPMQ = new StateVariable("CPM from Q");
+    public static final StateVariable<Double> CPMT = new StateVariable("CPM from Thrust");
+    public static final StateVariable<Double> CPMA = new StateVariable("CPM from Alpha");
     
-    private double thrust;
+    public static final StateVariable<Double> Q = new StateVariable("Q");
+    public static final StateVariable<Double> MACH = new StateVariable("Mach");
+    public static final StateVariable<Angle> FLIGHT_PATH_ANGLE = new StateVariable("Flight Path Agnle");
+    public static final StateVariable<Angle> ALPHA = new StateVariable("Alpha");
+    
+    public static final StateVariable[] AERO_VARIABLES = new StateVariable[] {
+            FLUID_STATE, CL, CD, CPM, THRUST,
+            CPMQ, CPMT, CPMA,
+            Q, MACH, FLIGHT_PATH_ANGLE, ALPHA
+        };
 
 
     // Properties
-    /**
-     * @return the fluid
-     */
-    public FluidState getFluidState() {
-        return fluidState;
-    }
-
-    /**
-     * @param state the fluid state to set
-     */
-    protected void setFluidState(FluidState state) {
-        this.fluidState = state;
-    }
-    
-    /**
-     * @return the cl
-     */
-    public double getCl() {
-        return cl;
-    }
-
-    /**
-     * @param cl the cl to set
-     */
-    public void setCl(double cl) {
-        this.cl = cl;
-    }
-
-    /**
-     * @return the cd
-     */
-    public double getCd() {
-        return cd;
-    }
-
-    /**
-     * @param cd the cd to set
-     */
-    public void setCd(double cd) {
-        this.cd = cd;
-    }
-
-    /**
-     * @return the cpm
-     */
-    public double getCpm() {
-        return cpm;
-    }
-
-    /**
-     * @param cpm the cpm to set
-     */
-    public void setCpm(double cpm) {
-        this.cpm = cpm;
-    }
-    
-    /**
-     * @return the thrust in pounds
-     */
-    public double getThrust() {
-        return thrust;
-    }
-
-    /**
-     * @param thrust the thrust in pounds to set
-     */
-    public void setThrust(double thrust) {
-        this.thrust = thrust;
-    }
-
     /**
      *
      * @return the dynamic pressure of the current state, in pounds per square
      * foot
      */
     public double getDynamicPressure() {
-        return 0.5 * this.fluidState.getDensity() * this.getSpeed() * this.getSpeed();
+        double q = 0.5 * this.get(FLUID_STATE).getDensity() * this.getSpeed() * this.getSpeed();
+        this.set(Q, q);
+        return q;
     }
 
     /**
@@ -109,7 +55,9 @@ public class AeroSystemState extends DynamicSystemState {
      * @return the mach number of the system state
      */
     public double getMachNumber() {
-        return this.getSpeed() / this.getFluidState().getSpeedOfSound();
+        double mach = this.getSpeed() / this.get(FLUID_STATE).getSpeedOfSound();
+        this.set(MACH, mach);
+        return mach;
     }
 
     /**
@@ -117,10 +65,11 @@ public class AeroSystemState extends DynamicSystemState {
      * @return the flight path angle
      */
     public Angle getFlightPathAngle() {
-        Angle fpa = new Angle(this.getZVelocity() / this.getXVelocity(), Angle.TrigFunction.TANGENT);
+        Angle fpa = new Angle(this.get(Z_VEL) / this.get(X_VEL), Angle.TrigFunction.TANGENT);
         if (Double.isNaN(fpa.getMeasure())) {
             fpa = new Angle(Math.PI / 2);
         }
+        this.set(FLIGHT_PATH_ANGLE, fpa);
         return fpa;
     }
 
@@ -129,34 +78,24 @@ public class AeroSystemState extends DynamicSystemState {
      * @return the angle of attack of the aircraft
      */
     public Angle getAngleOfAttack() {
-        return new Angle(this.getAngularPosition().getMeasure() - this.getFlightPathAngle().getMeasure());
+        Angle alpha = new Angle(this.get(ANGULAR_POS).getMeasure() - this.getFlightPathAngle().getMeasure());
+        this.set(ALPHA, alpha);
+        return alpha;
 //        return this.getAngularPosition().add(this.getFlightPathAngle().scalarMultiply(-1.0));
     }
 
 
     // Initialization
     public AeroSystemState() {
-
+        super(AERO_VARIABLES);
     }
     
-    public AeroSystemState(AeroSystemState copy) {
-        this.setTime(copy.getTime());
-        
-        this.setXAcceleration(copy.getXAcceleration());
-        this.setZAcceleration(copy.getZAcceleration());
-        this.setAngularAcceleration(copy.getAngularAcceleration());
-        this.setXVelocity(copy.getXVelocity());
-        this.setZVelocity(copy.getZVelocity());
-        this.setAngularVelocity(copy.getAngularVelocity());
-        this.setXPosition(copy.getXPosition());
-        this.setZPosition(copy.getZPosition());
-        this.setAngularPosition(copy.getAngularPosition());
-        
-        this.setThrust(copy.getThrust());
-        this.setCl(copy.getCl());
-        this.setCd(copy.getCd());
-        this.setCpm(copy.getCpm());
-        this.setFluidState(copy.getFluidState());
+    public AeroSystemState(StateVariable[] variables) {
+        super(ArrayUtil.concat(variables, AERO_VARIABLES));
+    }
+    
+    public AeroSystemState(AeroSystemState other) {
+        super(other);
     }
     
 }

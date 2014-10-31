@@ -97,8 +97,8 @@ public class RocketPlane extends AerodynamicSystem {
     }
 
     public double getCpm(AeroSystemState state) {
-        double cpm0 = -0.096;
-        double cpmAlpha = -3.73;
+        double cpm0 = -0.02;
+        double cpmAlpha = -0.373;
         double cpmQ = -12.6;
         double zThrust = 0.0 / 12.0;
 

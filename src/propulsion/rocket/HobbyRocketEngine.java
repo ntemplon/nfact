@@ -13,12 +13,12 @@ import function.SingleVariableTableFunction;
  *
  * @author nathant
  */
-public class HobbyRocketEngine implements RocketEngine {
+public class HobbyRocketEngine implements SolidRocketEngine {
     
     // Constants
     public static final double NEWT0NS_TO_POUNDS = 0.224808943;
 
-    public static final HobbyRocketEngine G78 = new HobbyRocketEngine(
+    public static final HobbyRocketEngine G78 = new HobbyRocketEngine("G78",
             new SingleVariableTableFunction(0.0, 1.808, new Function.FuncPoint[]{
                 new Function.FuncPoint(0.0, 0.0),
                 new Function.FuncPoint(0.006, 0.260),
@@ -55,31 +55,7 @@ public class HobbyRocketEngine implements RocketEngine {
             })
     );
 
-    public static final HobbyRocketEngine G54 = new HobbyRocketEngine(
-            new SingleVariableTableFunction(0.0, 1.5, new Function.FuncPoint[]{
-                new Function.FuncPoint(0.0, 0.0),
-                new Function.FuncPoint(0.1, 15),
-                new Function.FuncPoint(0.3, 18),
-                new Function.FuncPoint(0.8, 14.2),
-                new Function.FuncPoint(1.25, 6.2),
-                new Function.FuncPoint(1.5, 0.0)
-            })
-    );
-
-    public static final HobbyRocketEngine G61 = new HobbyRocketEngine(
-            new SingleVariableTableFunction(0.0, 2.05, new Function.FuncPoint[]{
-                new Function.FuncPoint(0.0, 0.0),
-                new Function.FuncPoint(0.05, 16),
-                new Function.FuncPoint(0.25, 18),
-                new Function.FuncPoint(0.5, 18.1),
-                new Function.FuncPoint(1.0, 16.2),
-                new Function.FuncPoint(1.5, 8.5),
-                new Function.FuncPoint(1.75, 2.1),
-                new Function.FuncPoint(2.05, 0)
-            })
-    );
-
-    public static final HobbyRocketEngine G25 = new HobbyRocketEngine(
+    public static final HobbyRocketEngine G25 = new HobbyRocketEngine("G25",
             new SingleVariableTableFunction(0.0, 5.3, new Function.FuncPoint[]{
                 new Function.FuncPoint(0.0, 0.0),
                 new Function.FuncPoint(0.035, 30.99 * NEWT0NS_TO_POUNDS),
@@ -119,12 +95,35 @@ public class HobbyRocketEngine implements RocketEngine {
     
     
     // Fields
+    private final String name;
+    private final double burnTime;
     private final SingleVariableFunction thrust;
     
     
+    // Properties
+    @Override
+    public String getName() {
+        return this.name;
+    }
+    
+    @Override
+    public double getBurnTime() {
+        return this.burnTime;
+    }
+    
+    
     // Initialization
-    public HobbyRocketEngine(SingleVariableFunction thrust) {
+    public HobbyRocketEngine(String name, SingleVariableFunction thrust) {
+        this.name = name;
         this.thrust = thrust;
+        
+        // Calculate burn time
+        if (this.thrust.hasFiniteDomain) {
+            this.burnTime = this.thrust.domainMax - this.thrust.domainMin;
+        }
+        else {
+            this.burnTime = 0.0;
+        }
     }
     
     
@@ -134,7 +133,7 @@ public class HobbyRocketEngine implements RocketEngine {
      * @param time the time since ignition, in seconds
      * @return the thrust of the engine, in pounds
      */
-    public double getThrustAt(double time) {
+    public double getThrust(double time) {
         if (thrust.hasFiniteDomain) {
             if (time < thrust.domainMin || thrust.domainMax < time) {
                 return 0;

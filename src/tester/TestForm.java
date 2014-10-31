@@ -7,7 +7,7 @@ package tester;
 
 import dynamics.AeroSystemState;
 import dynamics.StateVariable;
-import dynamics.RocketPlane;
+import dynamics.airplane.RocketPlane;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;

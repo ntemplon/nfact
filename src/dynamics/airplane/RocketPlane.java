@@ -3,15 +3,18 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dynamics;
+package dynamics.airplane;
 
 import aero.fluid.FluidState;
 import aero.fluid.IdealGas;
 import aero.fluid.IdealGasState;
+import dynamics.AeroSystemState;
+import dynamics.AerodynamicSystem;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
 import geometry.angle.Angle.MeasureRange;
 import propulsion.rocket.HobbyRocketEngine;
+import propulsion.rocket.SolidRocketEngine;
 import util.PhysicalConstants;
 
 /**
@@ -21,7 +24,26 @@ import util.PhysicalConstants;
 public class RocketPlane extends AerodynamicSystem {
 
     // Fields
-    private final HobbyRocketEngine engine;
+    private final double sRef;
+    private double cBar;
+    private double spanEfficiency;
+    private double aspectRatio;
+    private double zThrust;
+    
+    private double mass;
+    private double iyy;
+    
+    private final SolidRocketEngine engine;
+    
+    private double clAlpha;
+    private double clDeltaE;
+    private double clQ;
+    private double cd0;
+    private double cpm0;
+    private double cpmAlpha;
+    private double cpmQ;
+    
+    private AeroSystemState initialState;
 
 
     // Properties
@@ -57,6 +79,20 @@ public class RocketPlane extends AerodynamicSystem {
     // Initializtion
     public RocketPlane(HobbyRocketEngine engine) {
         this.engine = engine;
+        
+        this.sRef = 2.4;
+        this.cBar = 0.5291;
+        this.spanEfficiency = 0.87;
+    }
+    
+    public RocketPlane(RocketPlaneParameters prms) {
+        this.sRef = prms.getSRef();
+        this.cBar = prms.getCBar();
+        this.spanEfficiency = prms.getSpanEfficiency();
+        
+        // Continue implementation here after work.
+        
+        this.engine = prms.getRocketEngine();
     }
 
 
@@ -79,7 +115,7 @@ public class RocketPlane extends AerodynamicSystem {
 
     @Override
     public double getThrust(AeroSystemState state) {
-        double thrust = this.engine.getThrustAt(state.get(AeroSystemState.TIME));
+        double thrust = this.engine.getThrust(state.get(AeroSystemState.TIME));
         state.set(AeroSystemState.THRUST, thrust);
         return thrust;
     }

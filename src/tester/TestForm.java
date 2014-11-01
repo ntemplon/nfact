@@ -5,19 +5,22 @@
  */
 package tester;
 
+import aero.fluid.FluidState;
+import aero.fluid.IdealGas;
+import aero.fluid.IdealGasState;
 import dynamics.AeroSystemState;
-import dynamics.StateVariable;
 import dynamics.airplane.RocketPlane;
+import dynamics.airplane.RocketPlaneParameters;
+import dynamics.simulation.ExitCondition;
+import dynamics.simulation.PitchOverExitCondition;
+import dynamics.simulation.PitchOverRecorder;
+import dynamics.simulation.Simulation;
+import geometry.angle.Angle;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.text.DecimalFormat;
 import javax.swing.JOptionPane;
 import propulsion.rocket.HobbyRocketEngine;
+import util.PhysicalConstants;
 
 /**
  *
@@ -25,21 +28,11 @@ import propulsion.rocket.HobbyRocketEngine;
  */
 public class TestForm extends javax.swing.JFrame {
 
-    // Static Methods
-    public static HobbyRocketEngine getRocketEngine() {
-        return HobbyRocketEngine.G25;
-    }
-
-    // Fields
-    private final HobbyRocketEngine engine;
-
     /**
      * Creates new form TestForm
      */
     public TestForm() {
         initComponents();
-
-        this.engine = getRocketEngine();
     }
 
     /**
@@ -117,57 +110,65 @@ public class TestForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void simulateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_simulateButtonActionPerformed
-        RocketPlane system = new RocketPlane(engine);
+        ExitCondition<AeroSystemState> exit;
 
-        File file = new File("/home/nathant/output.csv");
-        try (FileWriter fw = new FileWriter(file)) {
-            try (PrintWriter pw = new PrintWriter(fw)) {
+        RocketPlaneParameters prms = new RocketPlaneParameters();
+        prms.setAspectRatio(6.3);
+        prms.setCBar(0.5291);
+        prms.setCd0(0.02);
+        prms.setClAlpha(4.5891);
+        prms.setClDeltaE(0.0);
+        prms.setClQ(0.0);
+        prms.setCpm0(-0.02);
+        prms.setCpmAlpha(-0.373);
+        prms.setCpmQ(-12.6);
+        prms.setIyy(0.2 * (3 * 3 + 0.33 * 0.33) * (2.8 / PhysicalConstants.GRAVITY_ACCELERATION));
+        prms.setMass(2.8 / PhysicalConstants.GRAVITY_ACCELERATION);
+        prms.setRocketEngine(HobbyRocketEngine.G25);
+        prms.setSRef(2.4);
+        prms.setSpanEfficiency(0.87);
+        prms.setZThrust(0.0);
+        AeroSystemState initialState = new AeroSystemState();
+        initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
+        initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
+        initialState.set(AeroSystemState.X_POS, 0.0);
+        initialState.set(AeroSystemState.X_VEL, 0.0);
+        initialState.set(AeroSystemState.Z_POS, 0.0);
+        initialState.set(AeroSystemState.Z_VEL, 0.1);
+        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
+        initialState.set(AeroSystemState.FLUID_STATE, fluid);
 
-                AeroSystemState state = system.getState();
-                Collection<StateVariable> stateVariables = state.getVariables();
-                List<StateVariable> varList = new ArrayList<>(stateVariables);
-                Collections.sort(varList);
-                varList.stream().forEach((variable) -> {
-                    pw.print(variable.getName() + ",");
-                });
-                pw.println();
-                for (StateVariable variable : varList) {
-                    pw.print(state.get(variable) + ",");
-                }
-                pw.println();
+        prms.setInitialState(initialState);
+        RocketPlane system;
 
-                double maxQ = 0;
-                double maxH = 0;
-                boolean thresholdReached = false;
-                int i = 0;
-                while (system.getState().get(AeroSystemState.Z_VEL) > 0 || system.getState().get(AeroSystemState.THRUST) > 0 || !thresholdReached) {
-                    system.updateState(0.0005);
-                    if (system.getState().getDynamicPressure() > maxQ) {
-                        maxQ = system.getState().getDynamicPressure();
-                    }
-                    if (system.getState().get(AeroSystemState.Z_POS) > maxH) {
-                        maxH = system.getState().get(AeroSystemState.Z_POS);
-                    }
-                    if (system.getState().getDynamicPressure() > 1) {
-                        thresholdReached = true;
-                    }
-                    state = system.getState();
+        String outputFolder = "/home/nathan/NFACalc/";
+        DecimalFormat format = new DecimalFormat("0.000");
 
-                    if ((i + 1) % 100 == 0) {
-                        for (StateVariable variable : varList) {
-                            pw.print(state.get(variable) + ",");
-                        }
-                        pw.println();
-                    }
+        for (double cm0 = 0.0; cm0 > -0.1; cm0 -= 0.01) {
+            prms.setCpm0(cm0);
+            initialState = new AeroSystemState();
+            initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
+            initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
+            initialState.set(AeroSystemState.X_POS, 0.0);
+            initialState.set(AeroSystemState.X_VEL, 0.0);
+            initialState.set(AeroSystemState.Z_POS, 0.0);
+            initialState.set(AeroSystemState.Z_VEL, 0.1);
+            fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
+            initialState.set(AeroSystemState.FLUID_STATE, fluid);
 
-                    i++;
-                }
+            prms.setInitialState(initialState);
+            system = new RocketPlane(prms);
 
-                JOptionPane.showMessageDialog(this, "Simulation Comipleted!\n  MaxQ:  " + maxQ + "\n  MaxH:  " + maxH);
-            }
-        } catch (IOException ex) {
+            File file = new File(outputFolder + "simulation-cpm0-" + format.format(cm0) + ".csv");
+            PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
+            exit = new PitchOverExitCondition();
 
+            Simulation sim = new Simulation(system, exit, recorder, 0.0005);
+            sim.run();
         }
+        prms.setCpm0(-0.02);
+
+        JOptionPane.showMessageDialog(this, "Simulation Complete!");
     }//GEN-LAST:event_simulateButtonActionPerformed
 
     /**

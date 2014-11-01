@@ -17,13 +17,16 @@ import util.PhysicalConstants;
 public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState> {
 
     // Fields
-    private final AeroSystemState state;
+    private AeroSystemState state;
     private double time;
 
 
     // Properties
     @Override
     public AeroSystemState getState() {
+        if (this.state == null) {
+            this.state = this.getInitialState();
+        }
         return this.state;
     }
 
@@ -46,7 +49,6 @@ public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState
     // Initialization
     public AerodynamicSystem() {
         this.time = 0.0;
-        this.state = this.getInitialState();
     }
 
 

@@ -25,25 +25,25 @@ public class RocketPlane extends AerodynamicSystem {
 
     // Fields
     private final double sRef;
-    private double cBar;
-    private double spanEfficiency;
-    private double aspectRatio;
-    private double zThrust;
+    private final double cBar;
+    private final double spanEfficiency;
+    private final double aspectRatio;
+    private final double zThrust;
     
-    private double mass;
-    private double iyy;
+    private final double mass;
+    private final double iyy;
     
     private final SolidRocketEngine engine;
     
-    private double clAlpha;
-    private double clDeltaE;
-    private double clQ;
-    private double cd0;
-    private double cpm0;
-    private double cpmAlpha;
-    private double cpmQ;
+    private final double clAlpha;
+    private final double clDeltaE;
+    private final double clQ;
+    private final double cd0;
+    private final double cpm0;
+    private final double cpmAlpha;
+    private final double cpmQ;
     
-    private AeroSystemState initialState;
+    private final AeroSystemState initialState;
 
 
     // Properties
@@ -54,11 +54,37 @@ public class RocketPlane extends AerodynamicSystem {
 
     @Override
     public double getIyy() {
-        return 0.2 * (3 * 3 + 0.33 * 0.33) * this.getMass();
+        return this.iyy;
     }
 
     @Override
     public AeroSystemState getInitialState() {
+        return this.initialState;
+    }
+
+
+    // Initializtion
+    public RocketPlane(HobbyRocketEngine engine) {
+        super();
+        
+        this.sRef = 2.4;
+        this.cBar = 0.5291;
+        this.spanEfficiency = 0.87;
+        this.aspectRatio = 6.3;
+        this.zThrust = 0.0;
+        this.mass = 2.8 / PhysicalConstants.GRAVITY_ACCELERATION;
+        this.iyy = 0.2 * (3 * 3 + 0.33 * 0.33) * this.mass;
+        
+        this.engine = engine;
+        
+        this.clAlpha = 4.5891;
+        this.clDeltaE = 0.0;
+        this.clQ = 0.0;
+        this.cd0 = 0.02;
+        this.cpm0 = -0.02;
+        this.cpmAlpha = -0.373;
+        this.cpmQ = -12.6;
+        
         AeroSystemState state = new AeroSystemState();
 
         state.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, AngleType.DEGREES));
@@ -71,28 +97,30 @@ public class RocketPlane extends AerodynamicSystem {
         // Air on a hot day
         FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68);
         state.set(AeroSystemState.FLUID_STATE, fluid);
-
-        return state;
-    }
-
-
-    // Initializtion
-    public RocketPlane(HobbyRocketEngine engine) {
-        this.engine = engine;
         
-        this.sRef = 2.4;
-        this.cBar = 0.5291;
-        this.spanEfficiency = 0.87;
+        this.initialState = state;
     }
     
     public RocketPlane(RocketPlaneParameters prms) {
         this.sRef = prms.getSRef();
         this.cBar = prms.getCBar();
         this.spanEfficiency = prms.getSpanEfficiency();
-        
-        // Continue implementation here after work.
+        this.aspectRatio = prms.getAspectRatio();
+        this.zThrust = prms.getZThrust();
+        this.mass = prms.getMass();
+        this.iyy = prms.getIyy();
         
         this.engine = prms.getRocketEngine();
+        
+        this.clAlpha = prms.getClAlpha();
+        this.clDeltaE = prms.getClDeltaE();
+        this.clQ = prms.getClQ();
+        this.cd0 = prms.getCd0();
+        this.cpm0 = prms.getCpm0();
+        this.cpmAlpha = prms.getCpmAlpha();
+        this.cpmQ = prms.getCpmQ();
+        
+        this.initialState = prms.getInitialState();
     }
 
 
@@ -100,17 +128,17 @@ public class RocketPlane extends AerodynamicSystem {
     @Override
     public double getLift(AeroSystemState state) {
         double cl = this.getCl(state);
-        return cl * state.getDynamicPressure() * 2.4;
+        return cl * state.getDynamicPressure() * this.sRef;
     }
 
     @Override
     public double getDrag(AeroSystemState state) {
-        return this.getCd(state) * state.getDynamicPressure() * 2.4;
+        return this.getCd(state) * state.getDynamicPressure() * this.sRef;
     }
 
     @Override
     public double getPitchingMoment(AeroSystemState state) {
-        return this.getCpm(state) * state.getDynamicPressure() * 2.4 * 0.5291;
+        return this.getCpm(state) * state.getDynamicPressure() * this.sRef * this.cBar;
     }
 
     @Override
@@ -121,36 +149,32 @@ public class RocketPlane extends AerodynamicSystem {
     }
 
     public double getCl(AeroSystemState state) {
-        double cl = 4.5891 * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
+        double cl = this.clAlpha * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
         state.set(AeroSystemState.CL, cl);
         return cl;
     }
 
     public double getCd(AeroSystemState state) {
-        double cd = 0.02 + ((getCl(state) * getCl(state)) / (Math.PI * 0.87 * 6.3));
+        double cdi = (getCl(state) * getCl(state)) / (Math.PI * this.spanEfficiency * this.aspectRatio);
+        double cd = this.cd0 + cdi;
         state.set(AeroSystemState.CD, cd);
         return cd;
     }
 
     public double getCpm(AeroSystemState state) {
-        double cpm0 = -0.02;
-        double cpmAlpha = -0.373;
-        double cpmQ = -12.6;
-        double zThrust = 0.0 / 12.0;
-
-        double cpmFromAlpha = cpmAlpha * state.getAngleOfAttack().getMeasure(AngleType.RADIANS);
+        double cpmFromAlpha = this.cpmAlpha * state.getAngleOfAttack().getMeasure(AngleType.RADIANS);
         state.set(AeroSystemState.CPMA, cpmFromAlpha);
 
-        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * 0.5291) / (2 * state.getSpeed());
-        double cpmFromQ = cpmQ * qHat;
+        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.getSpeed());
+        double cpmFromQ = this.cpmQ * qHat;
         state.set(AeroSystemState.CPMQ, cpmFromQ);
 
         double thrust = this.getThrust(state);
         double thrustPitchMoment = -1 * zThrust * thrust;
-        double cpmt = (thrustPitchMoment / (state.getDynamicPressure() * 2.4 * 0.5291));
+        double cpmt = (thrustPitchMoment / (state.getDynamicPressure() * this.sRef * this.cBar));
         state.set(AeroSystemState.CPMT, cpmt);
 
-        double cpm = cpm0 + cpmFromAlpha + cpmFromQ + cpmt;
+        double cpm = this.cpm0 + cpmFromAlpha + cpmFromQ + cpmt;
 
         state.set(AeroSystemState.CPM, cpm);
         return cpm;

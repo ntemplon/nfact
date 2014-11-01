@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 
 /**
  *
@@ -47,6 +48,42 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
     private double minNormalLoadFactor = 0.0;
     private double maxAxialLoadFactor = 0.0;
     private double minAxialLoadFactor = 0.0;
+    
+    private double finalVelocity = 0.0;
+    private double simulationTime = 0.0;
+    private Angle finalTheta = new Angle(0.0);
+
+    private final DecimalFormat format = new DecimalFormat("0.0000");
+    
+    
+    // Properties
+    public double getMaxSpeed() {
+        return this.maxSpeed;
+    }
+    
+    public double getFinalVelocity() {
+        return this.finalVelocity;
+    }
+    
+    public double getSimulationTime() {
+        return this.simulationTime;
+    }
+    
+    public double getMinNormalLoadFactor() {
+        return this.minNormalLoadFactor;
+    }
+    
+    public double getMaxAxialLoadFactor() {
+        return this.maxAxialLoadFactor;
+    }
+    
+    public Angle getFinalTheta() {
+        return this.finalTheta;
+    }
+    
+    public double getMaxAltitude() {
+        return this.maxH;
+    }
 
 
     // Initialization
@@ -90,22 +127,26 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
     @Override
     public void finish(AeroSystemState finalState) {
         this.writeState(finalState);
+        
+        this.finalVelocity = finalState.getSpeed();
+        this.simulationTime = finalState.get(AeroSystemState.TIME);
+        this.finalTheta = finalState.get(AeroSystemState.ANGULAR_POS);
 
         // Write maximum / final metrics to file
-        this.pw.println("Max Q: " + this.maxQ);
-        this.pw.println("Max Speed: " + this.maxSpeed);
-        this.pw.println("Max Height: " + this.maxH);
-        this.pw.println("Max Normal Load Factor: " + this.maxNormalLoadFactor);
-        this.pw.println("Min Normal Load Factor: " + this.minNormalLoadFactor);
-        this.pw.println("Max Axial Load Factor: " + this.maxAxialLoadFactor);
-        this.pw.println("Min Axial Load Factor: " + this.minAxialLoadFactor);
+        this.pw.println("Max Q: " + format.format(this.maxQ));
+        this.pw.println("Max Speed: " + format.format(this.maxSpeed));
+        this.pw.println("Max Height: " + format.format(this.maxH));
+        this.pw.println("Max Normal Load Factor: " + format.format(this.maxNormalLoadFactor));
+        this.pw.println("Min Normal Load Factor: " + format.format(this.minNormalLoadFactor));
+        this.pw.println("Max Axial Load Factor: " + format.format(this.maxAxialLoadFactor));
+        this.pw.println("Min Axial Load Factor: " + format.format(this.minAxialLoadFactor));
 
-        this.pw.println("Final X: " + finalState.get(AeroSystemState.X_POS));
-        this.pw.println("Final Z: " + finalState.get(AeroSystemState.Z_POS));
-        this.pw.println("Final Theta: " + finalState.get(AeroSystemState.ANGULAR_POS).getMeasure(AngleType.DEGREES));
-        this.pw.println("Final X Velocity: " + finalState.get(AeroSystemState.X_VEL));
-        this.pw.println("Final Z Velocity: " + finalState.get(AeroSystemState.Z_VEL));
-        this.pw.println("Final Angular Velocity: " + finalState.get(AeroSystemState.ANGULAR_VEL));
+        this.pw.println("Final X: " + format.format(finalState.get(AeroSystemState.X_POS)));
+        this.pw.println("Final Z: " + format.format(finalState.get(AeroSystemState.Z_POS)));
+        this.pw.println("Final Theta: " + format.format(finalState.get(AeroSystemState.ANGULAR_POS).getMeasure(AngleType.DEGREES)));
+        this.pw.println("Final X Velocity: " + format.format(finalState.get(AeroSystemState.X_VEL)));
+        this.pw.println("Final Z Velocity: " + format.format(finalState.get(AeroSystemState.Z_VEL)));
+        this.pw.println("Final Angular Velocity: " + format.format(finalState.get(AeroSystemState.ANGULAR_VEL)));
 
         this.close();
     }
@@ -126,7 +167,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
         if (h > this.maxH) {
             this.maxH = h;
         }
-        
+
         double nNormal = state.getNormalLoadFactor();
         if (nNormal > this.maxNormalLoadFactor) {
             this.maxNormalLoadFactor = nNormal;
@@ -134,7 +175,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
         if (nNormal < this.minNormalLoadFactor) {
             this.minNormalLoadFactor = nNormal;
         }
-        
+
         double nAxial = state.getAxialLoadFactor();
         if (nAxial > this.maxAxialLoadFactor) {
             this.maxAxialLoadFactor = nAxial;
@@ -181,7 +222,9 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
 
             Object value = state.get(variable);
             if (value instanceof Angle) {
-                pw.print(((Angle) value).getMeasure(Angle.AngleType.DEGREES));
+                pw.print(format.format(((Angle) value).getMeasure(Angle.AngleType.DEGREES)));
+            } else if (value instanceof Double) {
+                pw.print(format.format((Double)value));
             } else {
                 pw.print(value);
             }

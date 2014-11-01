@@ -133,6 +133,7 @@ public class HobbyRocketEngine implements SolidRocketEngine {
      * @param time the time since ignition, in seconds
      * @return the thrust of the engine, in pounds
      */
+    @Override
     public double getThrust(double time) {
         if (thrust.hasFiniteDomain) {
             if (time < thrust.domainMin || thrust.domainMax < time) {
@@ -140,6 +141,18 @@ public class HobbyRocketEngine implements SolidRocketEngine {
             }
         }
         return thrust.evaluate(time);
+    }
+    
+    public HobbyRocketEngine getThrustVariationEngine(double variation) {
+        String newName = this.getName() + " THRUST_VAR_" + variation;
+        SingleVariableFunction newThrust = new SingleVariableFunction(this.thrust.domainMin, this.thrust.domainMax) {
+            @Override
+            public Double evaluate(Double input) {
+                return HobbyRocketEngine.this.thrust.evaluate(input) * variation;
+            }
+        };
+        
+        return new HobbyRocketEngine(newName, newThrust);
     }
     
 }

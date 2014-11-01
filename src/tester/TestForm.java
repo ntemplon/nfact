@@ -144,7 +144,7 @@ public class TestForm extends javax.swing.JFrame {
         String outputFolder = "/home/nathant/NFACalc/";
         DecimalFormat format = new DecimalFormat("0.000");
 
-        for (double cm0 = 0.0; cm0 > -0.1; cm0 -= 0.01) {
+        for (double cm0 = 0.0; cm0 > -0.03; cm0 -= 0.0025) {
             prms.setCpm0(cm0);
             initialState = new AeroSystemState();
             initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
@@ -159,7 +159,7 @@ public class TestForm extends javax.swing.JFrame {
             prms.setInitialState(initialState);
             system = new RocketPlane(prms);
 
-            File file = new File(outputFolder + "simulation-cpm0-" + format.format(cm0) + ".csv");
+            File file = new File(outputFolder + "simulation-cpm0_" + format.format(cm0) + ".csv");
             PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
             exit = new PitchOverExitCondition();
 

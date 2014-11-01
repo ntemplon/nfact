@@ -141,7 +141,7 @@ public class TestForm extends javax.swing.JFrame {
         prms.setInitialState(initialState);
         RocketPlane system;
 
-        String outputFolder = "/home/nathan/NFACalc/";
+        String outputFolder = "/home/nathant/NFACalc/";
         DecimalFormat format = new DecimalFormat("0.000");
 
         for (double cm0 = 0.0; cm0 > -0.1; cm0 -= 0.01) {
@@ -199,10 +199,8 @@ public class TestForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new TestForm().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new TestForm().setVisible(true);
         });
     }
 

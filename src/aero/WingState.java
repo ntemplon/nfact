@@ -9,19 +9,14 @@ import geometry.angle.Angle;
 
 /**
  *
- * @author nathant
+ * @author nathan
  */
-public interface Flap {
+public interface WingState {
     
     // Properties
-    Wing getWing();
-    double getSpan();
-    double getChord();
-    void setSRef();
-    double getSRef();
-    
-    
-    // Public Methods
-    double getClIncrement(Angle deflection, WingState state);
+    Angle getAngleOfAttack();
+    double getCl();
+    double getCd();
+    double getCpm();
     
 }

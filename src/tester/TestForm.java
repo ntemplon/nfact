@@ -188,7 +188,7 @@ public class TestForm extends javax.swing.JFrame {
         // CPMAlpha Sweep
         sb.append(System.lineSeparator());
         sb.append("CPM_Alpha Variation (CPM0 = -0.011, Thrust = +0%):").append(System.lineSeparator());
-        for (double cmA = -0.351; cmA > -0.392; cmA -= 0.002) {
+        for (double cmA = -0.18; cmA > -0.55; cmA -= 0.02) {
             prms.setCpmAlpha(cmA);
             initialState = new AeroSystemState();
             initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));

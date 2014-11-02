@@ -57,7 +57,7 @@ public class TestForm extends javax.swing.JFrame {
         fillerPanel = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("NFACalc");
+        setTitle("nFACT");
         setMinimumSize(new java.awt.Dimension(500, 300));
 
         contentPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(3, 3, 3, 3));

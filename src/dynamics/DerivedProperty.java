@@ -13,14 +13,14 @@ import function.Function;
  * @param <TState>
  * @param <TType>
  */
-public class DerivedVariable<TState extends SystemState, TType> extends StateVariable<TType> {
+public class DerivedProperty<TState extends SystemState, TType> extends SystemProperty<TType> {
     
     // Fields
     protected Function<TState, TType> value;
     
     
     // Initialization
-    public DerivedVariable(String name, Function<TState, TType> value) {
+    public DerivedProperty(String name, Function<TState, TType> value) {
         super(name);
         this.value = value;
     }

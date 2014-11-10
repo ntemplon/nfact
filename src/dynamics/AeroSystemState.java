@@ -34,11 +34,11 @@ public class AeroSystemState extends DynamicSystemState {
     public static final StateVariable<Double> MACH = new StateVariable("Mach");
     public static final StateVariable<Angle> FLIGHT_PATH_ANGLE = new StateVariable("Flight Path Angle");
     public static final StateVariable<Angle> ALPHA = new StateVariable("Alpha");
-    
+
     public static final StateVariable<Double> NORMAL_LOAD_FACTOR = new StateVariable("Normal Load Factor");
     public static final StateVariable<Double> AXIAL_LOAD_FACTOR = new StateVariable("Axial Load Factor");
 
-    public static final StateVariable[] AERO_VARIABLES = new StateVariable[]{
+    public static final SystemProperty[] AERO_VARIABLES = new SystemProperty[]{
         FLUID_STATE, CL, CD, CPM, LIFT, DRAG, PITCHING_MOMENT, THRUST,
         CPMQ, CPMT, CPMA, Q, MACH, FLIGHT_PATH_ANGLE, ALPHA,
         NORMAL_LOAD_FACTOR, AXIAL_LOAD_FACTOR
@@ -90,22 +90,22 @@ public class AeroSystemState extends DynamicSystemState {
         return alpha;
 //        return this.getAngularPosition().add(this.getFlightPathAngle().scalarMultiply(-1.0));
     }
-    
+
     public double getAxialLoadFactor() {
         double xLoadFactor = this.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
-        double zLoadFactor = (this.get(Z_ACCEL)  / PhysicalConstants.GRAVITY_ACCELERATION) + 1;
+        double zLoadFactor = (this.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION) + 1;
         Angle theta = this.get(ANGULAR_POS);
-        
+
         double axialLoadFactor = xLoadFactor * theta.cos() + zLoadFactor * theta.sin();
         this.set(AeroSystemState.AXIAL_LOAD_FACTOR, axialLoadFactor);
         return axialLoadFactor;
     }
-    
+
     public double getNormalLoadFactor() {
         double xLoadFactor = this.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
         double zLoadFactor = this.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
         Angle theta = this.get(ANGULAR_POS);
-        
+
         double normalLoadFactor = -1 * xLoadFactor * theta.sin() + zLoadFactor * theta.cos();
         this.set(AeroSystemState.NORMAL_LOAD_FACTOR, normalLoadFactor);
         return normalLoadFactor;
@@ -117,7 +117,7 @@ public class AeroSystemState extends DynamicSystemState {
         super(AERO_VARIABLES);
     }
 
-    public AeroSystemState(StateVariable[] variables) {
+    public AeroSystemState(SystemProperty[] variables) {
         super(ArrayUtil.concat(variables, AERO_VARIABLES));
     }
 

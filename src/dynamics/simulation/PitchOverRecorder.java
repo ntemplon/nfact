@@ -7,6 +7,7 @@ package dynamics.simulation;
 
 import dynamics.AeroSystemState;
 import dynamics.StateVariable;
+import dynamics.SystemProperty;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
 import java.io.BufferedWriter;
@@ -23,7 +24,7 @@ import java.text.DecimalFormat;
 public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, AutoCloseable {
 
     // Constants
-    public static final StateVariable[] RECORDED_VARIABLES = new StateVariable[]{
+    public static final SystemProperty[] RECORDED_VARIABLES = new SystemProperty[]{
         AeroSystemState.TIME, AeroSystemState.ALPHA, AeroSystemState.CL, AeroSystemState.CD,
         AeroSystemState.CPM, AeroSystemState.Q, AeroSystemState.SPEED, AeroSystemState.FLIGHT_PATH_ANGLE,
         AeroSystemState.X_POS, AeroSystemState.Z_POS, AeroSystemState.ANGULAR_POS, AeroSystemState.X_VEL,
@@ -109,7 +110,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
             pw = new PrintWriter(bw);
 
             for (int i = 0; i < RECORDED_VARIABLES.length; i++) {
-                StateVariable variable = RECORDED_VARIABLES[i];
+                SystemProperty variable = RECORDED_VARIABLES[i];
                 pw.print(variable.getName());
                 if (i < RECORDED_VARIABLES.length - 1) {
                     pw.print(",");
@@ -218,7 +219,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
     // Private Methods
     private void writeState(AeroSystemState state) {
         for (int i = 0; i < RECORDED_VARIABLES.length; i++) {
-            StateVariable variable = RECORDED_VARIABLES[i];
+            SystemProperty variable = RECORDED_VARIABLES[i];
 
             Object value = state.get(variable);
             if (value instanceof Angle) {

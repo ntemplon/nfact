@@ -6,6 +6,7 @@
 package dynamics;
 
 import aero.fluid.FluidState;
+import function.Function;
 import geometry.angle.Angle;
 import util.ArrayUtil;
 import util.PhysicalConstants;
@@ -30,7 +31,13 @@ public class AeroSystemState extends DynamicSystemState {
     public static final StateVariable<Double> CPMT = new StateVariable("CPM from Thrust");
     public static final StateVariable<Double> CPMA = new StateVariable("CPM from Alpha");
 
-    public static final StateVariable<Double> Q = new StateVariable("Q");
+//    public static final StateVariable<Double> Q = new StateVariable("Q");
+    public static final DerivedProperty<AeroSystemState, Double> Q = new DerivedProperty<>("Q", new Function<AeroSystemState, Double>() {
+        @Override
+        public Double evaluate(AeroSystemState state) {
+            return 0.5 * state.get(FLUID_STATE).getDensity() * state.getSpeed() * state.getSpeed();
+        }
+    });
     public static final StateVariable<Double> MACH = new StateVariable("Mach");
     public static final StateVariable<Angle> FLIGHT_PATH_ANGLE = new StateVariable("Flight Path Angle");
     public static final StateVariable<Angle> ALPHA = new StateVariable("Alpha");
@@ -43,7 +50,6 @@ public class AeroSystemState extends DynamicSystemState {
         CPMQ, CPMT, CPMA, Q, MACH, FLIGHT_PATH_ANGLE, ALPHA,
         NORMAL_LOAD_FACTOR, AXIAL_LOAD_FACTOR
     };
-
 
     // Properties
     /**
@@ -110,7 +116,6 @@ public class AeroSystemState extends DynamicSystemState {
         this.set(AeroSystemState.NORMAL_LOAD_FACTOR, normalLoadFactor);
         return normalLoadFactor;
     }
-
 
     // Initialization
     public AeroSystemState() {

@@ -8,6 +8,7 @@ package dynamics;
 /**
  *
  * @author nathant
+ * @param <T>
  */
 public class StateVariable<T> implements Comparable<StateVariable> {
     

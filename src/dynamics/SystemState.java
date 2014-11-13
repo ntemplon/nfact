@@ -5,8 +5,8 @@
  */
 package dynamics;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +42,7 @@ public abstract class SystemState {
     public <T> void set(SystemProperty<T> variable, T value) {
         this.values.put(variable, value);
 
-        this.updateDerivedVariables();
+        this.updateDerivedVariables(variable);
     }
 
 
@@ -74,11 +74,18 @@ public abstract class SystemState {
 
 
     // Private Methods
-    private void updateDerivedVariables() {
+    private void updateDerivedVariables(SystemProperty property) {
         this.derived.stream().forEach((variable) -> {
             try {
-                Object value = variable.valueAt(this);
-                this.values.put(variable, value);
+                List<SystemProperty> props = null;
+                if (variable.getDependencies() != null) {
+                    props = Arrays.asList(variable.getDependencies());
+                }
+                if (props == null || props.isEmpty() || props.contains(property)) {
+                    Object value = variable.valueAt(this);
+                    this.values.put(variable, value);
+                    this.updateDerivedVariables(variable);
+                }
             } catch (Exception ex) {
                 this.values.put(variable, null);
             }

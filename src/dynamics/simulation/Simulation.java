@@ -5,6 +5,7 @@
  */
 package dynamics.simulation;
 
+import dynamics.AeroSystemState;
 import dynamics.DynamicSystem;
 import dynamics.SystemState;
 

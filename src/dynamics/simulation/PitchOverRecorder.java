@@ -6,8 +6,9 @@
 package dynamics.simulation;
 
 import dynamics.AeroSystemState;
-import dynamics.StateVariable;
+import dynamics.DynamicSystemState;
 import dynamics.SystemProperty;
+import dynamics.SystemState;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
 import java.io.BufferedWriter;
@@ -26,7 +27,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
     // Constants
     public static final SystemProperty[] RECORDED_VARIABLES = new SystemProperty[]{
         AeroSystemState.TIME, AeroSystemState.ALPHA, AeroSystemState.CL, AeroSystemState.CD,
-        AeroSystemState.CPM, AeroSystemState.DynamicPressure, AeroSystemState.SPEED, AeroSystemState.FLIGHT_PATH_ANGLE,
+        AeroSystemState.CPM, AeroSystemState.DYNAMIC_PRESSURE, AeroSystemState.SPEED, AeroSystemState.FLIGHT_PATH_ANGLE,
         AeroSystemState.X_POS, AeroSystemState.Z_POS, AeroSystemState.ANGULAR_POS, AeroSystemState.X_VEL,
         AeroSystemState.Z_VEL, AeroSystemState.ANGULAR_VEL, AeroSystemState.X_ACCEL, AeroSystemState.Z_ACCEL,
         AeroSystemState.ANGULAR_ACCEL, AeroSystemState.AXIAL_LOAD_FACTOR, AeroSystemState.NORMAL_LOAD_FACTOR,
@@ -129,9 +130,9 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
     public void finish(AeroSystemState finalState) {
         this.writeState(finalState);
         
-        this.finalVelocity = finalState.getSpeed();
-        this.simulationTime = finalState.get(AeroSystemState.TIME);
-        this.finalTheta = finalState.get(AeroSystemState.ANGULAR_POS);
+        this.finalVelocity = finalState.get(DynamicSystemState.SPEED);
+        this.simulationTime = finalState.get(SystemState.TIME);
+        this.finalTheta = finalState.get(DynamicSystemState.ANGULAR_POS);
 
         // Write maximum / final metrics to file
         this.pw.println("Max Q: " + format.format(this.maxQ));
@@ -158,10 +159,10 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
             return;
         }
 
-        double q = state.get(AeroSystemState.DynamicPressure);
+        double q = state.get(AeroSystemState.DYNAMIC_PRESSURE);
         if (q > this.maxQ) {
             this.maxQ = q;
-            this.maxSpeed = state.getSpeed();
+            this.maxSpeed = state.get(DynamicSystemState.SPEED);
         }
 
         double h = state.get(AeroSystemState.Z_POS);

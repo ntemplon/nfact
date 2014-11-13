@@ -31,10 +31,12 @@ public class AeroSystemState extends DynamicSystemState {
     public static final StateVariable<Double> CPMT = new StateVariable("CPM from Thrust");
     public static final StateVariable<Double> CPMA = new StateVariable("CPM from Alpha");
 
-//    public static final StateVariable<Double> Q = new StateVariable("Q");
-    public static final DerivedProperty<AeroSystemState, Double> DynamicPressure = new DerivedProperty<>("Q",
-            (AeroSystemState state) -> 0.5 * state.get(FLUID_STATE).getDensity() * state.getSpeed() * state.getSpeed());
-    public static final StateVariable<Double> MACH = new StateVariable("Mach");
+    public static final DerivedProperty<AeroSystemState, Double> DYNAMIC_PRESSURE = new DerivedProperty<>("Q", new StateFunction<>(
+            (AeroSystemState state) -> 0.5 * state.get(FLUID_STATE).getDensity() * state.get(SPEED) * state.get(SPEED),
+            new SystemProperty[]{FLUID_STATE, SPEED}));
+    public static final DerivedProperty<AeroSystemState, Double> MACH = new DerivedProperty<>("Mach", new StateFunction<>(
+            (AeroSystemState state) -> state.get(SPEED) / state.get(FLUID_STATE).getSpeedOfSound(),
+            new SystemProperty[]{SPEED, FLUID_STATE}));
     public static final StateVariable<Angle> FLIGHT_PATH_ANGLE = new StateVariable("Flight Path Angle");
     public static final StateVariable<Angle> ALPHA = new StateVariable("Alpha");
 
@@ -43,21 +45,11 @@ public class AeroSystemState extends DynamicSystemState {
 
     public static final SystemProperty[] AERO_VARIABLES = new SystemProperty[]{
         FLUID_STATE, CL, CD, CPM, LIFT, DRAG, PITCHING_MOMENT, THRUST,
-        CPMQ, CPMT, CPMA, DynamicPressure, MACH, FLIGHT_PATH_ANGLE, ALPHA,
+        CPMQ, CPMT, CPMA, DYNAMIC_PRESSURE, MACH, FLIGHT_PATH_ANGLE, ALPHA,
         NORMAL_LOAD_FACTOR, AXIAL_LOAD_FACTOR
     };
 
     // Properties
-    /**
-     *
-     * @return the mach number of the system state
-     */
-    public double getMachNumber() {
-        double mach = this.getSpeed() / this.get(FLUID_STATE).getSpeedOfSound();
-        this.set(MACH, mach);
-        return mach;
-    }
-
     /**
      *
      * @return the flight path angle

@@ -10,6 +10,7 @@ import aero.fluid.IdealGas;
 import aero.fluid.IdealGasState;
 import dynamics.AeroSystemState;
 import dynamics.AerodynamicSystem;
+import dynamics.DynamicSystemState;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
 import geometry.angle.Angle.MeasureRange;
@@ -128,17 +129,17 @@ public class RocketPlane extends AerodynamicSystem {
     @Override
     public double getLift(AeroSystemState state) {
         double cl = this.getCl(state);
-        return cl * state.get(AeroSystemState.DynamicPressure) * this.sRef;
+        return cl * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef;
     }
 
     @Override
     public double getDrag(AeroSystemState state) {
-        return this.getCd(state) * state.get(AeroSystemState.DynamicPressure) * this.sRef;
+        return this.getCd(state) * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef;
     }
 
     @Override
     public double getPitchingMoment(AeroSystemState state) {
-        return this.getCpm(state) * state.get(AeroSystemState.DynamicPressure) * this.sRef * this.cBar;
+        return this.getCpm(state) * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar;
     }
 
     @Override
@@ -165,13 +166,13 @@ public class RocketPlane extends AerodynamicSystem {
         double cpmFromAlpha = this.cpmAlpha * state.getAngleOfAttack().getMeasure(AngleType.RADIANS);
         state.set(AeroSystemState.CPMA, cpmFromAlpha);
 
-        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.getSpeed());
+        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
         double cpmFromQ = this.cpmQ * qHat;
         state.set(AeroSystemState.CPMQ, cpmFromQ);
 
         double thrust = this.getThrust(state);
         double thrustPitchMoment = -1 * zThrust * thrust;
-        double cpmt = (thrustPitchMoment / (state.get(AeroSystemState.DynamicPressure) * this.sRef * this.cBar));
+        double cpmt = (thrustPitchMoment / (state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar));
         state.set(AeroSystemState.CPMT, cpmt);
 
         double cpm = this.cpm0 + cpmFromAlpha + cpmFromQ + cpmt;

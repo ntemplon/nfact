@@ -5,7 +5,6 @@
  */
 package dynamics;
 
-import function.Function;
 import geometry.angle.Angle;
 import util.ArrayUtil;
 
@@ -38,17 +37,6 @@ public class DynamicSystemState extends SystemState {
         X_POS, Z_POS, ANGULAR_POS,
         SPEED
     };
-
-    // Properties
-    /**
-     *
-     * @return the total speed in feet per second
-     */
-    public double getSpeed() {
-        double speed = Math.sqrt(this.get(X_VEL) * this.get(X_VEL) + this.get(Z_VEL) * this.get(Z_VEL));
-        this.set(SPEED, speed);
-        return speed;
-    }
 
     // Initialization
     public DynamicSystemState() {

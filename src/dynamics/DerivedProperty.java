@@ -16,7 +16,13 @@ import function.Function;
 public class DerivedProperty<TState extends SystemState, TType> extends SystemProperty<TType> {
     
     // Fields
-    protected Function<TState, TType> value;
+    protected StateFunction<TState, TType> value;
+    
+    
+    // Properties
+    public SystemProperty[] getDependencies() {
+        return this.value.getDependencies();
+    }
     
     
     // Initialization

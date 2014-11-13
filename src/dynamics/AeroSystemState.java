@@ -6,7 +6,6 @@
 package dynamics;
 
 import aero.fluid.FluidState;
-import function.Function;
 import geometry.angle.Angle;
 import util.ArrayUtil;
 import util.PhysicalConstants;
@@ -32,16 +31,28 @@ public class AeroSystemState extends DynamicSystemState {
     public static final StateVariable<Double> CPMA = new StateVariable("CPM from Alpha");
 
     public static final DerivedProperty<AeroSystemState, Double> DYNAMIC_PRESSURE = new DerivedProperty<>("Q", new StateFunction<>(
-            (AeroSystemState state) -> 0.5 * state.get(FLUID_STATE).getDensity() * state.get(SPEED) * state.get(SPEED),
+            (AeroSystemState state) -> getDynamicPressure(state),
             new SystemProperty[]{FLUID_STATE, SPEED}));
-    public static final DerivedProperty<AeroSystemState, Double> MACH = new DerivedProperty<>("Mach", new StateFunction<>(
-            (AeroSystemState state) -> state.get(SPEED) / state.get(FLUID_STATE).getSpeedOfSound(),
-            new SystemProperty[]{SPEED, FLUID_STATE}));
-    public static final StateVariable<Angle> FLIGHT_PATH_ANGLE = new StateVariable("Flight Path Angle");
-    public static final StateVariable<Angle> ALPHA = new StateVariable("Alpha");
 
-    public static final StateVariable<Double> NORMAL_LOAD_FACTOR = new StateVariable("Normal Load Factor");
-    public static final StateVariable<Double> AXIAL_LOAD_FACTOR = new StateVariable("Axial Load Factor");
+    public static final DerivedProperty<AeroSystemState, Double> MACH = new DerivedProperty<>("Mach", new StateFunction<>(
+            (AeroSystemState state) -> getMach(state),
+            new SystemProperty[]{SPEED, FLUID_STATE}));
+
+    public static final DerivedProperty<AeroSystemState, Angle> FLIGHT_PATH_ANGLE = new DerivedProperty<>("Flight Path Angle", new StateFunction<>(
+            (AeroSystemState state) -> getFlightPathAngle(state),
+            new SystemProperty[]{Z_VEL, X_VEL}));
+
+    public static final DerivedProperty<AeroSystemState, Angle> ALPHA = new DerivedProperty<>("Alpha", new StateFunction<>(
+            (AeroSystemState state) -> getAngleOfAttack(state),
+            new SystemProperty[]{ANGULAR_POS, FLIGHT_PATH_ANGLE}));
+
+    public static final DerivedProperty<AeroSystemState, Double> NORMAL_LOAD_FACTOR = new DerivedProperty<>("Normal Load Factor", new StateFunction<>(
+            (AeroSystemState state) -> getNormalLoadFactor(state),
+            new SystemProperty[]{X_ACCEL, Z_ACCEL, ANGULAR_POS}));
+    
+    public static final DerivedProperty<AeroSystemState, Double> AXIAL_LOAD_FACTOR = new DerivedProperty<>("Axial Load Factor", new StateFunction<>(
+            (AeroSystemState state) -> getAxialLoadFactor(state),
+            new SystemProperty[]{X_ACCEL, Z_ACCEL, ANGULAR_POS}));
 
     public static final SystemProperty[] AERO_VARIABLES = new SystemProperty[]{
         FLUID_STATE, CL, CD, CPM, LIFT, DRAG, PITCHING_MOMENT, THRUST,
@@ -49,51 +60,52 @@ public class AeroSystemState extends DynamicSystemState {
         NORMAL_LOAD_FACTOR, AXIAL_LOAD_FACTOR
     };
 
-    // Properties
-    /**
-     *
-     * @return the flight path angle
-     */
-    public Angle getFlightPathAngle() {
-        Angle fpa = new Angle(this.get(Z_VEL) / this.get(X_VEL), Angle.TrigFunction.TANGENT);
+
+    // Static Methods
+    private static double getDynamicPressure(AeroSystemState state) {
+        return 0.5 * state.get(FLUID_STATE).getDensity() * state.get(SPEED) * state.get(SPEED);
+    }
+
+    private static double getMach(AeroSystemState state) {
+        return state.get(SPEED) / state.get(FLUID_STATE).getSpeedOfSound();
+    }
+
+    private static Angle getFlightPathAngle(AeroSystemState state) {
+        Angle fpa = new Angle(Math.PI / 2);
+        try {
+            fpa = new Angle(state.get(Z_VEL) / state.get(X_VEL), Angle.TrigFunction.TANGENT);
+        } catch (Exception ex) {
+
+        }
         if (Double.isNaN(fpa.getMeasure())) {
             fpa = new Angle(Math.PI / 2);
         }
-        this.set(FLIGHT_PATH_ANGLE, fpa);
         return fpa;
     }
-
-    /**
-     *
-     * @return the angle of attack of the aircraft
-     */
-    public Angle getAngleOfAttack() {
-        Angle alpha = new Angle(this.get(ANGULAR_POS).getMeasure() - this.getFlightPathAngle().getMeasure());
-        this.set(ALPHA, alpha);
-        return alpha;
-//        return this.getAngularPosition().add(this.getFlightPathAngle().scalarMultiply(-1.0));
+    
+    private static Angle getAngleOfAttack(AeroSystemState state) {
+        return new Angle(state.get(ANGULAR_POS).getMeasure() - state.get(FLIGHT_PATH_ANGLE).getMeasure());
     }
-
-    public double getAxialLoadFactor() {
-        double xLoadFactor = this.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
-        double zLoadFactor = (this.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION) + 1;
-        Angle theta = this.get(ANGULAR_POS);
+    
+    private static double getAxialLoadFactor(AeroSystemState state) {
+        double xLoadFactor = state.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
+        double zLoadFactor = (state.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION) + 1;
+        Angle theta = state.get(ANGULAR_POS);
 
         double axialLoadFactor = xLoadFactor * theta.cos() + zLoadFactor * theta.sin();
-        this.set(AeroSystemState.AXIAL_LOAD_FACTOR, axialLoadFactor);
         return axialLoadFactor;
     }
 
-    public double getNormalLoadFactor() {
-        double xLoadFactor = this.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
-        double zLoadFactor = this.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
-        Angle theta = this.get(ANGULAR_POS);
+    public static double getNormalLoadFactor(AeroSystemState state) {
+        double xLoadFactor = state.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
+        double zLoadFactor = state.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
+        Angle theta = state.get(ANGULAR_POS);
 
         double normalLoadFactor = -1 * xLoadFactor * theta.sin() + zLoadFactor * theta.cos();
-        this.set(AeroSystemState.NORMAL_LOAD_FACTOR, normalLoadFactor);
         return normalLoadFactor;
     }
-
+    
+    
     // Initialization
     public AeroSystemState() {
         super(AERO_VARIABLES);

@@ -54,7 +54,7 @@ public class Simulation<TSystem extends DynamicSystem<TState>, TState extends Sy
             state = this.system.getState();
             this.recorder.recordState(state);
         }
-        
+
         state = this.system.getState();
         this.recorder.finish(state);
     }

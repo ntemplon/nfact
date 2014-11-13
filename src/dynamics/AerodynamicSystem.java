@@ -165,7 +165,7 @@ public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState
         double lift = this.getLift(state);
         double drag = this.getDrag(state);
         double pitchMoment = this.getPitchingMoment(state);
-        Angle fpa = state.getFlightPathAngle(); // fpa stands for flight path angle
+        Angle fpa = state.get(AeroSystemState.FLIGHT_PATH_ANGLE); // fpa stands for flight path angle
         double thrust = this.getThrust(state);
         Angle theta = state.get(AeroSystemState.ANGULAR_POS);
 

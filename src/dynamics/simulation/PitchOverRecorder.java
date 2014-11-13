@@ -170,7 +170,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
             this.maxH = h;
         }
 
-        double nNormal = state.getNormalLoadFactor();
+        double nNormal = state.get(AeroSystemState.NORMAL_LOAD_FACTOR);
         if (nNormal > this.maxNormalLoadFactor) {
             this.maxNormalLoadFactor = nNormal;
         }
@@ -178,7 +178,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
             this.minNormalLoadFactor = nNormal;
         }
 
-        double nAxial = state.getAxialLoadFactor();
+        double nAxial = state.get(AeroSystemState.AXIAL_LOAD_FACTOR);
         if (nAxial > this.maxAxialLoadFactor) {
             this.maxAxialLoadFactor = nAxial;
         }

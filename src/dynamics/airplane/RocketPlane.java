@@ -150,7 +150,7 @@ public class RocketPlane extends AerodynamicSystem {
     }
 
     public double getCl(AeroSystemState state) {
-        double cl = this.clAlpha * state.getAngleOfAttack().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
+        double cl = this.clAlpha * state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
         state.set(AeroSystemState.CL, cl);
         return cl;
     }
@@ -163,7 +163,7 @@ public class RocketPlane extends AerodynamicSystem {
     }
 
     public double getCpm(AeroSystemState state) {
-        double cpmFromAlpha = this.cpmAlpha * state.getAngleOfAttack().getMeasure(AngleType.RADIANS);
+        double cpmFromAlpha = this.cpmAlpha * state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS);
         state.set(AeroSystemState.CPMA, cpmFromAlpha);
 
         double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));

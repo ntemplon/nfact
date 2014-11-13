@@ -128,17 +128,17 @@ public class RocketPlane extends AerodynamicSystem {
     @Override
     public double getLift(AeroSystemState state) {
         double cl = this.getCl(state);
-        return cl * state.getDynamicPressure() * this.sRef;
+        return cl * state.get(AeroSystemState.DynamicPressure) * this.sRef;
     }
 
     @Override
     public double getDrag(AeroSystemState state) {
-        return this.getCd(state) * state.getDynamicPressure() * this.sRef;
+        return this.getCd(state) * state.get(AeroSystemState.DynamicPressure) * this.sRef;
     }
 
     @Override
     public double getPitchingMoment(AeroSystemState state) {
-        return this.getCpm(state) * state.getDynamicPressure() * this.sRef * this.cBar;
+        return this.getCpm(state) * state.get(AeroSystemState.DynamicPressure) * this.sRef * this.cBar;
     }
 
     @Override
@@ -171,7 +171,7 @@ public class RocketPlane extends AerodynamicSystem {
 
         double thrust = this.getThrust(state);
         double thrustPitchMoment = -1 * zThrust * thrust;
-        double cpmt = (thrustPitchMoment / (state.getDynamicPressure() * this.sRef * this.cBar));
+        double cpmt = (thrustPitchMoment / (state.get(AeroSystemState.DynamicPressure) * this.sRef * this.cBar));
         state.set(AeroSystemState.CPMT, cpmt);
 
         double cpm = this.cpm0 + cpmFromAlpha + cpmFromQ + cpmt;

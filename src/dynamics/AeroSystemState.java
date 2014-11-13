@@ -32,12 +32,8 @@ public class AeroSystemState extends DynamicSystemState {
     public static final StateVariable<Double> CPMA = new StateVariable("CPM from Alpha");
 
 //    public static final StateVariable<Double> Q = new StateVariable("Q");
-    public static final DerivedProperty<AeroSystemState, Double> Q = new DerivedProperty<>("Q", new Function<AeroSystemState, Double>() {
-        @Override
-        public Double evaluate(AeroSystemState state) {
-            return 0.5 * state.get(FLUID_STATE).getDensity() * state.getSpeed() * state.getSpeed();
-        }
-    });
+    public static final DerivedProperty<AeroSystemState, Double> DynamicPressure = new DerivedProperty<>("Q",
+            (AeroSystemState state) -> 0.5 * state.get(FLUID_STATE).getDensity() * state.getSpeed() * state.getSpeed());
     public static final StateVariable<Double> MACH = new StateVariable("Mach");
     public static final StateVariable<Angle> FLIGHT_PATH_ANGLE = new StateVariable("Flight Path Angle");
     public static final StateVariable<Angle> ALPHA = new StateVariable("Alpha");
@@ -47,22 +43,11 @@ public class AeroSystemState extends DynamicSystemState {
 
     public static final SystemProperty[] AERO_VARIABLES = new SystemProperty[]{
         FLUID_STATE, CL, CD, CPM, LIFT, DRAG, PITCHING_MOMENT, THRUST,
-        CPMQ, CPMT, CPMA, Q, MACH, FLIGHT_PATH_ANGLE, ALPHA,
+        CPMQ, CPMT, CPMA, DynamicPressure, MACH, FLIGHT_PATH_ANGLE, ALPHA,
         NORMAL_LOAD_FACTOR, AXIAL_LOAD_FACTOR
     };
 
     // Properties
-    /**
-     *
-     * @return the dynamic pressure of the current state, in pounds per square
-     * foot
-     */
-    public double getDynamicPressure() {
-        double q = 0.5 * this.get(FLUID_STATE).getDensity() * this.getSpeed() * this.getSpeed();
-        this.set(Q, q);
-        return q;
-    }
-
     /**
      *
      * @return the mach number of the system state

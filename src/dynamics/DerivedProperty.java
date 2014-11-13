@@ -20,7 +20,7 @@ public class DerivedProperty<TState extends SystemState, TType> extends SystemPr
     
     
     // Initialization
-    public DerivedProperty(String name, Function<TState, TType> value) {
+    public DerivedProperty(String name, StateFunction<TState, TType> value) {
         super(name);
         this.value = value;
     }

@@ -26,7 +26,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
     // Constants
     public static final SystemProperty[] RECORDED_VARIABLES = new SystemProperty[]{
         AeroSystemState.TIME, AeroSystemState.ALPHA, AeroSystemState.CL, AeroSystemState.CD,
-        AeroSystemState.CPM, AeroSystemState.Q, AeroSystemState.SPEED, AeroSystemState.FLIGHT_PATH_ANGLE,
+        AeroSystemState.CPM, AeroSystemState.DynamicPressure, AeroSystemState.SPEED, AeroSystemState.FLIGHT_PATH_ANGLE,
         AeroSystemState.X_POS, AeroSystemState.Z_POS, AeroSystemState.ANGULAR_POS, AeroSystemState.X_VEL,
         AeroSystemState.Z_VEL, AeroSystemState.ANGULAR_VEL, AeroSystemState.X_ACCEL, AeroSystemState.Z_ACCEL,
         AeroSystemState.ANGULAR_ACCEL, AeroSystemState.AXIAL_LOAD_FACTOR, AeroSystemState.NORMAL_LOAD_FACTOR,
@@ -158,7 +158,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
             return;
         }
 
-        double q = state.get(AeroSystemState.Q);
+        double q = state.get(AeroSystemState.DynamicPressure);
         if (q > this.maxQ) {
             this.maxQ = q;
             this.maxSpeed = state.getSpeed();

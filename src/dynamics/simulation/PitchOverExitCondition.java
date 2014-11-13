@@ -17,12 +17,12 @@ public class PitchOverExitCondition implements ExitCondition<AeroSystemState> {
 
     @Override
     public boolean isFinished(AeroSystemState state) {
-        if (state.get(AeroSystemState.Q) == null || state.get(AeroSystemState.Z_VEL) == null ||
+        if (state.get(AeroSystemState.DynamicPressure) == null || state.get(AeroSystemState.Z_VEL) == null ||
                 state.get(AeroSystemState.THRUST) == null) {
             return false;
         }
         
-        if (state.get(AeroSystemState.Q) > 1) {
+        if (state.get(AeroSystemState.DynamicPressure) > 1) {
             threshholdReached = true;
         }
         return threshholdReached && !(state.get(AeroSystemState.Z_VEL) > 0

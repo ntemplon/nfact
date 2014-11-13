@@ -28,14 +28,9 @@ public class DynamicSystemState extends SystemState {
     public static final StateVariable<Double> Z_POS = new StateVariable("Z Position");
     public static final StateVariable<Angle> ANGULAR_POS = new StateVariable("Angular Position");
 
-    public static final DerivedProperty<DynamicSystemState, Double> SPEED = new DerivedProperty("Speed",
-            new Function<DynamicSystemState, Double>() {
-                @Override
-                public Double evaluate(DynamicSystemState state) {
-                    return Math.sqrt(state.get(X_VEL) * state.get(X_VEL) + state.get(Z_VEL) * state.get(Z_VEL));
-                }
-            }
-    );
+    public static final DerivedProperty<DynamicSystemState, Double> SPEED = new DerivedProperty("Speed", new StateFunction<>(
+            (DynamicSystemState state) -> Math.sqrt(state.get(X_VEL) * state.get(X_VEL) + state.get(Z_VEL) * state.get(Z_VEL)),
+            new SystemProperty[]{X_VEL, Z_VEL}));
 
     public static final SystemProperty[] DYNAMIC_VARIABLES = new SystemProperty[]{
         X_ACCEL, Z_ACCEL, ANGULAR_ACCEL,
@@ -54,7 +49,6 @@ public class DynamicSystemState extends SystemState {
         this.set(SPEED, speed);
         return speed;
     }
-
 
     // Initialization
     public DynamicSystemState() {

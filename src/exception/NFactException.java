@@ -22,43 +22,26 @@
  * THE SOFTWARE.
  */
 
-package propulsion.propellant;
-
-import propulsion.thermo.Gas;
-import propulsion.thermo.Gas.Temperature;
-
+package exception;
 
 /**
- *
- * @author Nathan Templon
+ * An exception class representing an exception generated in the mathematics of the project.
+ * @author Hortator
  */
-public class LiquidPropellant implements Propellant {
+public class NFactException extends RuntimeException{
     
-    public LiquidPropellant( Gas exhaust, Temperature flameTemp ) {
-        this.flameTemp = flameTemp;
-        this.exhaust = exhaust;
-        
-        double heatRatio = exhaust.heatRatio().value();
-        this.charVelocity = Math.sqrt( (1/heatRatio) * Math.pow( 
-                (heatRatio + 1) / 2, (heatRatio + 1) / (heatRatio - 1)) 
-                * exhaust.specificGasConstant() * flameTemp.value());
+    /**
+     * A default constructor.
+     */
+    public NFactException() {
+        super();
     }
     
-    
-    public Gas exhaust() {
-        return exhaust;
+    /**
+     * A constructor that allows the user to specify an error message.
+     * @param s The error message for the exception.
+     */
+    public NFactException(String s) {
+        super(s);
     }
-    
-    public Temperature flameTemp() {
-        return flameTemp;
-    }
-    
-    public double charVelocity() {
-        return charVelocity;
-    }
-    
-    private Gas exhaust;
-    private Temperature flameTemp;
-    private double charVelocity;
-    
 }

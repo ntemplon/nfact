@@ -63,11 +63,9 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
                             minX = point.x;
                             maxX = point.x;
                             minMaxSet = true;
-                        }
-                        else if (point.x < minX) {
+                        } else if (point.x < minX) {
                             minX = point.x;
-                        }
-                        else if (point.x > maxX) {
+                        } else if (point.x > maxX) {
                             maxX = point.x;
                         }
 
@@ -77,11 +75,9 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
                 }
 
                 return new SingleVariableTableFunction(minX, maxX, readPoints);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
 
-            }
-            finally {
+            } finally {
                 if (fr != null) {
                     fr.close();
                 }
@@ -89,12 +85,15 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
                     reader.close();
                 }
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
 
         }
         // If something goes totally wrong, return a null value
         return null;
+    }
+    
+    private static int comparePoints(FuncPoint p1, FuncPoint p2) {
+        return Double.compare(p1.x, p2.x);
     }
 
     // Private Members
@@ -134,20 +133,18 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
         // If there are no points, return 0
         if (this.points.isEmpty()) {
             return 0.0;
-        }
-        // If there is one point, that is the value
+        } // If there is one point, that is the value
         else if (this.points.size() == 1) {
             return this.points.get(0).y;
         }
-        
+
         if (!(value < this.domainMax)) {
-                FuncPoint penultPoint = this.points.get(this.points.size() - 2);
-                FuncPoint finalPoint = this.points.get(this.points.size() - 1);
-                double finalSlope = (finalPoint.y - penultPoint.y) / (finalPoint.x - penultPoint.x);
-                double change = finalSlope * (value - finalPoint.x);
-                return (finalPoint.y + change);
-        }
-        else if (!(value > this.domainMin)) {
+            FuncPoint penultPoint = this.points.get(this.points.size() - 2);
+            FuncPoint finalPoint = this.points.get(this.points.size() - 1);
+            double finalSlope = (finalPoint.y - penultPoint.y) / (finalPoint.x - penultPoint.x);
+            double change = finalSlope * (value - finalPoint.x);
+            return (finalPoint.y + change);
+        } else if (!(value > this.domainMin)) {
             FuncPoint firstPoint = this.points.get(0);
             FuncPoint secondPoint = this.points.get(1);
             double initialSlope = (secondPoint.y - firstPoint.y) / (secondPoint.x - firstPoint.x);
@@ -168,40 +165,25 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
 
     public final void addPoints(FuncPoint[] points) {
         this.points.addAll(Arrays.asList(points));
-        Collections.sort(this.points, new Comparator<FuncPoint>() {
-            @Override
-            public int compare(FuncPoint p1, FuncPoint p2) {
-                return Double.compare(p1.x(), p2.x());
-            }
-        });
+        Collections.sort(this.points, (FuncPoint p1, FuncPoint p2) -> comparePoints(p1, p2));
     }
 
     public final void addPoint(FuncPoint point) {
         points.add(point);
-        Collections.sort(this.points, new Comparator<FuncPoint>() {
-            @Override
-            public int compare(FuncPoint p1, FuncPoint p2) {
-                return Double.compare(p1.x(), p2.x());
-            }
-        });
+        Collections.sort(this.points, (FuncPoint p1, FuncPoint p2) -> comparePoints(p1, p2));
     }
 
     public final void addPoints(Collection<FuncPoint> points) {
         this.points.addAll(points);
-        Collections.sort(this.points, new Comparator<FuncPoint>() {
-            @Override
-            public int compare(FuncPoint p1, FuncPoint p2) {
-                return Double.compare(p1.x(), p2.x());
-            }
-        });
+        Collections.sort(this.points, (FuncPoint p1, FuncPoint p2) -> comparePoints(p1, p2));
     }
 
     public final int indexOfPointSmallerThan(double val) {
         int upperBound = points.size() - 1;
         int lowerBound = 0;
         int guess = (upperBound + lowerBound) / 2;
-        
-        double startGuess = guess;
+
+        double startGuess;
         boolean guessRepeated = false;
 
         while (!((points.get(guess).x < val) && (points.get(guess + 1).x > val)) && !guessRepeated) {
@@ -209,8 +191,7 @@ public class SingleVariableTableFunction extends SingleVariableFunction {
             if (points.get(guess + 1).x < val) {
                 lowerBound = guess;
                 guess = (upperBound + lowerBound) / 2;
-            }
-            else if (points.get(guess).x > val) {
+            } else if (points.get(guess).x > val) {
                 upperBound = guess;
                 guess = (upperBound + lowerBound) / 2;
             }

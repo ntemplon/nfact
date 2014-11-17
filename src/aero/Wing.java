@@ -23,6 +23,7 @@
  */
 package aero;
 
+import dynamics.AeroSystemState;
 import function.SingleVariableFunction;
 import geometry.angle.Angle;
 
@@ -32,16 +33,6 @@ import geometry.angle.Angle;
  */
 public abstract class Wing {
 
-    // Protected Static Methods
-    protected static double getDataMeasureFor(Angle angle) {
-        double measure = angle.getMeasure(Angle.AngleType.DEGREES);
-        if (measure > 180) {
-            measure = measure * -1.0;
-        }
-        return measure;
-    }
-
-
     // Public Methods
     public abstract WingPlanform getPlanform();
 
@@ -49,11 +40,11 @@ public abstract class Wing {
 
     public abstract WingSection sectionAt(double station);
 
-    public abstract double cl(Angle alpha);
+    public abstract double cl(AeroSystemState state);
 
-    public abstract double cd(Angle alpha);
+    public abstract double cd(AeroSystemState state);
 
-    public abstract double cpm(Angle alpha);
+    public abstract double cpm(AeroSystemState state);
 
     public abstract SingleVariableFunction clFunction();
 

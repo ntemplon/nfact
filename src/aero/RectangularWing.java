@@ -23,8 +23,10 @@
  */
 package aero;
 
+import dynamics.AeroSystemState;
 import function.SingleVariableFunction;
 import geometry.angle.Angle;
+import geometry.angle.Angle.AngleType;
 
 /**
  *
@@ -82,18 +84,18 @@ public class RectangularWing extends Wing {
     }
 
     @Override
-    public double cl(Angle alpha) {
-        return this.liftCoeff.evaluate(getDataMeasureFor(alpha));
+    public double cl(AeroSystemState state) {
+        return this.liftCoeff.evaluate(state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
-    public double cd(Angle alpha) {
-        return this.dragCoeff.evaluate(getDataMeasureFor(alpha));
+    public double cd(AeroSystemState state) {
+        return this.dragCoeff.evaluate(state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
-    public double cpm(Angle alpha) {
-        return this.pmCoeff.evaluate(getDataMeasureFor(alpha));
+    public double cpm(AeroSystemState state) {
+        return this.pmCoeff.evaluate(state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override

@@ -21,30 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics.simulation;
-
-import dynamics.AeroSystemState;
+package dynamics.analysis;
 
 /**
  *
- * @author nathan
+ * @author Nathan Templon
  */
-public class PitchOverExitCondition implements ExitCondition<AeroSystemState> {
-
-    private boolean threshholdReached = false;
-
-    @Override
-    public boolean isFinished(AeroSystemState state) {
-        if (state.get(AeroSystemState.DYNAMIC_PRESSURE) == null || state.get(AeroSystemState.Z_VEL) == null ||
-                state.get(AeroSystemState.THRUST) == null) {
-            return false;
-        }
-        
-        if (state.get(AeroSystemState.DYNAMIC_PRESSURE) > 1) {
-            threshholdReached = true;
-        }
-        return threshholdReached && !(state.get(AeroSystemState.Z_VEL) > 0
-            || state.get(AeroSystemState.THRUST) > 0);
+public class AnalysisResults {
+    
+    // Properties
+    public Exception exception;
+    public boolean includeInOutput;
+    public String outputString;
+    
+    // Initialization
+    public AnalysisResults() {
+        this.exception = null;
+        this.includeInOutput = true;
+        this.outputString = "";
     }
-
+    
 }

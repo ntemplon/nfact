@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics.simulation;
+package dynamics.analysis.simulation;
 
 import dynamics.SystemState;
 
@@ -30,8 +30,10 @@ import dynamics.SystemState;
  * @author nathan
  * @param <TState>
  */
-public interface ExitCondition<TState extends SystemState> {
+public interface SimulationRecorder<TState extends SystemState> {
     
-    boolean isFinished(TState state);
+    void start(TState initialState);
+    void recordState(TState state);
+    void finish(TState finalState);
     
 }

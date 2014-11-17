@@ -23,8 +23,8 @@
  */
 package util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -42,7 +42,7 @@ public class ArrayUtil {
     
     
     // Still experiencing some intermitent errors
-    public static <T> T[] toArray(ArrayList<T> list) {
+    public static <T> T[] asArray(List<T> list) {
         T[] result = (T[])(new Object[list.size()]);
         
         for (int index = 0; index < list.size(); index++) {

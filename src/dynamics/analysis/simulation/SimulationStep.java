@@ -21,19 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics.simulation;
+package dynamics.analysis.simulation;
 
-import dynamics.SystemState;
+import dynamics.analysis.AnalysisResults;
+import dynamics.analysis.AnalysisStep;
 
 /**
  *
- * @author nathan
- * @param <TState>
+ * @author Nathan Templon
  */
-public interface SimulationRecorder<TState extends SystemState> {
-    
-    void start(TState initialState);
-    void recordState(TState state);
-    void finish(TState finalState);
-    
+public class SimulationStep implements AnalysisStep {
+
+    // Fields
+    private final Simulation sim;
+
+
+    // Initialization
+    public SimulationStep(Simulation sim) {
+        this.sim = sim;
+    }
+
+
+    // Public Methods
+    @Override
+    public AnalysisResults performAnalysis() {
+        AnalysisResults results = new AnalysisResults();
+        results.exception = null;
+        results.includeInOutput = false;
+        results.outputString = "";
+
+        try {
+            this.sim.run();
+        }
+        catch (Exception ex) {
+            results.exception = ex;
+        }
+
+        return results;
+    }
+
 }

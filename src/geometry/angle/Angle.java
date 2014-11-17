@@ -58,22 +58,25 @@ public class Angle {
     }
 
     /**
-     * An enumeration identifying the different ways to identify an the measure of an Angle
+     * An enumeration identifying the different ways to identify an the measure
+     * of an Angle
      */
     public enum MeasureRange {
+
         /**
          * Between 0 and 2 PI (360 degrees)
          */
         FullCircle,
-        
         /**
          * Between +- 2 PI (+- 180 degrees)
          */
         PlusMin180
     }
 
+
     // Fields
     private double measure;
+
 
     // Properties
     /**
@@ -112,9 +115,12 @@ public class Angle {
     }
 
     /**
-     * A method that returns the measure of the angle in the specified range, in radians.
+     * A method that returns the measure of the angle in the specified range, in
+     * radians.
+     *
      * @param range The range to return the measure of the angle in
-     * @return Returns the measure of the angle in the specified range, in radians.
+     * @return Returns the measure of the angle in the specified range, in
+     * radians.
      */
     public double getMeasure(MeasureRange range) {
         switch (range) {
@@ -124,7 +130,8 @@ public class Angle {
             case PlusMin180:
                 if (this.getMeasure() < Math.PI) {
                     return this.getMeasure();
-                } else {
+                }
+                else {
                     return (this.getMeasure() - (2 * Math.PI));
                 }
 
@@ -132,19 +139,21 @@ public class Angle {
                 return this.getMeasure();
         }
     }
-    
+
     /**
-     * A method that returns the measure of the angle in the specified range and units
+     * A method that returns the measure of the angle in the specified range and
+     * units
+     *
      * @param type The type of Angle measurement
      * @param range The range to measure the angle in
      * @return Returns the measure of the angle in the specified range and units
      */
     public double getMeasure(AngleType type, MeasureRange range) {
         double radVal = this.getMeasure(range);
-        switch(type) {
+        switch (type) {
             case DEGREES:
                 return radVal * (180.0 / Math.PI);
-                
+
             case RADIANS:
             default:
                 return radVal;
@@ -259,6 +268,7 @@ public class Angle {
         return Math.cosh(measure) / Math.sinh(measure);
     }
 
+
     // Initialization
     /**
      * A default constructor that creates a new Angle of measure 0.
@@ -315,9 +325,11 @@ public class Angle {
         // Correct for double precision errors
         if (doubleEquals(funcVal, 1.0)) {
             funcVal = 1.0;
-        } else if (doubleEquals(funcVal, -1.0)) {
+        }
+        else if (doubleEquals(funcVal, -1.0)) {
             funcVal = -1.0;
-        } else if (doubleEquals(funcVal, 0.0)) {
+        }
+        else if (doubleEquals(funcVal, 0.0)) {
             funcVal = 0.0;
         }
 
@@ -325,12 +337,16 @@ public class Angle {
 
             case COSECANT:
                 funcVal = 1.0 / funcVal;
+                this.measure = Math.asin(funcVal);
+                break;
             case SINE:
                 this.measure = Math.asin(funcVal);
                 break;
 
             case SECANT:
                 funcVal = 1.0 / funcVal;
+                this.measure = Math.acos(funcVal);
+                break;
             case COSINE:
                 this.measure = Math.acos(funcVal);
                 break;
@@ -341,6 +357,8 @@ public class Angle {
                     break;
                 }
                 funcVal = 1.0 / funcVal;
+                this.measure = Math.atan(funcVal);
+                break;
             case TANGENT:
                 this.measure = Math.atan(funcVal);
                 break;
@@ -350,6 +368,7 @@ public class Angle {
         correctValueRange();
     }
 
+    
     // Public Methods
     /**
      * A method that facilitates the addition of two Angle objects.
@@ -409,6 +428,7 @@ public class Angle {
         return measure + "";
     }
 
+    
     // Private Methods
     /**
      * Changes the angles measure to be between 0 and 2 PI, inclusive.
@@ -426,6 +446,6 @@ public class Angle {
 //            measure = 0.0;
 //        }
         double frac2Pi = this.measure / (2 * Math.PI);
-        this.measure -= ((int)frac2Pi)*(2 * Math.PI);
+        this.measure -= ((int) frac2Pi) * (2 * Math.PI);
     }
 }

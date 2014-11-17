@@ -37,7 +37,7 @@ import java.util.Map;
 public abstract class SystemState {
 
     // Constants
-    public static final StateVariable<Double> TIME = new StateVariable("Time");
+    public static final StateVariable<Double> TIME = new StateVariable<>("Time");
 
 
     // Fields
@@ -50,11 +50,17 @@ public abstract class SystemState {
         return this.values.keySet();
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T get(SystemProperty<T> variable) {
         if (variable == null || !this.values.containsKey(variable)) {
             return null;
         }
-        return (T) this.values.get(variable);
+        try {
+            return (T) this.values.get(variable);
+        }
+        catch (Exception ex) {
+            return null;
+        }
     }
 
     public <T> void set(SystemProperty<T> variable, T value) {
@@ -104,7 +110,8 @@ public abstract class SystemState {
                     this.values.put(variable, value);
                     this.updateDerivedVariables(variable);
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 this.values.put(variable, null);
             }
         });

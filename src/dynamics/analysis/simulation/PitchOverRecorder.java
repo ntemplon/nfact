@@ -49,7 +49,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
         AeroSystemState.X_POS, AeroSystemState.Z_POS, AeroSystemState.ANGULAR_POS, AeroSystemState.X_VEL,
         AeroSystemState.Z_VEL, AeroSystemState.ANGULAR_VEL, AeroSystemState.X_ACCEL, AeroSystemState.Z_ACCEL,
         AeroSystemState.ANGULAR_ACCEL, AeroSystemState.AXIAL_LOAD_FACTOR, AeroSystemState.NORMAL_LOAD_FACTOR,
-        AeroSystemState.THRUST
+        AeroSystemState.THRUST, AeroSystemState.MASS
     };
 
 
@@ -118,6 +118,9 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
     public void start(AeroSystemState initialState) {
         if (!file.exists()) {
             try {
+                if (!file.getParentFile().exists()) {
+                    file.getParentFile().mkdirs();
+                }
                 file.createNewFile();
             } catch (IOException ex) {
                 return;

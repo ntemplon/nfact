@@ -44,6 +44,8 @@ public class DynamicSystemState extends SystemState {
     public static final StateVariable<Double> X_POS = new StateVariable("X Position");
     public static final StateVariable<Double> Z_POS = new StateVariable("Z Position");
     public static final StateVariable<Angle> ANGULAR_POS = new StateVariable("Angular Position");
+    
+    public static final StateVariable<Double> MASS = new StateVariable("Mass");
 
     public static final DerivedProperty<DynamicSystemState, Double> SPEED = new DerivedProperty("Speed", new StateFunction<>(
             (DynamicSystemState state) -> Math.sqrt(state.get(X_VEL) * state.get(X_VEL) + state.get(Z_VEL) * state.get(Z_VEL)),

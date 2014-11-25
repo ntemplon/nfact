@@ -48,16 +48,18 @@ public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState
 
     /**
      *
+     * @param state
      * @return the mass of the object in slugs
      */
-    public abstract double getMass();
+    public abstract double getMass(AeroSystemState state);
 
     /**
      *
+     * @param state
      * @return the moment of inertia of the system about it's own y axis (out
      * the right wing), in slug-square feet
      */
-    public abstract double getIyy();
+    public abstract double getIyy(AeroSystemState state);
 
     public abstract AeroSystemState getInitialState();
 
@@ -196,11 +198,11 @@ public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState
         double zThrust = thrust * theta.sin();
 
         double xForce = xLift + xDrag + xThrust;
-        double zForce = zLift + zDrag + zThrust - (PhysicalConstants.GRAVITY_ACCELERATION * this.getMass());
+        double zForce = zLift + zDrag + zThrust - (PhysicalConstants.GRAVITY_ACCELERATION * this.getMass(state));
 
-        state.set(AeroSystemState.X_ACCEL, xForce / this.getMass());
-        state.set(AeroSystemState.Z_ACCEL, zForce / this.getMass());
-        state.set(AeroSystemState.ANGULAR_ACCEL, pitchMoment / this.getIyy());
+        state.set(AeroSystemState.X_ACCEL, xForce / this.getMass(state));
+        state.set(AeroSystemState.Z_ACCEL, zForce / this.getMass(state));
+        state.set(AeroSystemState.ANGULAR_ACCEL, pitchMoment / this.getIyy(state));
     }
 
 }

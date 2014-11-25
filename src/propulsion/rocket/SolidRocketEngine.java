@@ -36,5 +36,6 @@ public interface SolidRocketEngine extends RocketEngine {
     
     // Public Methods
     double getThrust(double time);
+    double getMass(double time);
     
 }

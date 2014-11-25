@@ -24,6 +24,7 @@
 package dynamics.airplane;
 
 import dynamics.AeroSystemState;
+import geometry.angle.Angle;
 import propulsion.rocket.SolidRocketEngine;
 
 /**
@@ -39,12 +40,13 @@ public class RocketPlaneParameters {
     private double aspectRatio;
     private double zThrust;
     
-    private double mass;
+    private double baseMass;
     private double iyy;
     
     private SolidRocketEngine rocketEngine;
     
     private double clAlpha;
+    private Angle alphaZeroLift;
     private double clDeltaE;
     private double clQ;
     private double cd0;
@@ -129,15 +131,15 @@ public class RocketPlaneParameters {
     /**
      * @return the mass
      */
-    public double getMass() {
-        return mass;
+    public double getBaseMass() {
+        return baseMass;
     }
 
     /**
      * @param mass the mass to set
      */
-    public void setMass(double mass) {
-        this.mass = mass;
+    public void setBaseMass(double mass) {
+        this.baseMass = mass;
     }
 
     /**
@@ -180,6 +182,20 @@ public class RocketPlaneParameters {
      */
     public void setClAlpha(double clAlpha) {
         this.clAlpha = clAlpha;
+    }
+    
+    /**
+     * @return the alphaZeroLift
+     */
+    public Angle getAlphaZeroLift() {
+        return alphaZeroLift;
+    }
+
+    /**
+     * @param alphaZeroLift the alphaZeroLift to set
+     */
+    public void setAlphaZeroLift(Angle alphaZeroLift) {
+        this.alphaZeroLift = alphaZeroLift;
     }
 
     /**

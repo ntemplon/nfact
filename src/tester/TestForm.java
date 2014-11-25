@@ -135,19 +135,20 @@ public class TestForm extends javax.swing.JFrame {
         ExitCondition<AeroSystemState> exit;
 
         RocketPlaneParameters prms = new RocketPlaneParameters();
-        prms.setAspectRatio(6.3);
-        prms.setCBar(0.5291);
-        prms.setCd0(0.02);
-        prms.setClAlpha(4.5891);
-        prms.setClDeltaE(0.0);
-        prms.setClQ(0.0);
-        prms.setCpm0(-0.02);
-        prms.setCpmAlpha(-0.373);
-        prms.setCpmQ(-12.6);
+        prms.setAspectRatio(4);
+        prms.setCBar(0.6708);
+        prms.setCd0(0.016);
+        prms.setClAlpha(5.037);
+        prms.setAlphaZeroLift(new Angle(-1.858, AngleType.DEGREES));
+        prms.setClDeltaE(0.3824);
+        prms.setClQ(12.38);
+        prms.setCpm0(-0.109);
+        prms.setCpmAlpha(-1.045);
+        prms.setCpmQ(-29.3);
         prms.setIyy(0.2 * (3 * 3 + 0.33 * 0.33) * (2.8 / PhysicalConstants.GRAVITY_ACCELERATION));
-        prms.setMass(2.8 / PhysicalConstants.GRAVITY_ACCELERATION);
+        prms.setBaseMass(2.373 / PhysicalConstants.GRAVITY_ACCELERATION);
         prms.setRocketEngine(HobbyRocketEngine.G25);
-        prms.setSRef(2.4);
+        prms.setSRef(1.8);
         prms.setSpanEfficiency(0.87);
         prms.setZThrust(0.0);
         AeroSystemState initialState = new AeroSystemState();
@@ -163,13 +164,13 @@ public class TestForm extends javax.swing.JFrame {
         prms.setInitialState(initialState);
         RocketPlane system;
 
-        String outputFolder = "/home/nathan/NFACalc/";
+        String outputFolder = "/home/nathan/nFACT/";
         DecimalFormat format = new DecimalFormat("0.0000");
         StringBuilder sb = new StringBuilder();
-        sb.append("CPM0 Variation (CPM_Alpha = -0.373, Thrust = +0%):").append(System.lineSeparator());
+        sb.append("CPM0 Variation (CPM_Alpha = -1.045, Thrust = +0%):").append(System.lineSeparator());
 
         // CPM0 sweeps
-        for (double cm0 = 0.0; cm0 > -0.03; cm0 -= 0.001) {
+        for (double cm0 = 0.0; cm0 > -0.2; cm0 -= 0.02) {
             prms.setCpm0(cm0);
             initialState = new AeroSystemState();
             initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
@@ -204,7 +205,7 @@ public class TestForm extends javax.swing.JFrame {
         prms.setCpm0(-0.011);
         
         // CPMAlpha Sweep
-        sb.append(System.lineSeparator());
+        /*sb.append(System.lineSeparator());
         sb.append("CPM_Alpha Variation (CPM0 = -0.011, Thrust = +0%):").append(System.lineSeparator());
         for (double cmA = -0.18; cmA > -0.55; cmA -= 0.02) {
             prms.setCpmAlpha(cmA);
@@ -279,7 +280,7 @@ public class TestForm extends javax.swing.JFrame {
             sb.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
         }
         prms.setRocketEngine(HobbyRocketEngine.G25);
-
+        */
         File summary = new File(outputFolder + "summary.txt");
         try (FileWriter fw = new FileWriter(summary)) {
             try (PrintWriter pw = new PrintWriter(fw)) {

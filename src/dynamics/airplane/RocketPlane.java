@@ -29,6 +29,7 @@ import aero.fluid.IdealGasState;
 import dynamics.AeroSystemState;
 import dynamics.AerodynamicSystem;
 import dynamics.DynamicSystemState;
+import dynamics.SystemState;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
 import geometry.angle.Angle.MeasureRange;
@@ -49,12 +50,13 @@ public class RocketPlane extends AerodynamicSystem {
     private final double aspectRatio;
     private final double zThrust;
     
-    private final double mass;
     private final double iyy;
+    private final double baseMass;
     
     private final SolidRocketEngine engine;
     
     private final double clAlpha;
+    private final Angle alphaZeroLift;
     private final double clDeltaE;
     private final double clQ;
     private final double cd0;
@@ -67,12 +69,14 @@ public class RocketPlane extends AerodynamicSystem {
 
     // Properties
     @Override
-    public double getMass() {
-        return 2.8 / PhysicalConstants.GRAVITY_ACCELERATION;
+    public double getMass(AeroSystemState state) {
+        double mass = this.baseMass + this.engine.getMass(state.get(SystemState.TIME));
+        state.set(AeroSystemState.MASS, mass);
+        return mass;
     }
 
     @Override
-    public double getIyy() {
+    public double getIyy(AeroSystemState state) {
         return this.iyy;
     }
 
@@ -91,12 +95,13 @@ public class RocketPlane extends AerodynamicSystem {
         this.spanEfficiency = 0.87;
         this.aspectRatio = 6.3;
         this.zThrust = 0.0;
-        this.mass = 2.8 / PhysicalConstants.GRAVITY_ACCELERATION;
-        this.iyy = 0.2 * (3 * 3 + 0.33 * 0.33) * this.mass;
+        this.baseMass = 2.373 / PhysicalConstants.GRAVITY_ACCELERATION;
+        this.iyy = 0.2 * (3 * 3 + 0.33 * 0.33) * (this.baseMass + engine.getMass(0));
         
         this.engine = engine;
         
         this.clAlpha = 4.5891;
+        this.alphaZeroLift = new Angle(-1.858, AngleType.DEGREES);
         this.clDeltaE = 0.0;
         this.clQ = 0.0;
         this.cd0 = 0.02;
@@ -126,12 +131,13 @@ public class RocketPlane extends AerodynamicSystem {
         this.spanEfficiency = prms.getSpanEfficiency();
         this.aspectRatio = prms.getAspectRatio();
         this.zThrust = prms.getZThrust();
-        this.mass = prms.getMass();
+        this.baseMass = prms.getBaseMass();
         this.iyy = prms.getIyy();
         
         this.engine = prms.getRocketEngine();
         
         this.clAlpha = prms.getClAlpha();
+        this.alphaZeroLift = prms.getAlphaZeroLift();
         this.clDeltaE = prms.getClDeltaE();
         this.clQ = prms.getClQ();
         this.cd0 = prms.getCd0();
@@ -168,7 +174,12 @@ public class RocketPlane extends AerodynamicSystem {
     }
 
     public double getCl(AeroSystemState state) {
-        double cl = this.clAlpha * state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
+        Angle totalAlpha = state.get(AeroSystemState.ALPHA).add(alphaZeroLift.scalarMultiply(-1.0));
+        double cl = this.clAlpha * totalAlpha.getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
+        
+        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
+        cl += qHat * this.clQ;
+        
         state.set(AeroSystemState.CL, cl);
         return cl;
     }
@@ -188,9 +199,10 @@ public class RocketPlane extends AerodynamicSystem {
         double cpmFromQ = this.cpmQ * qHat;
         state.set(AeroSystemState.CPMQ, cpmFromQ);
 
-        double thrust = this.getThrust(state);
-        double thrustPitchMoment = -1 * zThrust * thrust;
-        double cpmt = (thrustPitchMoment / (state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar));
+//        double thrust = this.getThrust(state);
+//        double thrustPitchMoment = -1 * zThrust * thrust;
+//        double cpmt = (thrustPitchMoment / (state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar));
+        double cpmt = 0.0;
         state.set(AeroSystemState.CPMT, cpmt);
 
         double cpm = this.cpm0 + cpmFromAlpha + cpmFromQ + cpmt;

@@ -85,17 +85,17 @@ public class RectangularWing extends Wing {
 
     @Override
     public double cl(AeroSystemState state) {
-        return this.liftCoeff.evaluate(state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+        return this.liftCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
     public double cd(AeroSystemState state) {
-        return this.dragCoeff.evaluate(state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+        return this.dragCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
     public double cpm(AeroSystemState state) {
-        return this.pmCoeff.evaluate(state.get(AeroSystemState.ALPHA).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+        return this.pmCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override

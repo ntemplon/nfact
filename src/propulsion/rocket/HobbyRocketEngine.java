@@ -105,8 +105,7 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new Function.FuncPoint(3.839, 1.714),
                 new Function.FuncPoint(4.323, 1.016),
                 new Function.FuncPoint(4.783, 0.571),
-                new Function.FuncPoint(5.3,0),
-            }),
+                new Function.FuncPoint(5.3, 0),}),
             new SingleVariableTableFunction(0.0, 5.3, new Function.FuncPoint[]{
                 new Function.FuncPoint(0.0, 0.011455),
                 new Function.FuncPoint(0.0001, 0.011455),
@@ -138,9 +137,22 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new Function.FuncPoint(3.839, 0.007517),
                 new Function.FuncPoint(4.323, 0.007410),
                 new Function.FuncPoint(4.783, 0.007350),
-                new Function.FuncPoint(5.3, 0.007326),
-            })
+                new Function.FuncPoint(5.3, 0.007326),})
     );
+
+    public static final HobbyRocketEngine G25_POST_BURN = new HobbyRocketEngine("G25 - Post Burn",
+            new SingleVariableFunction() {
+                @Override
+                public Double evaluate(Double time) {
+                    return 0.0;
+                }
+            },
+            new SingleVariableFunction() {
+                @Override
+                public Double evaluate(Double time) {
+                    return 0.007326;
+                }
+            });
 
 
     // Fields
@@ -171,7 +183,8 @@ public class HobbyRocketEngine implements SolidRocketEngine {
         // Calculate burn time
         if (this.thrust.hasFiniteDomain) {
             this.burnTime = this.thrust.domainMax - this.thrust.domainMin;
-        } else {
+        }
+        else {
             this.burnTime = 0.0;
         }
     }
@@ -192,14 +205,14 @@ public class HobbyRocketEngine implements SolidRocketEngine {
         }
         return thrust.evaluate(time);
     }
-    
+
     @Override
     public double getMass(double time) {
         if (mass.hasFiniteDomain) {
             if (time < mass.domainMin) {
                 return mass.evaluate(mass.domainMin);
             }
-            else if(time > mass.domainMax) {
+            else if (time > mass.domainMax) {
                 return mass.evaluate(mass.domainMax);
             }
         }

@@ -21,41 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics;
+package dynamics.analysis.simulation;
+
+import dynamics.SystemState;
 
 /**
  *
- * @author nathan
- * @param <T>
+ * @author Nathan Templon
  */
-public abstract class SystemProperty<T> implements Comparable<SystemProperty> {
-    
+public class TimeExitCondition implements ExitCondition {
+
     // Fields
-    private final String name;
-    
-    
+    private final double simulationTime;
+
+
     // Properties
-    public String getName() {
-        return this.name;
+    public double getSimulationTime() {
+        return this.simulationTime;
     }
-    
-    
+
+
     // Initialization
-    public SystemProperty(String name) {
-        this.name = name;
+    public TimeExitCondition(double simulationTime) {
+        this.simulationTime = simulationTime;
     }
-    
-    
-    // Public Methods
+
+
     @Override
-    public String toString() {
-        return this.getName();
+    public boolean isFinished(SystemState state) {
+        try {
+            if (state.get(SystemState.TIME) > this.simulationTime) {
+                return true;
+            }
+        }
+        catch (Exception ex) {
+            // Will fall through to the "return false" statement directly below
+        }
+        return false;
     }
-    
-    // Comparable Implementation
-    @Override
-    public int compareTo(SystemProperty other) {
-        return this.getName().compareTo(other.getName());
-    }
-    
+
 }

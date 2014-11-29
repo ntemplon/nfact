@@ -44,7 +44,7 @@ public class PitchOverRecorder implements SimulationRecorder<AeroSystemState>, A
 
     // Constants
     public static final SystemProperty[] RECORDED_VARIABLES = new SystemProperty[]{
-        AeroSystemState.TIME, AeroSystemState.ALPHA, AeroSystemState.CL, AeroSystemState.CD,
+        AeroSystemState.TIME, AeroSystemState.ANGLE_OF_ATTACK, AeroSystemState.CL, AeroSystemState.CD,
         AeroSystemState.CPM, AeroSystemState.DYNAMIC_PRESSURE, AeroSystemState.SPEED, AeroSystemState.FLIGHT_PATH_ANGLE,
         AeroSystemState.X_POS, AeroSystemState.Z_POS, AeroSystemState.ANGULAR_POS, AeroSystemState.X_VEL,
         AeroSystemState.Z_VEL, AeroSystemState.ANGULAR_VEL, AeroSystemState.X_ACCEL, AeroSystemState.Z_ACCEL,

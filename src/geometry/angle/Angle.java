@@ -425,7 +425,7 @@ public class Angle {
      */
     @Override
     public String toString() {
-        return measure + "";
+        return this.getMeasure(AngleType.RADIANS) + " radians (" + this.getMeasure(AngleType.DEGREES) + " degrees)";
     }
 
     

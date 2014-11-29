@@ -52,6 +52,7 @@ public class RocketPlaneParameters {
     private double cd0;
     private double cpm0;
     private double cpmAlpha;
+    private double cpmDeltaE;
     private double cpmQ;
     
     private AeroSystemState initialState;
@@ -266,6 +267,20 @@ public class RocketPlaneParameters {
      */
     public void setCpmAlpha(double cpmAlpha) {
         this.cpmAlpha = cpmAlpha;
+    }
+    
+    /**
+     * @return the cpmDeltaE
+     */
+    public double getCpmDeltaE() {
+        return cpmDeltaE;
+    }
+
+    /**
+     * @param cpmDeltaE the cpmDeltaE to set
+     */
+    public void setCpmDeltaE(double cpmDeltaE) {
+        this.cpmDeltaE = cpmDeltaE;
     }
 
     /**

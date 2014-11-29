@@ -141,37 +141,51 @@ public class TestForm extends javax.swing.JFrame {
         prms.setClAlpha(5.037);
         prms.setAlphaZeroLift(new Angle(-1.858, AngleType.DEGREES));
         prms.setClDeltaE(0.3824);
-        prms.setClQ(12.38);
-        prms.setCpm0(-0.109);
-        prms.setCpmAlpha(-1.045);
-        prms.setCpmQ(-29.3);
-        prms.setIyy(0.2 * (3 * 3 + 0.33 * 0.33) * (2.8 / PhysicalConstants.GRAVITY_ACCELERATION));
-        prms.setBaseMass(2.373 / PhysicalConstants.GRAVITY_ACCELERATION);
+        prms.setClQ(11.75);
+        prms.setCpm0(-0.07234);
+        prms.setCpmAlpha(-0.9973);
+        prms.setCpmDeltaE(1.452);
+        prms.setCpmQ(-25.36);
+        prms.setIyy(0.0764);
+        prms.setBaseMass(2.28 / PhysicalConstants.GRAVITY_ACCELERATION);
         prms.setRocketEngine(HobbyRocketEngine.G25);
         prms.setSRef(1.8);
         prms.setSpanEfficiency(0.87);
         prms.setZThrust(0.0);
-        AeroSystemState initialState = new AeroSystemState();
-        initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
-        initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
-        initialState.set(AeroSystemState.X_POS, 0.0);
-        initialState.set(AeroSystemState.X_VEL, 0.0);
-        initialState.set(AeroSystemState.Z_POS, 0.0);
-        initialState.set(AeroSystemState.Z_VEL, 0.1);
-        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
-        initialState.set(AeroSystemState.FLUID_STATE, fluid);
-
-        prms.setInitialState(initialState);
-        RocketPlane system;
 
         String outputFolder = "/home/nathan/nFACT/";
         DecimalFormat format = new DecimalFormat("0.0000");
-        StringBuilder sb = new StringBuilder();
-        sb.append("CPM0 Variation (CPM_Alpha = -1.045, Thrust = +0%):").append(System.lineSeparator());
+        StringBuilder summary = new StringBuilder();
+        summary.append("CPM0 Variation (CPM_Alpha = -1.045, Thrust = +0%):").append(System.lineSeparator());
+
+        this.runCpm0Sweep(0.0, -0.2, 21, prms, outputFolder, summary, format);
+
+        File summaryFile = new File(outputFolder + "summary.txt");
+        try (FileWriter fw = new FileWriter(summaryFile)) {
+            try (PrintWriter pw = new PrintWriter(fw)) {
+                pw.println(summary.toString());
+            }
+        }
+        catch (IOException ex) {
+
+        }
+
+        JOptionPane.showMessageDialog(this, "Simulation Complete!");
+    }//GEN-LAST:event_simulateButtonActionPerformed
+
+    private void runCpm0Sweep(double start, double end, int numSteps, RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
+        AeroSystemState initialState;
+        FluidState fluid;
+        RocketPlane system;
+        ExitCondition<AeroSystemState> exit;
+
+        double initialCpm0 = params.getCpm0();
+        double incPerStep = (end - start) / (numSteps - 1);
 
         // CPM0 sweeps
-        for (double cm0 = 0.0; cm0 > -0.2; cm0 -= 0.02) {
-            prms.setCpm0(cm0);
+        for (int i = 0; i < numSteps; i++) {
+            double cm0 = start + ((double) i) * incPerStep;
+            params.setCpm0(cm0);
             initialState = new AeroSystemState();
             initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
             initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
@@ -182,8 +196,8 @@ public class TestForm extends javax.swing.JFrame {
             fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
             initialState.set(AeroSystemState.FLUID_STATE, fluid);
 
-            prms.setInitialState(initialState);
-            system = new RocketPlane(prms);
+            params.setInitialState(initialState);
+            system = new RocketPlane(params);
 
             File file = new File(outputFolder + "simulation-cpm0_" + format.format(cm0) + ".csv");
             PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
@@ -192,106 +206,18 @@ public class TestForm extends javax.swing.JFrame {
             Simulation sim = new Simulation(system, exit, recorder, 0.0005);
             sim.run();
 
-            sb.append("\tCase CPM0 = ").append(format.format(cm0)).append(":").append(System.lineSeparator());
-            sb.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
-            sb.append("\t\tBurnout before Pitch Over: ").append(recorder.getSimulationTime() > 5.4).append(System.lineSeparator());
-            sb.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
-            sb.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
+            summary.append("\tCase CPM0 = ").append(format.format(cm0)).append(":").append(System.lineSeparator());
+            summary.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
+            summary.append("\t\tBurnout before Pitch Over: ").append(recorder.getSimulationTime() > 5.4).append(System.lineSeparator());
+            summary.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
+            summary.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
                     .append(" degrees").append(System.lineSeparator());
-            sb.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
-            sb.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
-            sb.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
+            summary.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
+            summary.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
+            summary.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
         }
-        prms.setCpm0(-0.011);
-        
-        // CPMAlpha Sweep
-        /*sb.append(System.lineSeparator());
-        sb.append("CPM_Alpha Variation (CPM0 = -0.011, Thrust = +0%):").append(System.lineSeparator());
-        for (double cmA = -0.18; cmA > -0.55; cmA -= 0.02) {
-            prms.setCpmAlpha(cmA);
-            initialState = new AeroSystemState();
-            initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
-            initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
-            initialState.set(AeroSystemState.X_POS, 0.0);
-            initialState.set(AeroSystemState.X_VEL, 0.0);
-            initialState.set(AeroSystemState.Z_POS, 0.0);
-            initialState.set(AeroSystemState.Z_VEL, 0.1);
-            fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
-            initialState.set(AeroSystemState.FLUID_STATE, fluid);
-
-            prms.setInitialState(initialState);
-            system = new RocketPlane(prms);
-
-            File file = new File(outputFolder + "simulation-cpmAlpha_" + format.format(cmA) + ".csv");
-            PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
-            exit = new PitchOverExitCondition();
-
-            Simulation sim = new Simulation(system, exit, recorder, 0.0005);
-            sim.run();
-
-            sb.append("\tCase CPM_Alpha = ").append(format.format(cmA)).append(":").append(System.lineSeparator());
-            sb.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
-            sb.append("\t\tBurnout before Pitch Over: ").append(recorder.getSimulationTime() > 5.4).append(System.lineSeparator());
-            sb.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
-            sb.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
-                    .append(" degrees").append(System.lineSeparator());
-            sb.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
-            sb.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
-            sb.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
-        }
-        prms.setCpmAlpha(-0.373);
-        
-        // Engine Sweeps
-        sb.append(System.lineSeparator());
-        sb.append("Thrust Variation (CPM0 = -0.011, CPM_Alpha = -0.373):").append(System.lineSeparator());
-        for (int modPercent = -20; modPercent <= 20; modPercent += 4) {
-            double variation = 1 + ((double)modPercent) / 100.0;
-            HobbyRocketEngine newEngine = HobbyRocketEngine.G25.getThrustVariationEngine(variation);
-            prms.setRocketEngine(newEngine);
-            
-            initialState = new AeroSystemState();
-            initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
-            initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
-            initialState.set(AeroSystemState.X_POS, 0.0);
-            initialState.set(AeroSystemState.X_VEL, 0.0);
-            initialState.set(AeroSystemState.Z_POS, 0.0);
-            initialState.set(AeroSystemState.Z_VEL, 0.1);
-            fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
-            initialState.set(AeroSystemState.FLUID_STATE, fluid);
-
-            prms.setInitialState(initialState);
-            system = new RocketPlane(prms);
-
-            File file = new File(outputFolder + "simulation-thrust_" + modPercent + ".csv");
-            PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
-            exit = new PitchOverExitCondition();
-
-            Simulation sim = new Simulation(system, exit, recorder, 0.0005);
-            sim.run();
-
-            sb.append("\tCase Thrust = ").append(modPercent + 100).append("%:").append(System.lineSeparator());
-            sb.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
-            sb.append("\t\tBurnout before Pitch Over: ").append(recorder.getSimulationTime() > 5.4).append(System.lineSeparator());
-            sb.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
-            sb.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
-                    .append(" degrees").append(System.lineSeparator());
-            sb.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
-            sb.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
-            sb.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
-        }
-        prms.setRocketEngine(HobbyRocketEngine.G25);
-        */
-        File summary = new File(outputFolder + "summary.txt");
-        try (FileWriter fw = new FileWriter(summary)) {
-            try (PrintWriter pw = new PrintWriter(fw)) {
-                pw.println(sb.toString());
-            }
-        } catch (IOException ex) {
-
-        }
-
-        JOptionPane.showMessageDialog(this, "Simulation Complete!");
-    }//GEN-LAST:event_simulateButtonActionPerformed
+        params.setCpm0(initialCpm0);
+    }
 
     /**
      * @param args the command line arguments
@@ -309,13 +235,17 @@ public class TestForm extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
+        }
+        catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(TestForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
+        }
+        catch (InstantiationException ex) {
             java.util.logging.Logger.getLogger(TestForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
+        }
+        catch (IllegalAccessException ex) {
             java.util.logging.Logger.getLogger(TestForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        }
+        catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(TestForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>

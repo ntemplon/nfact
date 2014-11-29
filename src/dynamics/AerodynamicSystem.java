@@ -28,7 +28,7 @@ import util.PhysicalConstants;
 
 /**
  *
- * @author nathant
+ * @author Nathan Templon
  */
 public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState> {
 

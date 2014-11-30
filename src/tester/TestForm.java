@@ -33,8 +33,10 @@ import dynamics.analysis.simulation.ExitCondition;
 import dynamics.analysis.simulation.PitchOverExitCondition;
 import dynamics.analysis.simulation.PitchOverRecorder;
 import dynamics.analysis.simulation.Simulation;
+import dynamics.analysis.simulation.TimeExitCondition;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
+import geometry.angle.Angle.TrigFunction;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -138,9 +140,9 @@ public class TestForm extends javax.swing.JFrame {
         prms.setAspectRatio(4);
         prms.setCBar(0.6708);
         prms.setCd0(0.016);
-        prms.setClAlpha(5.037);
-        prms.setAlphaZeroLift(new Angle(-1.858, AngleType.DEGREES));
-        prms.setClDeltaE(0.3824);
+        prms.setClAlpha(5.0227);
+        prms.setAlphaZeroLift(new Angle(-2.035, AngleType.DEGREES));
+        prms.setClDeltaE(0.3782);
         prms.setClQ(11.75);
         prms.setCpm0(-0.07234);
         prms.setCpmAlpha(-0.9973);
@@ -158,7 +160,8 @@ public class TestForm extends javax.swing.JFrame {
         StringBuilder summary = new StringBuilder();
         summary.append("CPM0 Variation (CPM_Alpha = -1.045, Thrust = +0%):").append(System.lineSeparator());
 
-        this.runCpm0Sweep(0.0, -0.2, 21, prms, outputFolder, summary, format);
+//        this.runCpm0Sweep(0.0, -0.2, 21, prms, outputFolder, summary, format);
+        this.runElevatorTest(new Angle(10, AngleType.DEGREES), 44.0, prms, outputFolder, summary, format);
 
         File summaryFile = new File(outputFolder + "summary.txt");
         try (FileWriter fw = new FileWriter(summaryFile)) {
@@ -217,6 +220,47 @@ public class TestForm extends javax.swing.JFrame {
             summary.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
         }
         params.setCpm0(initialCpm0);
+    }
+
+    private void runElevatorTest(Angle deflection, double initialVelocity, RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
+        Angle steadyStateAlpha = new Angle(5.5, AngleType.DEGREES);
+        double cl = 0.7;
+        double cd = 0.016 + (cl * cl) / (Math.PI * 4 * 0.87);
+        Angle fpa = new Angle(-1.0 * (cd / cl), TrigFunction.TANGENT);
+        Angle theta = fpa.add(steadyStateAlpha);
+        
+        AeroSystemState initialState = new AeroSystemState();
+        initialState.set(AeroSystemState.ANGULAR_POS, theta);
+        initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
+        initialState.set(AeroSystemState.X_POS, 0.0);
+        initialState.set(AeroSystemState.X_VEL, initialVelocity * fpa.cos());
+        initialState.set(AeroSystemState.Z_POS, 0.0);
+        initialState.set(AeroSystemState.Z_VEL, initialVelocity * fpa.sin());
+        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
+        initialState.set(AeroSystemState.FLUID_STATE, fluid);
+
+        params.setInitialState(initialState);
+        params.setRocketEngine(HobbyRocketEngine.G25_POST_BURN);
+
+        RocketPlane system = new RocketPlane(params);
+        system.setElevatorDeflection(deflection);
+
+        Double defl = deflection.getMeasure(AngleType.DEGREES);
+        File file = new File(outputFolder + "simulation-deltaE_" + format.format(defl) + "-deg" + ".csv");
+        PitchOverRecorder recorder = new PitchOverRecorder(file, 20);
+        ExitCondition<AeroSystemState> exit = new TimeExitCondition<>(25.0);
+
+        Simulation sim = new Simulation(system, exit, recorder, 0.005);
+        sim.run();
+
+        summary.append("\tCase DeltaE = ").append(format.format(defl)).append("-deg:").append(System.lineSeparator());
+        summary.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
+                .append(" degrees").append(System.lineSeparator());
+        summary.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
+        summary.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
+        summary.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
     }
 
     /**

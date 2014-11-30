@@ -21,44 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics.analysis.simulation;
-
-import dynamics.SystemState;
+package tester;
 
 /**
  *
  * @author Nathan Templon
- * @param <T>
  */
-public class TimeExitCondition<T extends SystemState> implements ExitCondition<T> {
+public class Tester {
 
-    // Fields
-    private final double simulationTime;
-
-
-    // Properties
-    public double getSimulationTime() {
-        return this.simulationTime;
-    }
-
-
-    // Initialization
-    public TimeExitCondition(double simulationTime) {
-        this.simulationTime = simulationTime;
-    }
-
-
-    @Override
-    public boolean isFinished(SystemState state) {
-        try {
-            if (state.get(SystemState.TIME) > this.simulationTime) {
-                return true;
-            }
-        }
-        catch (Exception ex) {
-            // Will fall through to the "return false" statement directly below
-        }
-        return false;
+    public static void main(String args[]) {
+        
     }
 
 }

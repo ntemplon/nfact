@@ -39,7 +39,7 @@ public class ProfileGenerator {
     public static final String SEPERATOR = " ";
 
     public static void main(String args[]) {
-        String bodyFile = "/home/nathan/body1.dat";
+        String bodyFile = "D:\\body1.dat";
         writeBodyProfileNewForm(bodyFile);
     }
 
@@ -135,7 +135,7 @@ public class ProfileGenerator {
         final double noseLength = 6.0 / 12.0;
         final double bodyLength = 3.0;
         final double bodyDiameter = 4.0 / 12.0;
-        final double taperLength = 6.0 / 12.0;
+        final double taperLength = 8.0 / 12.0;
         final double taperFinalDiam = 2.5 / 12.0;
         final int numberOfIncs = 20;
 

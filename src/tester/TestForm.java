@@ -139,30 +139,41 @@ public class TestForm extends javax.swing.JFrame {
         RocketPlaneParameters prms = new RocketPlaneParameters();
         prms.setAspectRatio(4);
         prms.setCBar(0.6708);
-        prms.setCd0(0.016);
-        prms.setClAlpha(5.0227);
-        prms.setAlphaZeroLift(new Angle(-2.035, AngleType.DEGREES));
-        prms.setClDeltaE(0.3782);
-        prms.setClQ(11.75);
-        prms.setCpm0(-0.07234);
-        prms.setCpmAlpha(-0.9973);
-        prms.setCpmDeltaE(1.452);
-        prms.setCpmQ(-25.36);
+        prms.setCd0(0.023);
+        prms.setClAlpha(4.997);
+        prms.setAlphaZeroLift(new Angle(-2.0933, AngleType.DEGREES));
+        prms.setClDeltaE(0.3014);
+        prms.setClQ(11.77);
+        prms.setCpm0(-0.0499);
+        prms.setCpmAlpha(-0.9668);
+        prms.setCpmDeltaE(1.1708);
+        prms.setCpmQ(-25.386);
         prms.setIyy(0.0764);
         prms.setBaseMass(2.28 / PhysicalConstants.GRAVITY_ACCELERATION);
-        prms.setRocketEngine(HobbyRocketEngine.G25);
+        prms.setRocketEngine(HobbyRocketEngine.F40);
         prms.setSRef(1.8);
         prms.setSpanEfficiency(0.87);
         prms.setZThrust(0.0);
 
-        String outputFolder = "/home/nathan/nFACT/";
+//        String outputFolder = "/home/nathan/nFACT/";
+        String outputFolder = "D:\\nFACT\\";
         DecimalFormat format = new DecimalFormat("0.0000");
         StringBuilder summary = new StringBuilder();
-        summary.append("CPM0 Variation (CPM_Alpha = -1.045, Thrust = +0%):").append(System.lineSeparator());
 
-//        this.runCpm0Sweep(0.0, -0.2, 21, prms, outputFolder, summary, format);
-        this.runElevatorTest(new Angle(10, AngleType.DEGREES), 44.0, prms, outputFolder, summary, format);
+        summary.append("Pitch Over:").append(System.lineSeparator());
+        this.performPitchOverSimulation(prms, outputFolder, summary, format);
+//        this.runCpm0Sweep(0.0, -0.1, 21, prms, outputFolder, summary, format);
+//        this.runElevatorTest(new Angle(10, AngleType.DEGREES), 150.0, prms, outputFolder, summary, format);
+        
+//        summary.append("Elevator Test with Airspeed Sweep:").append(System.lineSeparator());
+//        this.runElevatorSweep(40.0, 120.0, 21, new Angle(10, AngleType.DEGREES), prms, outputFolder, summary, format);
+        
+        summary.append("Impulse Response:").append(System.lineSeparator());
+        this.performImpulseSimulation(prms, outputFolder, summary, format);
 
+//        summary.append("Low-CPM0 Pitch Over Check:").append(System.lineSeparator());
+//        this.performManualPitchOverTest(prms, outputFolder, summary, format);
+        
         File summaryFile = new File(outputFolder + "summary.txt");
         try (FileWriter fw = new FileWriter(summaryFile)) {
             try (PrintWriter pw = new PrintWriter(fw)) {
@@ -175,6 +186,38 @@ public class TestForm extends javax.swing.JFrame {
 
         JOptionPane.showMessageDialog(this, "Simulation Complete!");
     }//GEN-LAST:event_simulateButtonActionPerformed
+
+    private void performPitchOverSimulation(RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
+        AeroSystemState initialState = new AeroSystemState();
+        initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, Angle.AngleType.DEGREES));
+        initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
+        initialState.set(AeroSystemState.X_POS, 0.0);
+        initialState.set(AeroSystemState.X_VEL, 0.0);
+        initialState.set(AeroSystemState.Z_POS, 0.0);
+        initialState.set(AeroSystemState.Z_VEL, 0.1);
+        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
+        initialState.set(AeroSystemState.FLUID_STATE, fluid);
+        params.setInitialState(initialState);
+
+        RocketPlane system = new RocketPlane(params);
+        ExitCondition<AeroSystemState> exit = new PitchOverExitCondition();
+
+        File file = new File(outputFolder + "nFACT-PitchSim-Nominal-F40.csv");
+        PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
+
+        Simulation sim = new Simulation(system, exit, recorder, 0.0005);
+        sim.run();
+
+        summary.append("\tPitch Over Summary:").append(System.lineSeparator());
+        summary.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tBurnout before Pitch Over: ").append(recorder.getSimulationTime() > 5.4).append(System.lineSeparator());
+        summary.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
+                .append(" degrees").append(System.lineSeparator());
+        summary.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
+        summary.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
+        summary.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
+    }
 
     private void runCpm0Sweep(double start, double end, int numSteps, RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
         AeroSystemState initialState;
@@ -222,13 +265,26 @@ public class TestForm extends javax.swing.JFrame {
         params.setCpm0(initialCpm0);
     }
 
+    private void runElevatorSweep(double startSpeed, double endSpeed, int numSteps, Angle deflection, RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
+        if (numSteps <= 1) {
+            this.runElevatorTest(deflection, startSpeed, params, outputFolder, summary, format);
+            return;
+        }
+
+        double incPerStep = (endSpeed - startSpeed) / (numSteps - 1);
+        for (int i = 0; i < numSteps; i++) {
+            double speed = startSpeed + incPerStep * i;
+            this.runElevatorTest(deflection, speed, params, outputFolder, summary, format);
+        }
+    }
+
     private void runElevatorTest(Angle deflection, double initialVelocity, RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
         Angle steadyStateAlpha = new Angle(5.5, AngleType.DEGREES);
         double cl = 0.7;
-        double cd = 0.016 + (cl * cl) / (Math.PI * 4 * 0.87);
+        double cd = 0.049;
         Angle fpa = new Angle(-1.0 * (cd / cl), TrigFunction.TANGENT);
         Angle theta = fpa.add(steadyStateAlpha);
-        
+
         AeroSystemState initialState = new AeroSystemState();
         initialState.set(AeroSystemState.ANGULAR_POS, theta);
         initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
@@ -246,9 +302,9 @@ public class TestForm extends javax.swing.JFrame {
         system.setElevatorDeflection(deflection);
 
         Double defl = deflection.getMeasure(AngleType.DEGREES);
-        File file = new File(outputFolder + "simulation-deltaE_" + format.format(defl) + "-deg" + ".csv");
+        File file = new File(outputFolder + "simulation-deltaE_" + format.format(defl) + "-deg__vel_" + format.format(initialVelocity) + "-fps" + ".csv");
         PitchOverRecorder recorder = new PitchOverRecorder(file, 20);
-        ExitCondition<AeroSystemState> exit = new TimeExitCondition<>(25.0);
+        ExitCondition<AeroSystemState> exit = new TimeExitCondition<>(30.0);
 
         Simulation sim = new Simulation(system, exit, recorder, 0.005);
         sim.run();
@@ -263,14 +319,95 @@ public class TestForm extends javax.swing.JFrame {
         summary.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
     }
 
+    private void performManualPitchOverTest(RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
+        AeroSystemState initialState = new AeroSystemState();
+        initialState.set(AeroSystemState.ANGULAR_POS, new Angle(89, Angle.AngleType.DEGREES));
+        initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
+        initialState.set(AeroSystemState.X_POS, 0.0);
+        initialState.set(AeroSystemState.X_VEL, 0.0);
+        initialState.set(AeroSystemState.Z_POS, 0.0);
+        initialState.set(AeroSystemState.Z_VEL, 150.0);
+        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
+        initialState.set(AeroSystemState.FLUID_STATE, fluid);
+        
+        params.setRocketEngine(HobbyRocketEngine.G25_POST_BURN);
+        params.setInitialState(initialState);
+
+        RocketPlane system = new RocketPlane(params);
+        system.setElevatorDeflection(new Angle(-5.0, AngleType.DEGREES));
+        ExitCondition<AeroSystemState> exit = new TimeExitCondition<>(30.0);
+
+        File file = new File(outputFolder + "Low-CPM0-PitchOver-Manual-Check.csv");
+        PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
+
+        Simulation sim = new Simulation(system, exit, recorder, 0.0005);
+        sim.run();
+
+        summary.append("\tLow-CPM0 Pitch Over Summary:").append(System.lineSeparator());
+        summary.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tBurnout before Pitch Over: ").append(recorder.getSimulationTime() > 5.4).append(System.lineSeparator());
+        summary.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
+                .append(" degrees").append(System.lineSeparator());
+        summary.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
+        summary.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
+        summary.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
+    }
+    
+    private void performImpulseSimulation(RocketPlaneParameters params, String outputFolder, StringBuilder summary, DecimalFormat format) {
+        Angle steadyStateAlpha = new Angle(5.1, AngleType.DEGREES);
+        double cl = 0.67;
+        double cd = 0.048;
+        Angle fpa = new Angle(-1.0 * (cd / cl), TrigFunction.TANGENT);
+        Angle theta = fpa.add(steadyStateAlpha);
+
+        AeroSystemState initialState = new AeroSystemState();
+        initialState.set(AeroSystemState.ANGULAR_POS, theta);
+        initialState.set(AeroSystemState.ANGULAR_VEL, 0.0);
+        initialState.set(AeroSystemState.X_POS, 0.0);
+        initialState.set(AeroSystemState.X_VEL, 44.0 * fpa.cos());
+        initialState.set(AeroSystemState.Z_POS, 0.0);
+        initialState.set(AeroSystemState.Z_VEL, 44.0 * fpa.sin() - 10.0);
+        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68); // Air on a hot day
+        initialState.set(AeroSystemState.FLUID_STATE, fluid);
+        
+        params.setRocketEngine(HobbyRocketEngine.G25_POST_BURN);
+        params.setInitialState(initialState);
+
+        RocketPlane system = new RocketPlane(params);
+        system.setElevatorDeflection(new Angle(6.7, AngleType.DEGREES));
+        ExitCondition<AeroSystemState> exit = new TimeExitCondition<>(30.0);
+
+        File file = new File(outputFolder + "Impulse-Response.csv");
+        PitchOverRecorder recorder = new PitchOverRecorder(file, 100);
+
+        Simulation sim = new Simulation(system, exit, recorder, 0.0005);
+        sim.run();
+
+        summary.append("\tImpulse Response Summary:").append(System.lineSeparator());
+        summary.append("\t\tMax Speed: ").append(format.format(recorder.getMaxSpeed())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tBurnout before Pitch Over: ").append(recorder.getSimulationTime() > 5.4).append(System.lineSeparator());
+        summary.append("\t\tFinal Speed: ").append(format.format(recorder.getFinalVelocity())).append(" ft/s").append(System.lineSeparator());
+        summary.append("\t\tFinal Theta: ").append(format.format(recorder.getFinalTheta().getMeasure(AngleType.DEGREES)))
+                .append(" degrees").append(System.lineSeparator());
+        summary.append("\t\tMax Altitude: ").append(format.format(recorder.getMaxAltitude())).append(" ft").append(System.lineSeparator());
+        summary.append("\t\tCritical Normal Load Factor: ").append(format.format(recorder.getMinNormalLoadFactor())).append(System.lineSeparator());
+        summary.append("\t\tMax Axial Load Factor: ").append(format.format(recorder.getMaxAxialLoadFactor())).append(System.lineSeparator());
+    }
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
+        /*
+         * Set the Nimbus look and feel
+         */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+        /*
+         * If Nimbus (introduced in Java SE 6) is not available, stay with the
+         * default look and feel.
+         * For details see
+         * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -294,7 +431,9 @@ public class TestForm extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
+        /*
+         * Create and display the form
+         */
         java.awt.EventQueue.invokeLater(() -> {
             new TestForm().setVisible(true);
         });

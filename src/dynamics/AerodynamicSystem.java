@@ -105,7 +105,7 @@ public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState
      */
     @Override
     public void updateState(double deltaT) {
-        AeroSystemState initialState = new AeroSystemState(this.state);
+        AeroSystemState initialState = new AeroSystemState(this.getState());
 
         this.setAccelerations(initialState);
         double xVelInc1 = initialState.get(AeroSystemState.X_ACCEL) * deltaT;
@@ -167,14 +167,14 @@ public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState
         double angPosInc4 = state4.get(AeroSystemState.ANGULAR_VEL) * deltaT;
         
         this.time += deltaT;
-        this.state.set(AeroSystemState.TIME, this.time);
-        this.state.set(AeroSystemState.X_VEL, initialState.get(AeroSystemState.X_VEL) + xVelInc1 / 6.0 + xVelInc2 / 3.0 + xVelInc3 / 3.0 + xVelInc4 / 6.0);
-        this.state.set(AeroSystemState.Z_VEL, initialState.get(AeroSystemState.Z_VEL) + zVelInc1 / 6.0 + zVelInc2 / 3.0 + zVelInc3 / 3.0 + zVelInc4 / 6.0);
-        this.state.set(AeroSystemState.ANGULAR_VEL, initialState.get(AeroSystemState.ANGULAR_VEL) + angVelInc1 / 6.0 + angVelInc2 / 3.0 + angVelInc3 / 3.0 + angVelInc4 / 6.0);
-        this.state.set(AeroSystemState.X_POS, initialState.get(AeroSystemState.X_POS) + xPosInc1 / 6.0 + xPosInc2 / 3.0 + xPosInc3 / 3.0 + xPosInc4 / 6.0 / 6.0 + xPosInc2 / 3.0 + xPosInc3 / 3.0 + xPosInc4 / 6.0);
-        this.state.set(AeroSystemState.Z_POS, initialState.get(AeroSystemState.Z_POS) + zPosInc1 / 6.0 + zPosInc2 / 3.0 + zPosInc3 / 3.0 + zPosInc4 / 6.0);
-        this.state.set(AeroSystemState.ANGULAR_POS, new Angle(initialState.get(AeroSystemState.ANGULAR_POS).getMeasure() + angPosInc1 / 6.0 + angPosInc2 / 3.0 + angPosInc3 / 3.0 + angPosInc4 / 6.0));
-        this.setAccelerations(this.state);
+        this.getState().set(AeroSystemState.TIME, this.time);
+        this.getState().set(AeroSystemState.X_VEL, initialState.get(AeroSystemState.X_VEL) + xVelInc1 / 6.0 + xVelInc2 / 3.0 + xVelInc3 / 3.0 + xVelInc4 / 6.0);
+        this.getState().set(AeroSystemState.Z_VEL, initialState.get(AeroSystemState.Z_VEL) + zVelInc1 / 6.0 + zVelInc2 / 3.0 + zVelInc3 / 3.0 + zVelInc4 / 6.0);
+        this.getState().set(AeroSystemState.ANGULAR_VEL, initialState.get(AeroSystemState.ANGULAR_VEL) + angVelInc1 / 6.0 + angVelInc2 / 3.0 + angVelInc3 / 3.0 + angVelInc4 / 6.0);
+        this.getState().set(AeroSystemState.X_POS, initialState.get(AeroSystemState.X_POS) + xPosInc1 / 6.0 + xPosInc2 / 3.0 + xPosInc3 / 3.0 + xPosInc4 / 6.0 / 6.0 + xPosInc2 / 3.0 + xPosInc3 / 3.0 + xPosInc4 / 6.0);
+        this.getState().set(AeroSystemState.Z_POS, initialState.get(AeroSystemState.Z_POS) + zPosInc1 / 6.0 + zPosInc2 / 3.0 + zPosInc3 / 3.0 + zPosInc4 / 6.0);
+        this.getState().set(AeroSystemState.ANGULAR_POS, new Angle(initialState.get(AeroSystemState.ANGULAR_POS).getMeasure() + angPosInc1 / 6.0 + angPosInc2 / 3.0 + angPosInc3 / 3.0 + angPosInc4 / 6.0));
+        this.setAccelerations(this.getState());
     }
 
 

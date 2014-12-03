@@ -24,6 +24,7 @@
 package propulsion.rocket;
 
 import function.Function;
+import function.Function.FuncPoint;
 import function.SingleVariableFunction;
 import function.SingleVariableTableFunction;
 
@@ -153,6 +154,59 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                     return 0.007326;
                 }
             });
+    
+    public static final HobbyRocketEngine F40 = new HobbyRocketEngine("F40",
+            new SingleVariableTableFunction(0, 2.06, new FuncPoint[] {
+                new FuncPoint(0, 0.0),
+                new FuncPoint(0.015, 3.996),
+                new FuncPoint(0.049, 9.221),
+                new FuncPoint(0.089, 13.217),
+                new FuncPoint(0.124, 14.140),
+                new FuncPoint(0.148, 14.651),
+                new FuncPoint(0.183, 14.038),
+                new FuncPoint(0.242, 15.303),
+                new FuncPoint(0.292, 13.627),
+                new FuncPoint(0.321, 13.831),
+                new FuncPoint(0.415, 13.627),
+                new FuncPoint(0.524, 13.114),
+                new FuncPoint(0.741, 11.783),
+                new FuncPoint(0.87, 10.861),
+                new FuncPoint(0.889, 11.065),
+                new FuncPoint(0.914, 10.655),
+                new FuncPoint(1.102, 9.017),
+                new FuncPoint(1.285, 7.582),
+                new FuncPoint(1.492, 5.635),
+                new FuncPoint(1.665, 3.586),
+                new FuncPoint(1.808, 1.947),
+                new FuncPoint(1.942, 0.717),
+                new FuncPoint(2.06, 0.0)
+            }),
+            new SingleVariableTableFunction(0, 2.06, new FuncPoint[] {
+                new FuncPoint(0, 0.00857),
+                new FuncPoint(0.015, 0.00857),
+                new FuncPoint(0.049, 0.00856),
+                new FuncPoint(0.089, 0.00853),
+                new FuncPoint(0.124, 0.00846),
+                new FuncPoint(0.148, 0.00838),
+                new FuncPoint(0.183, 0.00833),
+                new FuncPoint(0.242, 0.00825),
+                new FuncPoint(0.292, 0.00811),
+                new FuncPoint(0.321, 0.00800),
+                new FuncPoint(0.415, 0.00794),
+                new FuncPoint(0.524, 0.00774),
+                new FuncPoint(0.741, 0.00751),
+                new FuncPoint(0.87, 0.00709),
+                new FuncPoint(0.889, 0.00686),
+                new FuncPoint(0.914, 0.00683),
+                new FuncPoint(1.102, 0.00678),
+                new FuncPoint(1.285, 0.00649),
+                new FuncPoint(1.492, 0.00626),
+                new FuncPoint(1.665, 0.00604),
+                new FuncPoint(1.808, 0.00592),
+                new FuncPoint(1.942, 0.00586),
+                new FuncPoint(2.06, 0.00582)
+            })
+    );
 
 
     // Fields

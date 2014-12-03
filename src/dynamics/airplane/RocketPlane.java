@@ -23,9 +23,6 @@
  */
 package dynamics.airplane;
 
-import aero.fluid.FluidState;
-import aero.fluid.IdealGas;
-import aero.fluid.IdealGasState;
 import dynamics.AeroSystemState;
 import dynamics.AerodynamicSystem;
 import dynamics.DynamicSystemState;
@@ -35,7 +32,6 @@ import geometry.angle.Angle.AngleType;
 import geometry.angle.Angle.MeasureRange;
 import propulsion.rocket.HobbyRocketEngine;
 import propulsion.rocket.SolidRocketEngine;
-import util.PhysicalConstants;
 
 /**
  *
@@ -49,12 +45,12 @@ public class RocketPlane extends AerodynamicSystem {
     private final double spanEfficiency;
     private final double aspectRatio;
     private final double zThrust;
-    
+
     private final double iyy;
     private final double baseMass;
-    
+
     private final SolidRocketEngine engine;
-    
+
     private final double clAlpha;
     private final Angle alphaZeroLift;
     private final double clDeltaE;
@@ -64,11 +60,10 @@ public class RocketPlane extends AerodynamicSystem {
     private final double cpmAlpha;
     private final double cpmDeltaE;
     private final double cpmQ;
-    
-    private Angle elevatorDeflection = new Angle(0);
-    
-    private final AeroSystemState initialState;
 
+    private Angle elevatorDeflection = new Angle(0);
+
+    private final AeroSystemState initialState;
 
     // Properties
     @Override
@@ -87,56 +82,16 @@ public class RocketPlane extends AerodynamicSystem {
     public AeroSystemState getInitialState() {
         return this.initialState;
     }
-    
+
     public Angle getElevatorDeflection() {
         return this.elevatorDeflection;
     }
-    
+
     public void setElevatorDeflection(Angle deflection) {
         this.elevatorDeflection = deflection;
     }
 
-
     // Initializtion
-//    public RocketPlane(HobbyRocketEngine engine) {
-//        super();
-//        
-//        this.sRef = 2.4;
-//        this.cBar = 0.5291;
-//        this.spanEfficiency = 0.87;
-//        this.aspectRatio = 6.3;
-//        this.zThrust = 0.0;
-//        this.baseMass = 2.373 / PhysicalConstants.GRAVITY_ACCELERATION;
-//        this.iyy = 0.2 * (3 * 3 + 0.33 * 0.33) * (this.baseMass + engine.getMass(0));
-//        
-//        this.engine = engine;
-//        
-//        this.clAlpha = 4.5891;
-//        this.alphaZeroLift = new Angle(-1.858, AngleType.DEGREES);
-//        this.clDeltaE = 0.0;
-//        this.clQ = 0.0;
-//        this.cd0 = 0.02;
-//        this.cpm0 = -0.02;
-//        this.cpmAlpha = -0.373;
-//        this.cpmDeltaE = 0.0;
-//        this.cpmQ = -12.6;
-//        
-//        AeroSystemState state = new AeroSystemState();
-//
-//        state.set(AeroSystemState.ANGULAR_POS, new Angle(89.5, AngleType.DEGREES));
-//        state.set(AeroSystemState.ANGULAR_VEL, 0.0);
-//        state.set(AeroSystemState.X_POS, 0.0);
-//        state.set(AeroSystemState.X_VEL, 0.0);
-//        state.set(AeroSystemState.Z_POS, 0.0);
-//        state.set(AeroSystemState.Z_VEL, 0.1);
-//
-//        // Air on a hot day
-//        FluidState fluid = new IdealGasState(new IdealGas(28.97, 1.4), 95.0 + 459.0, 2018.68);
-//        state.set(AeroSystemState.FLUID_STATE, fluid);
-//        
-//        this.initialState = state;
-//    }
-    
     public RocketPlane(RocketPlaneParameters prms) {
         this.sRef = prms.getSRef();
         this.cBar = prms.getCBar();
@@ -145,9 +100,9 @@ public class RocketPlane extends AerodynamicSystem {
         this.zThrust = prms.getZThrust();
         this.baseMass = prms.getBaseMass();
         this.iyy = prms.getIyy();
-        
+
         this.engine = prms.getRocketEngine();
-        
+
         this.clAlpha = prms.getClAlpha();
         this.alphaZeroLift = prms.getAlphaZeroLift();
         this.clDeltaE = prms.getClDeltaE();
@@ -157,10 +112,9 @@ public class RocketPlane extends AerodynamicSystem {
         this.cpmAlpha = prms.getCpmAlpha();
         this.cpmDeltaE = prms.getCpmDeltaE();
         this.cpmQ = prms.getCpmQ();
-        
+
         this.initialState = prms.getInitialState();
     }
-
 
     // Public Methods
     @Override
@@ -189,32 +143,44 @@ public class RocketPlane extends AerodynamicSystem {
     public double getCl(AeroSystemState state) {
         Angle totalAlpha = state.get(AeroSystemState.ANGLE_OF_ATTACK).add(alphaZeroLift.scalarMultiply(-1.0));
         double cl = this.clAlpha * totalAlpha.getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
-        
+
         double cle = this.getElevatorDeflection().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) * this.clDeltaE;
         cl += cle;
-        
+
         double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
         cl += qHat * this.clQ;
-        
+
         state.set(AeroSystemState.CL, cl);
         return cl;
     }
 
     public double getCd(AeroSystemState state) {
-        double cdi = (getCl(state) * getCl(state)) / (Math.PI * this.spanEfficiency * this.aspectRatio);
+        // Random constants are empiracle adjustments to match AVL's data, based on the presence of two lifting surfaces, not one.
+        double cdi = (getCl(state) * getCl(state) * (1.8 / 2.4) * (1.8 / 2.4) * 1.05 * 1.05) / (Math.PI * this.spanEfficiency * this.aspectRatio);
         double cd = this.cd0 + cdi;
         state.set(AeroSystemState.CD, cd);
         return cd;
     }
 
     public double getCpm(AeroSystemState state) {
-        double cpmFromAlpha = this.cpmAlpha * state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS);
+        double cpm0Prime = this.cpm0;
+        double cpmAlphaPrime = this.cpmAlpha;
+
+        if (this.engine.equals(HobbyRocketEngine.G25)) {
+            double motorBurnFrac = 1 - (this.engine.getMass(state.get(SystemState.TIME)) - this.engine.getMass(this.engine.getBurnTime())) / (this.engine.getMass(0.0) - this.engine.getMass(this.engine.getBurnTime()));
+            cpm0Prime = -0.0346 + (-0.0510 + 0.0346) * motorBurnFrac;
+
+            cpmAlphaPrime = -0.5479 + (-0.9973 + 0.5479) * motorBurnFrac;
+//            System.out.println(motorBurnFrac);
+        }
+
+        double cpmFromAlpha = cpmAlphaPrime * state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS);
         state.set(AeroSystemState.CPMA, cpmFromAlpha);
 
         double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
         double cpmFromQ = this.cpmQ * qHat;
         state.set(AeroSystemState.CPMQ, cpmFromQ);
-        
+
         double cpmFromElevator = this.getElevatorDeflection().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) * this.cpmDeltaE;
 
         double thrust = this.getThrust(state);
@@ -223,10 +189,16 @@ public class RocketPlane extends AerodynamicSystem {
 //        double cpmt = 0.0;
         state.set(AeroSystemState.CPMT, cpmt);
 
-        double cpm = this.cpm0 + cpmFromAlpha + cpmFromElevator + cpmFromQ + cpmt;
+        double cpm = cpm0Prime + cpmFromAlpha + cpmFromElevator + cpmFromQ + cpmt;
 
         state.set(AeroSystemState.CPM, cpm);
         return cpm;
     }
 
+    @Override
+    public void updateState(double deltat) {
+        this.getState().set(AeroSystemState.DELTA_E, this.getElevatorDeflection());
+
+        super.updateState(deltat);
+    }
 }

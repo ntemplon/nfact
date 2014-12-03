@@ -48,6 +48,8 @@ public class AeroSystemState extends DynamicSystemState {
     public static final StateVariable<Double> CPMQ = new StateVariable("CPM from Q");
     public static final StateVariable<Double> CPMT = new StateVariable("CPM from Thrust");
     public static final StateVariable<Double> CPMA = new StateVariable("CPM from Alpha");
+    
+    public static final StateVariable<Angle> DELTA_E = new StateVariable("Elevator Deflection");
 
     public static final DerivedProperty<AeroSystemState, Double> DYNAMIC_PRESSURE = new DerivedProperty<>("Q", new StateFunction<>(
             (AeroSystemState state) -> getDynamicPressure(state),
@@ -76,7 +78,7 @@ public class AeroSystemState extends DynamicSystemState {
     public static final SystemProperty[] AERO_VARIABLES = new SystemProperty[]{
         FLUID_STATE, CL, CD, CPM, LIFT, DRAG, PITCHING_MOMENT, THRUST,
         CPMQ, CPMT, CPMA, DYNAMIC_PRESSURE, MACH, FLIGHT_PATH_ANGLE, ANGLE_OF_ATTACK,
-        NORMAL_LOAD_FACTOR, AXIAL_LOAD_FACTOR
+        NORMAL_LOAD_FACTOR, AXIAL_LOAD_FACTOR, DELTA_E
     };
 
 
@@ -134,7 +136,7 @@ public class AeroSystemState extends DynamicSystemState {
 
     private static double getAxialLoadFactor(AeroSystemState state) {
         double xLoadFactor = state.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
-        double zLoadFactor = (state.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION) + 1;
+        double zLoadFactor = (state.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION) + 1; // +1 is for 1g while stationary
         Angle theta = state.get(ANGULAR_POS);
 
         double axialLoadFactor = xLoadFactor * theta.cos() + zLoadFactor * theta.sin();
@@ -143,7 +145,7 @@ public class AeroSystemState extends DynamicSystemState {
 
     public static double getNormalLoadFactor(AeroSystemState state) {
         double xLoadFactor = state.get(X_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
-        double zLoadFactor = state.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION;
+        double zLoadFactor = (state.get(Z_ACCEL) / PhysicalConstants.GRAVITY_ACCELERATION) + 1; // +1 is for 1g while stationary
         Angle theta = state.get(ANGULAR_POS);
 
         double normalLoadFactor = -1 * xLoadFactor * theta.sin() + zLoadFactor * theta.cos();

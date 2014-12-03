@@ -29,12 +29,7 @@ import dynamics.SystemProperty;
 import dynamics.SystemState;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DecimalFormat;
 
 /**
  *
@@ -49,7 +44,7 @@ public class PitchOverRecorder extends FileRecorder<AeroSystemState> {
         AeroSystemState.X_POS, AeroSystemState.Z_POS, AeroSystemState.ANGULAR_POS, AeroSystemState.X_VEL,
         AeroSystemState.Z_VEL, AeroSystemState.ANGULAR_VEL, AeroSystemState.X_ACCEL, AeroSystemState.Z_ACCEL,
         AeroSystemState.ANGULAR_ACCEL, AeroSystemState.AXIAL_LOAD_FACTOR, AeroSystemState.NORMAL_LOAD_FACTOR,
-        AeroSystemState.THRUST, AeroSystemState.MASS
+        AeroSystemState.THRUST, AeroSystemState.MASS, AeroSystemState.DELTA_E
     };
 
 

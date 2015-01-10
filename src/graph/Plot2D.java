@@ -23,9 +23,9 @@
  */
 package graph;
 
+import com.jupiter.ganymede.math.function.Function.FuncPoint;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 import static util.Util.doubleEquals;
-import function.Function.FuncPoint;
-import function.SingleVariableFunction;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -68,9 +68,9 @@ public class Plot2D extends JPanel {
     // ---------------------------  State Variables ----------------------------------------------------
     // -------------------------------------------------------------------------------------------------
     private final Collection<Collection<FuncPoint>> pointCollections;
-    private final Collection<SingleVariableFunction> functions;
-    private final Map<SingleVariableFunction, Collection<FuncPoint>> pointFuncMap;
-    private final Map<SingleVariableFunction, ArrayList<FuncPoint>> lineFuncMap;
+    private final Collection<SingleVariableRealFunction> functions;
+    private final Map<SingleVariableRealFunction, Collection<FuncPoint>> pointFuncMap;
+    private final Map<SingleVariableRealFunction, ArrayList<FuncPoint>> lineFuncMap;
 
     private final DecimalFormat format;
 
@@ -301,7 +301,7 @@ public class Plot2D extends JPanel {
         }
 
         // Draw the point functions
-        for (SingleVariableFunction func : pointFuncMap.keySet()) {
+        for (SingleVariableRealFunction func : pointFuncMap.keySet()) {
             Collection<FuncPoint> points = pointFuncMap.get(func);
             for (FuncPoint point : points) {
                 if (point.x > xMax || point.y > yMax || point.x < xMin || point.y < yMin) {
@@ -320,7 +320,7 @@ public class Plot2D extends JPanel {
 
         // Draw the line functions
         graphics.setColor(lineColor);
-        for (SingleVariableFunction func : lineFuncMap.keySet()) {
+        for (SingleVariableRealFunction func : lineFuncMap.keySet()) {
             ArrayList<FuncPoint> points = lineFuncMap.get(func);
             int index = 0;
             for (FuncPoint point : points) {
@@ -474,7 +474,7 @@ public class Plot2D extends JPanel {
         this.pointCollections.add(points);
     }
 
-    public void addFunction(SingleVariableFunction func, FunctionType type) {
+    public void addFunction(SingleVariableRealFunction func, FunctionType type) {
         functions.add(func);
 
         ArrayList<FuncPoint> points = new ArrayList<>();
@@ -482,14 +482,14 @@ public class Plot2D extends JPanel {
         // Calculate the minimum and maximum values to display
         double maxValue;
         double minValue;
-        if (func.hasFiniteDomain) {
-            maxValue = Math.min(this.xMax, func.domainMax);
-            minValue = Math.max(this.xMin, func.domainMin);
-        }
-        else {
+//        if (func.hasFiniteDomain()) {
+//            maxValue = Math.min(this.xMax, func.domainMax);
+//            minValue = Math.max(this.xMin, func.domainMin);
+//        }
+//        else {
             maxValue = this.xMax;
             minValue = this.xMin;
-        }
+//        }
 
         double step = (maxValue - minValue) / ((double) numFunctionPoints);
         double index = minValue;
@@ -515,20 +515,20 @@ public class Plot2D extends JPanel {
     }
 
     public void updateFunctions() {
-        Map<SingleVariableFunction, Collection<FuncPoint>> updatedPoints = new HashMap<>();
-        for (SingleVariableFunction func : pointFuncMap.keySet()) {
+        Map<SingleVariableRealFunction, Collection<FuncPoint>> updatedPoints = new HashMap<>();
+        for (SingleVariableRealFunction func : pointFuncMap.keySet()) {
             ArrayList<FuncPoint> points = new ArrayList<>();
 
             double max;
             double min;
-            if (func.hasFiniteDomain) {
-                max = Math.min(this.xMax, func.domainMax);
-                min = Math.max(this.xMin, func.domainMin);
-            }
-            else {
+//            if (func.hasFiniteDomain) {
+//                max = Math.min(this.xMax, func.domainMax);
+//                min = Math.max(this.xMin, func.domainMin);
+//            }
+//            else {
                 max = this.xMax;
                 min = this.xMin;
-            }
+//            }
 
             double step = (max - min) / ((double) (numFunctionPoints - 1.0));
             double val = min;
@@ -551,25 +551,25 @@ public class Plot2D extends JPanel {
 //            pointFuncMap.remove(func);
 //            pointFuncMap.put(func, points);
         }
-        for (SingleVariableFunction func : updatedPoints.keySet()) {
+        for (SingleVariableRealFunction func : updatedPoints.keySet()) {
             pointFuncMap.remove(func);
             pointFuncMap.put(func, updatedPoints.get(func));
         }
 
-        Map<SingleVariableFunction, ArrayList<FuncPoint>> updatedLines = new HashMap<>();
-        for (SingleVariableFunction func : lineFuncMap.keySet()) {
+        Map<SingleVariableRealFunction, ArrayList<FuncPoint>> updatedLines = new HashMap<>();
+        for (SingleVariableRealFunction func : lineFuncMap.keySet()) {
             ArrayList<FuncPoint> points = new ArrayList<>();
 
             double max;
             double min;
-            if (func.hasFiniteDomain) {
-                max = Math.min(this.xMax, func.domainMax);
-                min = Math.max(this.xMin, func.domainMin);
-            }
-            else {
+//            if (func.hasFiniteDomain) {
+//                max = Math.min(this.xMax, func.domainMax);
+//                min = Math.max(this.xMin, func.domainMin);
+//            }
+//            else {
                 max = this.xMax;
                 min = this.xMin;
-            }
+//            }
 
             double step = (max - min) / ((double) (numFunctionPoints - 1));
             double val = min;
@@ -590,17 +590,17 @@ public class Plot2D extends JPanel {
             }
             updatedLines.put(func, points);
         }
-        for (SingleVariableFunction func : updatedLines.keySet()) {
+        for (SingleVariableRealFunction func : updatedLines.keySet()) {
             lineFuncMap.remove(func);
             lineFuncMap.put(func, updatedLines.get(func));
         }
     }
 
-    public void addFunction(SingleVariableFunction func) {
+    public void addFunction(SingleVariableRealFunction func) {
         addFunction(func, FunctionType.POINT);
     }
 
-    public void removeFunction(SingleVariableFunction func) {
+    public void removeFunction(SingleVariableRealFunction func) {
         pointFuncMap.remove(func);
     }
 

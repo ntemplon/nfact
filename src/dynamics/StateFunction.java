@@ -23,7 +23,7 @@
  */
 package dynamics;
 
-import function.Function;
+import com.jupiter.ganymede.math.function.Function;
 
 /**
  *

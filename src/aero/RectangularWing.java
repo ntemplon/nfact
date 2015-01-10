@@ -23,8 +23,8 @@
  */
 package aero;
 
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 import dynamics.AeroSystemState;
-import function.SingleVariableFunction;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
 
@@ -37,9 +37,9 @@ public class RectangularWing extends Wing {
     private final RectangularWingPlanform planform;
     private final Airfoil airfoil;
     
-    private final SingleVariableFunction liftCoeff;
-    private final SingleVariableFunction dragCoeff;
-    private final SingleVariableFunction pmCoeff;
+    private final SingleVariableRealFunction liftCoeff;
+    private final SingleVariableRealFunction dragCoeff;
+    private final SingleVariableRealFunction pmCoeff;
     
     
     // Initialization
@@ -47,27 +47,14 @@ public class RectangularWing extends Wing {
         this.planform = new RectangularWingPlanform(chord, span);
         this.airfoil = airfoil;
         
-        this.liftCoeff = new SingleVariableFunction(this.airfoil.clFunction().domainMin, this.airfoil.clFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                return 0.8 * RectangularWing.this.airfoil.cl(input);
-            }
+        this.liftCoeff = (Double input) -> 0.8 * RectangularWing.this.airfoil.cl(input);
+        this.dragCoeff = (Double input) -> {
+            double cd0 = 0.04;
+            double cdi = (liftCoeff.evaluate(input) * liftCoeff.evaluate(input))
+                    / (Math.PI * RectangularWing.this.spanEfficiency() * RectangularWing.this.getPlanform().aspectRatio());
+            return (cd0 + cdi);
         };
-        this.dragCoeff = new SingleVariableFunction(this.airfoil.cdFunction().domainMin, this.airfoil.cdFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                double cd0 = 0.04;
-                double cdi = (liftCoeff.evaluate(input) * liftCoeff.evaluate(input))
-                        / (Math.PI * RectangularWing.this.spanEfficiency() * RectangularWing.this.getPlanform().aspectRatio());
-                return (cd0 + cdi);
-            }
-        };
-        this.pmCoeff = new SingleVariableFunction(this.airfoil.cpmFunction().domainMin, this.airfoil.cpmFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                return RectangularWing.this.airfoil.cpm(input);
-            }
-        };
+        this.pmCoeff = RectangularWing.this.airfoil::cpm;
     }
     
     
@@ -99,17 +86,17 @@ public class RectangularWing extends Wing {
     }
 
     @Override
-    public SingleVariableFunction clFunction() {
+    public SingleVariableRealFunction clFunction() {
         return this.liftCoeff;
     }
 
     @Override
-    public SingleVariableFunction cdFunction() {
+    public SingleVariableRealFunction cdFunction() {
         return this.dragCoeff;
     }
 
     @Override
-    public SingleVariableFunction cpmFunction() {
+    public SingleVariableRealFunction cpmFunction() {
         return this.pmCoeff;
     }
     

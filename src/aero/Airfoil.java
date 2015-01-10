@@ -23,7 +23,7 @@
  */
 package aero;
 
-import function.SingleVariableFunction;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 import geometry.angle.Angle;
 import geometry.angle.Angle.AngleType;
 
@@ -45,15 +45,15 @@ public class Airfoil {
     
     // Protected Members
     protected String name;
-    protected SingleVariableFunction liftCoeff;
-    protected SingleVariableFunction dragCoeff;
-    protected SingleVariableFunction pmCoeff;
+    protected SingleVariableRealFunction liftCoeff;
+    protected SingleVariableRealFunction dragCoeff;
+    protected SingleVariableRealFunction pmCoeff;
     
     
     // Initialization
-    public Airfoil(String name, SingleVariableFunction liftCoeff,
-                    SingleVariableFunction dragCoeff,
-                    SingleVariableFunction pmCoeff) {
+    public Airfoil(String name, SingleVariableRealFunction liftCoeff,
+                    SingleVariableRealFunction dragCoeff,
+                    SingleVariableRealFunction pmCoeff) {
         this.liftCoeff = liftCoeff;
         this.dragCoeff = dragCoeff;
         this.pmCoeff = pmCoeff;
@@ -69,7 +69,7 @@ public class Airfoil {
         return this.liftCoeff.evaluate(alpha);
     }
     
-    public SingleVariableFunction clFunction() {
+    public SingleVariableRealFunction clFunction() {
         return this.liftCoeff;
     }
     
@@ -81,7 +81,7 @@ public class Airfoil {
         return this.dragCoeff.evaluate(alpha);
     }
     
-    public SingleVariableFunction cdFunction() {
+    public SingleVariableRealFunction cdFunction() {
         return this.dragCoeff;
     }
     
@@ -93,7 +93,7 @@ public class Airfoil {
         return this.pmCoeff.evaluate(alpha);
     }
     
-    public SingleVariableFunction cpmFunction() {
+    public SingleVariableRealFunction cpmFunction() {
         return this.pmCoeff;
     }
     

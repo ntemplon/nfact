@@ -23,10 +23,10 @@
  */
 package propulsion.rocket;
 
-import function.Function;
-import function.Function.FuncPoint;
-import function.SingleVariableFunction;
-import function.SingleVariableTableFunction;
+import com.jupiter.ganymede.math.function.Function;
+import com.jupiter.ganymede.math.function.Function.FuncPoint;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
+import com.jupiter.ganymede.math.function.SingleVariableTableFunction;
 
 /**
  *
@@ -76,6 +76,7 @@ public class HobbyRocketEngine implements SolidRocketEngine {
 
     public static final HobbyRocketEngine G25 = new HobbyRocketEngine("G25",
             new SingleVariableTableFunction(0.0, 5.3, new Function.FuncPoint[]{
+                new Function.FuncPoint(-1, 0.0),
                 new Function.FuncPoint(0.0, 0.0),
                 new Function.FuncPoint(0.0001, 1.124),
                 new Function.FuncPoint(0.13, 9.143),
@@ -106,8 +107,11 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new Function.FuncPoint(3.839, 1.714),
                 new Function.FuncPoint(4.323, 1.016),
                 new Function.FuncPoint(4.783, 0.571),
-                new Function.FuncPoint(5.3, 0),}),
-            new SingleVariableTableFunction(0.0, 5.3, new Function.FuncPoint[]{
+                new Function.FuncPoint(5.3, 0),
+                new Function.FuncPoint(5.4, 0)
+            }),
+            new SingleVariableTableFunction(0.0, 5.3, new FuncPoint[]{
+                new Function.FuncPoint(-1.0, 0.011455),
                 new Function.FuncPoint(0.0, 0.011455),
                 new Function.FuncPoint(0.0001, 0.011455),
                 new Function.FuncPoint(0.13, 0.011455),
@@ -138,25 +142,21 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new Function.FuncPoint(3.839, 0.007517),
                 new Function.FuncPoint(4.323, 0.007410),
                 new Function.FuncPoint(4.783, 0.007350),
-                new Function.FuncPoint(5.3, 0.007326),})
+                new Function.FuncPoint(5.3, 0.007326),
+                new Function.FuncPoint(5.4, 0.007326)
+            }),
+            5.3
     );
 
     public static final HobbyRocketEngine G25_POST_BURN = new HobbyRocketEngine("G25 - Post Burn",
-            new SingleVariableFunction() {
-                @Override
-                public Double evaluate(Double time) {
-                    return 0.0;
-                }
-            },
-            new SingleVariableFunction() {
-                @Override
-                public Double evaluate(Double time) {
-                    return 0.007326;
-                }
-            });
-    
+            (Double time) -> 0.0, 
+            (Double time) -> 0.007326,
+            0.0
+    );
+
     public static final HobbyRocketEngine F40 = new HobbyRocketEngine("F40",
-            new SingleVariableTableFunction(0, 2.06, new FuncPoint[] {
+            new SingleVariableTableFunction(0, 2.06, new FuncPoint[]{
+                new FuncPoint(-1, 0.0),
                 new FuncPoint(0, 0.0),
                 new FuncPoint(0.015, 3.996),
                 new FuncPoint(0.049, 9.221),
@@ -179,9 +179,10 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new FuncPoint(1.665, 3.586),
                 new FuncPoint(1.808, 1.947),
                 new FuncPoint(1.942, 0.717),
-                new FuncPoint(2.06, 0.0)
+                new FuncPoint(2.06, 0.0),
+                new FuncPoint(2.1, 0.0)
             }),
-            new SingleVariableTableFunction(0, 2.06, new FuncPoint[] {
+            new SingleVariableTableFunction(0, 2.06, new FuncPoint[]{
                 new FuncPoint(0, 0.00857),
                 new FuncPoint(0.015, 0.00857),
                 new FuncPoint(0.049, 0.00856),
@@ -204,16 +205,18 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new FuncPoint(1.665, 0.00604),
                 new FuncPoint(1.808, 0.00592),
                 new FuncPoint(1.942, 0.00586),
-                new FuncPoint(2.06, 0.00582)
-            })
+                new FuncPoint(2.06, 0.00582),
+                new FuncPoint(2.1, 0.00582)
+            }),
+            2.06
     );
 
 
     // Fields
     private final String name;
     private final double burnTime;
-    private final SingleVariableFunction thrust;
-    private final SingleVariableFunction mass;
+    private final SingleVariableRealFunction thrust;
+    private final SingleVariableRealFunction mass;
 
 
     // Properties
@@ -229,18 +232,12 @@ public class HobbyRocketEngine implements SolidRocketEngine {
 
 
     // Initialization
-    public HobbyRocketEngine(String name, SingleVariableFunction thrust, SingleVariableFunction mass) {
+    public HobbyRocketEngine(String name, SingleVariableRealFunction thrust, SingleVariableRealFunction mass, double burnTime) {
         this.name = name;
         this.thrust = thrust;
         this.mass = mass;
 
-        // Calculate burn time
-        if (this.thrust.hasFiniteDomain) {
-            this.burnTime = this.thrust.domainMax - this.thrust.domainMin;
-        }
-        else {
-            this.burnTime = 0.0;
-        }
+        this.burnTime = burnTime;
     }
 
 
@@ -252,38 +249,19 @@ public class HobbyRocketEngine implements SolidRocketEngine {
      */
     @Override
     public double getThrust(double time) {
-        if (thrust.hasFiniteDomain) {
-            if (time < thrust.domainMin || thrust.domainMax < time) {
-                return 0;
-            }
-        }
         return thrust.evaluate(time);
     }
 
     @Override
     public double getMass(double time) {
-        if (mass.hasFiniteDomain) {
-            if (time < mass.domainMin) {
-                return mass.evaluate(mass.domainMin);
-            }
-            else if (time > mass.domainMax) {
-                return mass.evaluate(mass.domainMax);
-            }
-        }
         return mass.evaluate(time);
     }
 
     public HobbyRocketEngine getThrustVariationEngine(double variation) {
         String newName = this.getName() + " THRUST_VAR_" + variation;
-        SingleVariableFunction newThrust = new SingleVariableFunction(
-                this.thrust.domainMin, this.thrust.domainMax) {
-                    @Override
-                    public Double evaluate(Double input) {
-                        return HobbyRocketEngine.this.thrust.evaluate(input) * variation;
-                    }
-                };
+        SingleVariableRealFunction newThrust = (Double input) -> HobbyRocketEngine.this.thrust.evaluate(input) * variation;
 
-        return new HobbyRocketEngine(newName, newThrust, mass);
+        return new HobbyRocketEngine(newName, newThrust, mass, this.burnTime);
     }
 
 }

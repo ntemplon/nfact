@@ -23,7 +23,7 @@
  */
 package aero;
 
-import function.SingleVariableFunction;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 
 /**
  *
@@ -58,11 +58,11 @@ public abstract class WingPlanform {
     
     public abstract double xPositionAt(double lateralPos);
     
-    public abstract SingleVariableFunction leadingEdgeLocation();
+    public abstract SingleVariableRealFunction leadingEdgeLocation();
     
-    public abstract SingleVariableFunction trailingEdgeLocation();
+    public abstract SingleVariableRealFunction trailingEdgeLocation();
     
-    public abstract SingleVariableFunction quarterChordLocation();
+    public abstract SingleVariableRealFunction quarterChordLocation();
     
     
     // Public Methods

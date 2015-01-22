@@ -23,9 +23,8 @@
  */
 package aero;
 
-import dynamics.AeroSystemState;
+import dynamics.analysis.SystemState;
 import function.SingleVariableFunction;
-import geometry.angle.Angle;
 
 /**
  *
@@ -40,11 +39,11 @@ public abstract class Wing {
 
     public abstract WingSection sectionAt(double station);
 
-    public abstract double cl(AeroSystemState state);
+    public abstract double cl(SystemState state);
 
-    public abstract double cd(AeroSystemState state);
+    public abstract double cd(SystemState state);
 
-    public abstract double cpm(AeroSystemState state);
+    public abstract double cpm(SystemState state);
 
     public abstract SingleVariableFunction clFunction();
 

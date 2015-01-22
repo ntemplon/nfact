@@ -76,6 +76,10 @@ public abstract class FluidState {
      * @return the speed of sound of the current state, in feet per second
      */
     public abstract double getSpeedOfSound();
+    
+    public final double getViscosity() {
+        return this.fluid.getViscosity();
+    }
 
     // Initalization
     public FluidState(Fluid fluid) {

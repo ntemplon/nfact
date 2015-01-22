@@ -23,8 +23,7 @@
  */
 package dynamics.airplane;
 
-import dynamics.AeroSystemState;
-import geometry.angle.Angle;
+import com.jupiter.ganymede.math.geometry.Angle;
 import propulsion.rocket.SolidRocketEngine;
 
 /**
@@ -54,8 +53,6 @@ public class RocketPlaneParameters {
     private double cpmAlpha;
     private double cpmDeltaE;
     private double cpmQ;
-    
-    private AeroSystemState initialState;
     
     
     // Properties
@@ -295,20 +292,6 @@ public class RocketPlaneParameters {
      */
     public void setCpmQ(double cpmQ) {
         this.cpmQ = cpmQ;
-    }
-
-    /**
-     * @return the initialState
-     */
-    public AeroSystemState getInitialState() {
-        return initialState;
-    }
-
-    /**
-     * @param initialState the initialState to set
-     */
-    public void setInitialState(AeroSystemState initialState) {
-        this.initialState = initialState;
     }
     
     

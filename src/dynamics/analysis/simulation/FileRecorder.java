@@ -24,8 +24,8 @@
 package dynamics.analysis.simulation;
 
 import dynamics.SystemProperty;
-import dynamics.SystemState;
-import geometry.angle.Angle;
+import dynamics.analysis.SystemState;
+import com.jupiter.ganymede.math.geometry.Angle;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -38,7 +38,7 @@ import java.text.DecimalFormat;
  * @author Nathan Templon
  * @param <T>
  */
-public class FileRecorder<T extends SystemState> implements SimulationRecorder<T>, AutoCloseable {
+public class FileRecorder implements SimulationRecorder, AutoCloseable {
 
     // Fields
     private final File outputFile;
@@ -103,7 +103,7 @@ public class FileRecorder<T extends SystemState> implements SimulationRecorder<T
 
     // SimulationRecorder implementation
     @Override
-    public void start(T initialState) {
+    public void start(SystemState initialState) {
         if (!this.getOutputFile().exists()) {
             try {
                 if (!this.getOutputFile().getParentFile().exists()) {
@@ -140,7 +140,7 @@ public class FileRecorder<T extends SystemState> implements SimulationRecorder<T
     }
 
     @Override
-    public void recordState(T state) {
+    public void recordState(SystemState state) {
         if (fw == null || pw == null) {
             return;
         }
@@ -149,7 +149,7 @@ public class FileRecorder<T extends SystemState> implements SimulationRecorder<T
     }
 
     @Override
-    public void finish(T finalState) {
+    public void finish(SystemState finalState) {
         this.writeState(finalState);
 
         this.close();

@@ -23,17 +23,18 @@
  */
 package dynamics.analysis.simulation;
 
-import dynamics.SystemState;
+import dynamics.analysis.SystemState;
+
 
 /**
  *
  * @author nathan
  * @param <TState>
  */
-public interface SimulationRecorder<TState extends SystemState> {
+public interface SimulationRecorder {
     
-    void start(TState initialState);
-    void recordState(TState state);
-    void finish(TState finalState);
+    void start(SystemState initialState);
+    void recordState(SystemState state);
+    void finish(SystemState finalState);
     
 }

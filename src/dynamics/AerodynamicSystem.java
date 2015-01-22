@@ -23,186 +23,141 @@
  */
 package dynamics;
 
-import geometry.angle.Angle;
-import util.PhysicalConstants;
+import aero.fluid.FluidState;
+import com.jupiter.ganymede.math.matrix.Matrix;
+import com.jupiter.ganymede.math.vector.Vector;
+import dynamics.analysis.SystemState;
+import com.jupiter.ganymede.math.geometry.Angle;
+import com.jupiter.ganymede.math.geometry.Angle.AngleType;
+import com.jupiter.ganymede.math.vector.Vector3;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Nathan Templon
  */
-public abstract class AerodynamicSystem implements DynamicSystem<AeroSystemState> {
+public abstract class AerodynamicSystem extends DynamicSystem {
 
-    // Fields
-    private AeroSystemState state;
-    private double time;
+    // Constants
+    public static final double ANGLE_CALCULATION_SPEED_THRESHOLD = 5;
+    
+    public static final StateVariable<FluidState> FLUID_STATE = new StateVariable("Fluid State");
+    public static final StateVariable<Double> CL = new StateVariable("CL");
+    public static final StateVariable<Double> CD = new StateVariable("CD");
+    public static final StateVariable<Double> CPM = new StateVariable("CPM");
+    public static final StateVariable<Double> LIFT = new StateVariable("Lift");
+    public static final StateVariable<Double> DRAG = new StateVariable("Drag");
+    public static final StateVariable<Double> PITCHING_MOMENT = new StateVariable("Pitching Moment");
+    public static final StateVariable<Double> THRUST = new StateVariable("Thrust");
+
+    public static final StateVariable<Double> CPMQ = new StateVariable("CPM from Q");
+    public static final StateVariable<Double> CPMT = new StateVariable("CPM from Thrust");
+    public static final StateVariable<Double> CPMA = new StateVariable("CPM from Alpha");
+
+    public static final StateVariable<Angle> DELTA_E = new StateVariable("Elevator Deflection");
+
+    public static final StateVariable<Double> DYNAMIC_PRESSURE = new StateVariable<>("Q");
+    public static final StateVariable<Double> MACH = new StateVariable<>("Mach");
+    public static final StateVariable<Double> REYNOLDS = new StateVariable<>("Reynolds Number");
+    public static final StateVariable<Angle> FLIGHT_PATH_ANGLE = new StateVariable<>("Flight Path Angle");
+    public static final StateVariable<Angle> ANGLE_OF_ATTACK = new StateVariable<>("Alpha");
+    public static final StateVariable<Angle> SIDESLIP_ANGLE = new StateVariable<>("Beta");
+    public static final StateVariable<Angle> ROLL_ANGLE = new StateVariable<>("Phi");
+
+    public static final StateVariable<Double> NORMAL_LOAD_FACTOR = new StateVariable<>("Normal Load Factor");
+    public static final StateVariable<Double> AXIAL_LOAD_FACTOR = new StateVariable<>("Axial Load Factor");
+
+    public static final StateVariable[] VECTOR_VARIABLES = {DynamicSystem.X_POS, DynamicSystem.X_VEL, DynamicSystem.X_ACCEL,
+        DynamicSystem.Y_POS, DynamicSystem.Y_VEL, DynamicSystem.Y_ACCEL, DynamicSystem.Z_POS, DynamicSystem.Z_VEL, DynamicSystem.Z_ACCEL,
+        DynamicSystem.PHI_POS, DynamicSystem.PHI_VEL, DynamicSystem.PHI_ACCEL, DynamicSystem.THETA_POS, DynamicSystem.THETA_VEL,
+        DynamicSystem.THETA_ACCEL, DynamicSystem.PSI_POS, DynamicSystem.PSI_VEL, DynamicSystem.PSI_ACCEL};
 
 
     // Properties
     @Override
-    public AeroSystemState getState() {
-        if (this.state == null) {
-            this.state = this.getInitialState();
-        }
-        return this.state;
+    public final StateVariable[] getVectorVariables() {
+        return VECTOR_VARIABLES;
     }
-
-    /**
-     *
-     * @param state
-     * @return the mass of the object in slugs
-     */
-    public abstract double getMass(AeroSystemState state);
-
-    /**
-     *
-     * @param state
-     * @return the moment of inertia of the system about it's own y axis (out
-     * the right wing), in slug-square feet
-     */
-    public abstract double getIyy(AeroSystemState state);
-
-    public abstract AeroSystemState getInitialState();
+    
+    public abstract double getReferenceLength();
 
 
     // Initialization
     public AerodynamicSystem() {
-        this.time = 0.0;
+
     }
 
 
     // Public Methods
-    /**
-     *
-     * @param state the current state
-     * @return the lift of the system in pounds
-     */
-    public abstract double getLift(AeroSystemState state);
-
-    /**
-     *
-     * @param state the current state
-     * @return the drag of the system in pounds
-     */
-    public abstract double getDrag(AeroSystemState state);
-
-    /**
-     *
-     * @param state the current state
-     * @return the pitching moment of the system in foot-pounds
-     */
-    public abstract double getPitchingMoment(AeroSystemState state);
-
-    /**
-     *
-     * @param state the current state of the system
-     * @return the thrust of the system, in pounds
-     */
-    public abstract double getThrust(AeroSystemState state);
-
-    /**
-     * Updates the state of the system, using the fourth order Runge Kutta method
-     * @param deltaT the time increment, in seconds
-     */
     @Override
-    public void updateState(double deltaT) {
-        AeroSystemState initialState = new AeroSystemState(this.getState());
-
-        this.setAccelerations(initialState);
-        double xVelInc1 = initialState.get(AeroSystemState.X_ACCEL) * deltaT;
-        double zVelInc1 = initialState.get(AeroSystemState.Z_ACCEL)* deltaT;
-        double angVelInc1 = initialState.get(AeroSystemState.ANGULAR_ACCEL) * deltaT;
-        double xPosInc1 = initialState.get(AeroSystemState.X_VEL) * deltaT;
-        double zPosInc1 = initialState.get(AeroSystemState.Z_VEL) * deltaT;
-        double angPosInc1 = initialState.get(AeroSystemState.ANGULAR_VEL) * deltaT;
+    public final SystemState buildState(double time, Vector stateVector) {
+        Map<SystemProperty, Object> props = new HashMap<>();
         
-        AeroSystemState state2 = new AeroSystemState(initialState);
-        state2.set(AeroSystemState.TIME, initialState.get(AeroSystemState.TIME) + deltaT / 2.0);
-        state2.set(AeroSystemState.X_VEL, initialState.get(AeroSystemState.X_VEL) + xVelInc1 / 2.0);
-        state2.set(AeroSystemState.Z_VEL, initialState.get(AeroSystemState.Z_VEL) + zVelInc1 / 2.0);
-        state2.set(AeroSystemState.ANGULAR_VEL, initialState.get(AeroSystemState.ANGULAR_VEL) + angVelInc1 / 2.0);
-        state2.set(AeroSystemState.X_POS, initialState.get(AeroSystemState.X_POS) + xPosInc1 / 2.0);
-        state2.set(AeroSystemState.Z_POS, initialState.get(AeroSystemState.Z_POS) + zPosInc1 / 2.0);
-        state2.set(AeroSystemState.ANGULAR_POS, new Angle(initialState.get(AeroSystemState.ANGULAR_POS).getMeasure() + angPosInc1 / 2.0));
+        // Copy State Vector values to the properities map
+        for (int i = 0; i < this.getVectorVariables().length; i++) {
+            props.put(this.getVectorVariables()[i], stateVector.getComponent(i + 1));
+        }
         
-        this.setAccelerations(state2);
-        double xVelInc2 = state2.get(AeroSystemState.X_ACCEL) * deltaT;
-        double zVelInc2 = state2.get(AeroSystemState.Z_ACCEL) * deltaT;
-        double angVelInc2 = state2.get(AeroSystemState.ANGULAR_ACCEL) * deltaT;
-        double xPosInc2 = state2.get(AeroSystemState.X_VEL) * deltaT;
-        double zPosInc2 = state2.get(AeroSystemState.Z_VEL) * deltaT;
-        double angPosInc2 = state2.get(AeroSystemState.ANGULAR_VEL) * deltaT;
+        // Calculate Derived Parameters
         
-        AeroSystemState state3 = new AeroSystemState(initialState);
-        state3.set(AeroSystemState.TIME, initialState.get(AeroSystemState.TIME) + deltaT / 2.0);
-        state3.set(AeroSystemState.X_VEL, initialState.get(AeroSystemState.X_VEL) + xVelInc2 / 2.0);
-        state3.set(AeroSystemState.Z_VEL, initialState.get(AeroSystemState.Z_VEL) + zVelInc2 / 2.0);
-        state3.set(AeroSystemState.ANGULAR_VEL, initialState.get(AeroSystemState.ANGULAR_VEL) + angVelInc2 / 2.0);
-        state3.set(AeroSystemState.X_POS, initialState.get(AeroSystemState.X_POS) + xPosInc2 / 2.0);
-        state3.set(AeroSystemState.Z_POS, initialState.get(AeroSystemState.Z_POS) + zPosInc2 / 2.0);
-        state3.set(AeroSystemState.ANGULAR_POS, new Angle(initialState.get(AeroSystemState.ANGULAR_POS).getMeasure() + angPosInc2 / 2.0));
+        // Inertial properties
+        props.put(DynamicSystem.INERTIA, this.getInertia(time));
         
-        this.setAccelerations(state3);
-        double xVelInc3 = state3.get(AeroSystemState.X_ACCEL) * deltaT;
-        double zVelInc3 = state3.get(AeroSystemState.Z_ACCEL) * deltaT;
-        double angVelInc3 = state3.get(AeroSystemState.ANGULAR_ACCEL) * deltaT;
-        double xPosInc3 = state3.get(AeroSystemState.X_VEL) * deltaT;
-        double zPosInc3 = state3.get(AeroSystemState.Z_VEL) * deltaT;
-        double angPosInc3 = state3.get(AeroSystemState.ANGULAR_VEL) * deltaT;
+        // Speed
+        double xVelocity = (Double)props.get(DynamicSystem.X_VEL);
+        double yVelocity = (Double)props.get(DynamicSystem.X_VEL);
+        double zVelocity = (Double)props.get(DynamicSystem.X_VEL);
+        Vector3 velocity = new Vector3(xVelocity, yVelocity, zVelocity);
+        double speed = velocity.norm();
+        props.put(DynamicSystem.SPEED, speed);
         
-        AeroSystemState state4 = new AeroSystemState(initialState);
-        state4.set(AeroSystemState.TIME, initialState.get(AeroSystemState.TIME) + deltaT);
-        state4.set(AeroSystemState.X_VEL, initialState.get(AeroSystemState.X_VEL) + xVelInc3);
-        state4.set(AeroSystemState.Z_VEL, initialState.get(AeroSystemState.Z_VEL) + zVelInc3);
-        state4.set(AeroSystemState.ANGULAR_VEL, initialState.get(AeroSystemState.ANGULAR_VEL) + angVelInc3);
-        state4.set(AeroSystemState.X_POS, initialState.get(AeroSystemState.X_POS) + xPosInc3);
-        state4.set(AeroSystemState.Z_POS, initialState.get(AeroSystemState.Z_POS) + zPosInc3);
-        state4.set(AeroSystemState.ANGULAR_POS, new Angle(initialState.get(AeroSystemState.ANGULAR_POS).getMeasure() + angPosInc3));
+        // Fluid State and Flow Properties
+        FluidState fluid = this.getFluidState(time, stateVector);
+        props.put(AerodynamicSystem.FLUID_STATE, fluid);
+        double mach = speed / fluid.getSpeedOfSound();
+        props.put(AerodynamicSystem.MACH, mach);
+        double density = fluid.getDensity();
+        double q = 0.5 * speed * speed * density;
+        props.put(AerodynamicSystem.DYNAMIC_PRESSURE, q);
+        double reynolds = (this.getReferenceLength() * fluid.getDensity() * speed) / fluid.getViscosity();
+        props.put(AerodynamicSystem.REYNOLDS, reynolds);
         
-        this.setAccelerations(state4);
-        double xVelInc4 = state4.get(AeroSystemState.X_ACCEL) * deltaT;
-        double zVelInc4 = state4.get(AeroSystemState.Z_ACCEL) * deltaT;
-        double angVelInc4 = state4.get(AeroSystemState.ANGULAR_ACCEL) * deltaT;
-        double xPosInc4 = state4.get(AeroSystemState.X_VEL) * deltaT;
-        double zPosInc4 = state4.get(AeroSystemState.Z_VEL) * deltaT;
-        double angPosInc4 = state4.get(AeroSystemState.ANGULAR_VEL) * deltaT;
+        // Aerodynamic Angles
+        Angle gamma = new Angle(0.0);
+        Angle alpha = new Angle(0.0);
+        Angle beta = new Angle(0.0);
+        Angle phi = new Angle((Double)props.get(AerodynamicSystem.PHI_POS));
+        if (speed > ANGLE_CALCULATION_SPEED_THRESHOLD) {
+            // angle calculation code
+            gamma = velocity.angleTo(new Vector(0, 0, -1)).plus(new Angle(-90, AngleType.DEGREES));
+//            alpha = (new Angle((Double)props.get(DynamicSystem.THETA_POS))).plus(gamma.times(-1));
+        }
+        props.put(AerodynamicSystem.FLIGHT_PATH_ANGLE, gamma);
+        props.put(AerodynamicSystem.ANGLE_OF_ATTACK, alpha);
+        props.put(AerodynamicSystem.SIDESLIP_ANGLE, beta);
+        props.put(AerodynamicSystem.ROLL_ANGLE, phi);
         
-        this.time += deltaT;
-        this.getState().set(AeroSystemState.TIME, this.time);
-        this.getState().set(AeroSystemState.X_VEL, initialState.get(AeroSystemState.X_VEL) + xVelInc1 / 6.0 + xVelInc2 / 3.0 + xVelInc3 / 3.0 + xVelInc4 / 6.0);
-        this.getState().set(AeroSystemState.Z_VEL, initialState.get(AeroSystemState.Z_VEL) + zVelInc1 / 6.0 + zVelInc2 / 3.0 + zVelInc3 / 3.0 + zVelInc4 / 6.0);
-        this.getState().set(AeroSystemState.ANGULAR_VEL, initialState.get(AeroSystemState.ANGULAR_VEL) + angVelInc1 / 6.0 + angVelInc2 / 3.0 + angVelInc3 / 3.0 + angVelInc4 / 6.0);
-        this.getState().set(AeroSystemState.X_POS, initialState.get(AeroSystemState.X_POS) + xPosInc1 / 6.0 + xPosInc2 / 3.0 + xPosInc3 / 3.0 + xPosInc4 / 6.0 / 6.0 + xPosInc2 / 3.0 + xPosInc3 / 3.0 + xPosInc4 / 6.0);
-        this.getState().set(AeroSystemState.Z_POS, initialState.get(AeroSystemState.Z_POS) + zPosInc1 / 6.0 + zPosInc2 / 3.0 + zPosInc3 / 3.0 + zPosInc4 / 6.0);
-        this.getState().set(AeroSystemState.ANGULAR_POS, new Angle(initialState.get(AeroSystemState.ANGULAR_POS).getMeasure() + angPosInc1 / 6.0 + angPosInc2 / 3.0 + angPosInc3 / 3.0 + angPosInc4 / 6.0));
-        this.setAccelerations(this.getState());
+        // Aerodynamic Coefficients
+        // -- code
+        
+        
+        return new SystemState(time, stateVector, props);
     }
 
-
-    // Private Methods
-    private void setAccelerations(AeroSystemState state) {
-        double lift = this.getLift(state);
-        double drag = this.getDrag(state);
-        double pitchMoment = this.getPitchingMoment(state);
-        Angle fpa = state.get(AeroSystemState.FLIGHT_PATH_ANGLE); // fpa stands for flight path angle
-        double thrust = this.getThrust(state);
-        Angle theta = state.get(AeroSystemState.ANGULAR_POS);
-
-        // Rotate the forces to inertial X and Z axis systems
-        double xLift = -1 * lift * fpa.sin();
-        double zLift = lift * fpa.cos();
-
-        double xDrag = -1 * drag * fpa.cos(); // Because drag points backwards
-        double zDrag = -1 * drag * fpa.sin();
-
-        double xThrust = thrust * theta.cos();
-        double zThrust = thrust * theta.sin();
-
-        double xForce = xLift + xDrag + xThrust;
-        double zForce = zLift + zDrag + zThrust - (PhysicalConstants.GRAVITY_ACCELERATION * this.getMass(state));
-
-        state.set(AeroSystemState.X_ACCEL, xForce / this.getMass(state));
-        state.set(AeroSystemState.Z_ACCEL, zForce / this.getMass(state));
-        state.set(AeroSystemState.ANGULAR_ACCEL, pitchMoment / this.getIyy(state));
+    @Override
+    public final Matrix getSystemMatrix(SystemState state) {
+        double[][] matrix = new double[state.getStateVector().getDimension()][state.getStateVector().getDimension()];
+        
+        // Stuff here
+        
+        return new Matrix(matrix);
     }
+    
+    
+    // Aerodynamic System Required Methods
+    @Override
+    public abstract Inertia getInertia(double time);
+    public abstract FluidState getFluidState(double time, Vector stateVector);
 
 }

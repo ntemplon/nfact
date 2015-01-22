@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,36 +21,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics;
+package dynamics.analysis;
+
+import com.jupiter.ganymede.math.vector.Vector;
+import dynamics.SystemProperty;
+import java.util.Map;
 
 /**
  *
- * @author nathan
- * @param <TState>
- * @param <TType>
+ * @author Nathan Templon
  */
-public class DerivedProperty<TState extends SystemState, TType> extends SystemProperty<TType> {
+public class SystemState {
     
     // Fields
-    protected StateFunction<TState, TType> value;
+    private final double time;
+    private final Map<SystemProperty, Object> properties;
+    private final Vector stateVector;
     
     
     // Properties
-    public SystemProperty[] getDependencies() {
-        return this.value.getDependencies();
+    public double getTime() {
+        return this.time;
+    }
+    
+    public <T> T get(SystemProperty<T> property) {
+        if (this.properties.containsKey(property)) {
+            return (T)properties.get(property);
+        }
+        return null;
+    }
+    
+    public Vector getStateVector() {
+        return this.stateVector;
     }
     
     
     // Initialization
-    public DerivedProperty(String name, StateFunction<TState, TType> value) {
-        super(name);
-        this.value = value;
-    }
-    
-    
-    // Public Methods
-    public TType valueAt(TState state) {
-        return this.value.evaluate(state);
+    public SystemState(double time, Vector stateVector, Map<SystemProperty, Object> properties) {
+        this.time = time;
+        this.stateVector = stateVector;
+        this.properties = properties;
     }
     
 }

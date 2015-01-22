@@ -31,15 +31,16 @@ package util;
 public class Util {
     
     public static boolean doubleEquals(double d1, double d2) {
-       double diff = Math.abs(d1 - d2);
-       
-       double smaller = Math.min(Math.abs(d1), Math.abs(d2));
-       if (smaller == 0) {
-           smaller = 10E-54;
-       }
-       double margin = Math.abs(smaller * 10E-6);
-       
-       return diff < margin;
+//       double diff = Math.abs(d1 - d2);
+//       
+//       double smaller = Math.min(Math.abs(d1), Math.abs(d2));
+//       if (smaller == 0) {
+//           smaller = 10E-54;
+//       }
+//       double margin = Math.abs(smaller * 10E-6);
+//       
+//       return diff < margin;
+        return Double.doubleToLongBits(d1) == Double.doubleToLongBits(d2);
     }
     
 }

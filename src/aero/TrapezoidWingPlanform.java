@@ -24,7 +24,7 @@
 package aero;
 
 import function.SingleVariableFunction;
-import geometry.angle.Angle;
+import com.jupiter.ganymede.math.geometry.Angle;
 
 /**
  *

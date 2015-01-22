@@ -23,8 +23,8 @@
  */
 package aero;
 
-import geometry.angle.Angle;
-import geometry.angle.Angle.AngleType;
+import com.jupiter.ganymede.math.geometry.Angle;
+import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 
 /**
  *

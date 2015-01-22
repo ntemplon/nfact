@@ -23,10 +23,11 @@
  */
 package aero;
 
-import dynamics.AeroSystemState;
+import dynamics.AerodynamicSystem;
+import dynamics.analysis.SystemState;
 import function.SingleVariableFunction;
-import geometry.angle.Angle;
-import geometry.angle.Angle.AngleType;
+import com.jupiter.ganymede.math.geometry.Angle;
+import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 
 /**
  *
@@ -84,18 +85,18 @@ public class RectangularWing extends Wing {
     }
 
     @Override
-    public double cl(AeroSystemState state) {
-        return this.liftCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+    public double cl(SystemState state) {
+        return this.liftCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
-    public double cd(AeroSystemState state) {
-        return this.dragCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+    public double cd(SystemState state) {
+        return this.dragCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
-    public double cpm(AeroSystemState state) {
-        return this.pmCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+    public double cpm(SystemState state) {
+        return this.pmCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override

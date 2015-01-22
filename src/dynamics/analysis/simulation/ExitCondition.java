@@ -23,15 +23,14 @@
  */
 package dynamics.analysis.simulation;
 
-import dynamics.SystemState;
+import dynamics.analysis.SystemState;
 
 /**
  *
  * @author nathan
- * @param <TState>
  */
-public interface ExitCondition<TState extends SystemState> {
+public interface ExitCondition {
     
-    boolean isFinished(TState state);
+    boolean isFinished(SystemState state);
     
 }

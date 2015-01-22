@@ -33,6 +33,7 @@ public class IdealGas implements Fluid {
     private final double molarMass;
     private final double heatRatio;
     private final double gasConstant;
+    private final double viscosity;
     
     // Properties
     @Override
@@ -48,10 +49,16 @@ public class IdealGas implements Fluid {
         return this.gasConstant;
     }
     
+    @Override
+    public double getViscosity() {
+        return this.viscosity;
+    }
+    
     // Initialization
-    public IdealGas(double molarMass, double heatRatio) {
+    public IdealGas(double molarMass, double heatRatio, double viscosity) {
         this.molarMass = molarMass;
         this.heatRatio = heatRatio;
+        this.viscosity = viscosity;
         
         this.gasConstant = Fluid.GAS_CONSTANT / this.molarMass;
     }

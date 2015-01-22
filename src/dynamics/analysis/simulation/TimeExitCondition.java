@@ -23,14 +23,15 @@
  */
 package dynamics.analysis.simulation;
 
-import dynamics.SystemState;
+import dynamics.DynamicSystem;
+import dynamics.analysis.SystemState;
 
 /**
  *
  * @author Nathan Templon
  * @param <T>
  */
-public class TimeExitCondition<T extends SystemState> implements ExitCondition<T> {
+public class TimeExitCondition implements ExitCondition {
 
     // Fields
     private final double simulationTime;
@@ -51,7 +52,7 @@ public class TimeExitCondition<T extends SystemState> implements ExitCondition<T
     @Override
     public boolean isFinished(SystemState state) {
         try {
-            if (state.get(SystemState.TIME) > this.simulationTime) {
+            if (state.get(DynamicSystem.TIME) > this.simulationTime) {
                 return true;
             }
         }

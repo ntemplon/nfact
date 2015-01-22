@@ -23,18 +23,86 @@
  */
 package dynamics;
 
+import com.jupiter.ganymede.math.matrix.Matrix;
+import com.jupiter.ganymede.math.vector.Vector;
+import dynamics.analysis.SystemState;
+
 /**
  *
  * @author nathant
- * @param <TState>
  */
-public interface DynamicSystem<TState extends SystemState> {
+public abstract class DynamicSystem {
+    
+    // Constants
+    public static final StateVariable<Double> TIME = new StateVariable<>("Time");
+
+    public static final StateVariable<Double> X_ACCEL = new StateVariable<>("X Acceleration");
+    public static final StateVariable<Double> Y_ACCEL = new StateVariable<>("Y Acceleration");
+    public static final StateVariable<Double> Z_ACCEL = new StateVariable<>("Z Acceleration");
+    public static final StateVariable<Double> PHI_ACCEL = new StateVariable<>("Phi Double Dot");
+    public static final StateVariable<Double> THETA_ACCEL = new StateVariable<>("Theta Double Dot");
+    public static final StateVariable<Double> PSI_ACCEL = new StateVariable<>("Psi Double Dot");
+
+    public static final StateVariable<Double> X_VEL = new StateVariable<>("X Velocity");
+    public static final StateVariable<Double> Y_VEL = new StateVariable<>("Y Velocity");
+    public static final StateVariable<Double> Z_VEL = new StateVariable<>("Z Velocity");
+    public static final StateVariable<Double> PHI_VEL = new StateVariable<>("Phi Dot");
+    public static final StateVariable<Double> THETA_VEL = new StateVariable<>("Theta Dot");
+    public static final StateVariable<Double> PSI_VEL = new StateVariable<>("Psi Dot");
+
+    public static final StateVariable<Double> X_POS = new StateVariable<>("X Position");
+    public static final StateVariable<Double> Y_POS = new StateVariable<>("Y Position");
+    public static final StateVariable<Double> Z_POS = new StateVariable<>("Z Position");
+    public static final StateVariable<Double> PHI_POS = new StateVariable<>("Phi");
+    public static final StateVariable<Double> THETA_POS = new StateVariable<>("Theta");
+    public static final StateVariable<Double> PSI_POS = new StateVariable<>("Psi");
+
+    public static final StateVariable<Inertia> INERTIA = new StateVariable<>("Inertia");
+    
+    public static final StateVariable<Double> SPEED = new StateVariable<>("Speed");
+    
+    
+    // Fields
+    private SystemState currentState;
+    
 
     // Properties
-    TState getState();
+    public final SystemState getCurrentState() {
+        if (this.currentState == null) {
+            this.currentState = this.getInitialState();
+        }
+        return this.currentState;
+    }
+    
+    public abstract StateVariable[] getVectorVariables();
+    
+    public abstract SystemState getInitialState();
+    
+    
+    // Initialization
+    public DynamicSystem() {
+        
+    }
 
 
     // Public Methods
-    void updateState(double detlaT);
+    public void update(double deltaT) {
+        Vector stateVector = this.getCurrentState().getStateVector();
+        Matrix stateMatrix = this.getSystemMatrix(this.getCurrentState());
+        
+        // Euler's Method, for Debugging
+        Vector yPrime = stateMatrix.times(stateVector);
+        
+        Vector nextStateVector = stateVector.plus(yPrime.times(deltaT));
+        double nextTime = this.getCurrentState().getTime() + deltaT;
+        
+        this.currentState = this.buildState(nextTime, nextStateVector);
+    }
+    
+    public abstract SystemState buildState(double time, Vector stateVector);
+    
+    public abstract Inertia getInertia(double time);
+    
+    public abstract Matrix getSystemMatrix(SystemState state);
 
 }

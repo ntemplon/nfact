@@ -23,9 +23,10 @@
  */
 package aero;
 
-import dynamics.AeroSystemState;
+import dynamics.AerodynamicSystem;
+import dynamics.analysis.SystemState;
 import function.SingleVariableFunction;
-import geometry.angle.Angle;
+import com.jupiter.ganymede.math.geometry.Angle;
 
 /**
  *
@@ -106,18 +107,18 @@ public class TrapezoidalWing extends Wing {
     }
 
     @Override
-    public double cl(AeroSystemState state) {
-        return this.liftCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+    public double cl(SystemState state) {
+        return this.liftCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
-    public double cd(AeroSystemState state) {
-        return this.dragCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+    public double cd(SystemState state) {
+        return this.dragCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
 
     @Override
-    public double cpm(AeroSystemState state) {
-        return this.pmCoeff.evaluate(state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
+    public double cpm(SystemState state) {
+        return this.pmCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
     }
     
     @Override

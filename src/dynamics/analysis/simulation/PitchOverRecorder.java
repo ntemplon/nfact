@@ -23,28 +23,28 @@
  */
 package dynamics.analysis.simulation;
 
-import dynamics.AeroSystemState;
-import dynamics.DynamicSystemState;
+import dynamics.AerodynamicSystem;
+import dynamics.DynamicSystem;
 import dynamics.SystemProperty;
-import dynamics.SystemState;
-import geometry.angle.Angle;
-import geometry.angle.Angle.AngleType;
+import dynamics.analysis.SystemState;
+import com.jupiter.ganymede.math.geometry.Angle;
+import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 import java.io.File;
 
 /**
  *
  * @author nathan
  */
-public class PitchOverRecorder extends FileRecorder<AeroSystemState> {
+public class PitchOverRecorder extends FileRecorder {
 
     // Constants
     public static final SystemProperty[] RECORDED_VARIABLES = new SystemProperty[]{
-        AeroSystemState.TIME, AeroSystemState.ANGLE_OF_ATTACK, AeroSystemState.CL, AeroSystemState.CD,
-        AeroSystemState.CPM, AeroSystemState.DYNAMIC_PRESSURE, AeroSystemState.SPEED, AeroSystemState.FLIGHT_PATH_ANGLE,
-        AeroSystemState.X_POS, AeroSystemState.Z_POS, AeroSystemState.ANGULAR_POS, AeroSystemState.X_VEL,
-        AeroSystemState.Z_VEL, AeroSystemState.ANGULAR_VEL, AeroSystemState.X_ACCEL, AeroSystemState.Z_ACCEL,
-        AeroSystemState.ANGULAR_ACCEL, AeroSystemState.AXIAL_LOAD_FACTOR, AeroSystemState.NORMAL_LOAD_FACTOR,
-        AeroSystemState.THRUST, AeroSystemState.MASS, AeroSystemState.DELTA_E
+        DynamicSystem.TIME, AerodynamicSystem.ANGLE_OF_ATTACK, AerodynamicSystem.CL, AerodynamicSystem.CD,
+        AerodynamicSystem.CPM, AerodynamicSystem.DYNAMIC_PRESSURE, DynamicSystem.SPEED, AerodynamicSystem.FLIGHT_PATH_ANGLE,
+        DynamicSystem.X_POS, DynamicSystem.Z_POS, DynamicSystem.THETA_POS, DynamicSystem.X_VEL,
+        DynamicSystem.Z_VEL, DynamicSystem.THETA_VEL, DynamicSystem.X_ACCEL, DynamicSystem.Z_ACCEL,
+        DynamicSystem.THETA_ACCEL, AerodynamicSystem.AXIAL_LOAD_FACTOR, AerodynamicSystem.NORMAL_LOAD_FACTOR,
+        AerodynamicSystem.THRUST, DynamicSystem.INERTIA, AerodynamicSystem.DELTA_E
     };
 
 
@@ -62,7 +62,7 @@ public class PitchOverRecorder extends FileRecorder<AeroSystemState> {
 
     private double finalVelocity = 0.0;
     private double simulationTime = 0.0;
-    private Angle finalTheta = new Angle(0.0);
+    private double finalTheta = 0.0;
 
 
     // Properties
@@ -86,7 +86,7 @@ public class PitchOverRecorder extends FileRecorder<AeroSystemState> {
         return this.maxAxialLoadFactor;
     }
 
-    public Angle getFinalTheta() {
+    public double getFinalTheta() {
         return this.finalTheta;
     }
 
@@ -104,12 +104,12 @@ public class PitchOverRecorder extends FileRecorder<AeroSystemState> {
 
     // FileRecorder Overrides
     @Override
-    public void finish(AeroSystemState finalState) {
+    public void finish(SystemState finalState) {
         this.writeState(finalState);
 
-        this.finalVelocity = finalState.get(DynamicSystemState.SPEED);
-        this.simulationTime = finalState.get(SystemState.TIME);
-        this.finalTheta = finalState.get(DynamicSystemState.ANGULAR_POS);
+        this.finalVelocity = finalState.get(DynamicSystem.SPEED);
+        this.simulationTime = finalState.get(DynamicSystem.TIME);
+        this.finalTheta = finalState.get(DynamicSystem.THETA_POS);
 
         // Write maximum / final metrics to file
         super.println("Max Q: " + this.getDecimalFormat().format(this.maxQ));
@@ -120,30 +120,30 @@ public class PitchOverRecorder extends FileRecorder<AeroSystemState> {
         super.println("Max Axial Load Factor: " + this.getDecimalFormat().format(this.maxAxialLoadFactor));
         super.println("Min Axial Load Factor: " + this.getDecimalFormat().format(this.minAxialLoadFactor));
 
-        super.println("Final X: " + this.getDecimalFormat().format(finalState.get(AeroSystemState.X_POS)));
-        super.println("Final Z: " + this.getDecimalFormat().format(finalState.get(AeroSystemState.Z_POS)));
-        super.println("Final Theta: " + this.getDecimalFormat().format(finalState.get(AeroSystemState.ANGULAR_POS).getMeasure(AngleType.DEGREES)));
-        super.println("Final X Velocity: " + this.getDecimalFormat().format(finalState.get(AeroSystemState.X_VEL)));
-        super.println("Final Z Velocity: " + this.getDecimalFormat().format(finalState.get(AeroSystemState.Z_VEL)));
-        super.println("Final Angular Velocity: " + this.getDecimalFormat().format(finalState.get(AeroSystemState.ANGULAR_VEL)));
+        super.println("Final X: " + this.getDecimalFormat().format(finalState.get(DynamicSystem.X_POS)));
+        super.println("Final Z: " + this.getDecimalFormat().format(finalState.get(DynamicSystem.Z_POS)));
+        super.println("Final Theta: " + this.getDecimalFormat().format(finalState.get(DynamicSystem.THETA_POS)));
+        super.println("Final X Velocity: " + this.getDecimalFormat().format(finalState.get(DynamicSystem.X_VEL)));
+        super.println("Final Z Velocity: " + this.getDecimalFormat().format(finalState.get(DynamicSystem.Z_VEL)));
+        super.println("Final Angular Velocity: " + this.getDecimalFormat().format(finalState.get(DynamicSystem.THETA_VEL)));
 
         this.close();
     }
 
     @Override
-    public void recordState(AeroSystemState state) {
-        double q = state.get(AeroSystemState.DYNAMIC_PRESSURE);
+    public void recordState(SystemState state) {
+        double q = state.get(AerodynamicSystem.DYNAMIC_PRESSURE);
         if (q > this.maxQ) {
             this.maxQ = q;
-            this.maxSpeed = state.get(DynamicSystemState.SPEED);
+            this.maxSpeed = state.get(DynamicSystem.SPEED);
         }
 
-        double h = state.get(AeroSystemState.Z_POS);
+        double h = state.get(AerodynamicSystem.Z_POS);
         if (h > this.maxH) {
             this.maxH = h;
         }
 
-        double nNormal = state.get(AeroSystemState.NORMAL_LOAD_FACTOR);
+        double nNormal = state.get(AerodynamicSystem.NORMAL_LOAD_FACTOR);
         if (nNormal > this.maxNormalLoadFactor) {
             this.maxNormalLoadFactor = nNormal;
         }
@@ -151,7 +151,7 @@ public class PitchOverRecorder extends FileRecorder<AeroSystemState> {
             this.minNormalLoadFactor = nNormal;
         }
 
-        double nAxial = state.get(AeroSystemState.AXIAL_LOAD_FACTOR);
+        double nAxial = state.get(AerodynamicSystem.AXIAL_LOAD_FACTOR);
         if (nAxial > this.maxAxialLoadFactor) {
             this.maxAxialLoadFactor = nAxial;
         }

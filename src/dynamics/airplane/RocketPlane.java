@@ -23,14 +23,13 @@
  */
 package dynamics.airplane;
 
-import dynamics.AeroSystemState;
+import aero.fluid.FluidState;
+import com.jupiter.ganymede.math.matrix.Matrix;
+import com.jupiter.ganymede.math.vector.Vector;
 import dynamics.AerodynamicSystem;
-import dynamics.DynamicSystemState;
-import dynamics.SystemState;
-import geometry.angle.Angle;
-import geometry.angle.Angle.AngleType;
-import geometry.angle.Angle.MeasureRange;
-import propulsion.rocket.HobbyRocketEngine;
+import dynamics.Inertia;
+import dynamics.analysis.SystemState;
+import com.jupiter.ganymede.math.geometry.Angle;
 import propulsion.rocket.SolidRocketEngine;
 
 /**
@@ -63,33 +62,26 @@ public class RocketPlane extends AerodynamicSystem {
 
     private Angle elevatorDeflection = new Angle(0);
 
-    private final AeroSystemState initialState;
-
     // Properties
-    @Override
-    public double getMass(AeroSystemState state) {
-        double mass = this.baseMass + this.engine.getMass(state.get(SystemState.TIME));
-        state.set(AeroSystemState.MASS, mass);
-        return mass;
-    }
-
-    @Override
-    public double getIyy(AeroSystemState state) {
-        return this.iyy;
-    }
-
-    @Override
-    public AeroSystemState getInitialState() {
-        return this.initialState;
-    }
-
-    public Angle getElevatorDeflection() {
-        return this.elevatorDeflection;
-    }
-
-    public void setElevatorDeflection(Angle deflection) {
-        this.elevatorDeflection = deflection;
-    }
+//    @Override
+//    public double getMass(AeroSystemState state) {
+//        double mass = this.baseMass + this.engine.getMass(state.get(SystemState.TIME));
+//        state.set(AeroSystemState.MASS, mass);
+//        return mass;
+//    }
+//
+//    @Override
+//    public double getIyy(AeroSystemState state) {
+//        return this.iyy;
+//    }
+//
+//    public Angle getElevatorDeflection() {
+//        return this.elevatorDeflection;
+//    }
+//
+//    public void setElevatorDeflection(Angle deflection) {
+//        this.elevatorDeflection = deflection;
+//    }
 
     // Initializtion
     public RocketPlane(RocketPlaneParameters prms) {
@@ -112,93 +104,104 @@ public class RocketPlane extends AerodynamicSystem {
         this.cpmAlpha = prms.getCpmAlpha();
         this.cpmDeltaE = prms.getCpmDeltaE();
         this.cpmQ = prms.getCpmQ();
-
-        this.initialState = prms.getInitialState();
     }
 
     // Public Methods
-    @Override
-    public double getLift(AeroSystemState state) {
-        double cl = this.getCl(state);
-        return cl * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef;
-    }
+//    @Override
+//    public double getLift(AeroSystemState state) {
+//        double cl = this.getCl(state);
+//        return cl * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef;
+//    }
+//
+//    @Override
+//    public double getDrag(AeroSystemState state) {
+//        return this.getCd(state) * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef;
+//    }
+//
+//    @Override
+//    public double getPitchingMoment(AeroSystemState state) {
+//        return this.getCpm(state) * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar;
+//    }
+//
+//    @Override
+//    public double getThrust(AeroSystemState state) {
+//        double thrust = this.engine.getThrust(state.get(AeroSystemState.TIME));
+//        state.set(AeroSystemState.THRUST, thrust);
+//        return thrust;
+//    }
+//
+//    public double getCl(AeroSystemState state) {
+//        Angle totalAlpha = state.get(AeroSystemState.ANGLE_OF_ATTACK).add(alphaZeroLift.scalarMultiply(-1.0));
+//        double cl = this.clAlpha * totalAlpha.getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
+//
+//        double cle = this.getElevatorDeflection().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) * this.clDeltaE;
+//        cl += cle;
+//
+//        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
+//        cl += qHat * this.clQ;
+//
+//        state.set(AeroSystemState.CL, cl);
+//        return cl;
+//    }
+//
+//    public double getCd(AeroSystemState state) {
+//        // Random constants are empiracle adjustments to match AVL's data, based on the presence of two lifting surfaces, not one.
+//        double cdi = (getCl(state) * getCl(state) * (1.8 / 2.4) * (1.8 / 2.4) * 1.05 * 1.05) / (Math.PI * this.spanEfficiency * this.aspectRatio);
+//        double cd = this.cd0 + cdi;
+//        state.set(AeroSystemState.CD, cd);
+//        return cd;
+//    }
+//
+//    public double getCpm(AeroSystemState state) {
+//        double cpm0Prime = this.cpm0;
+//        double cpmAlphaPrime = this.cpmAlpha;
+//
+//        if (this.engine.equals(HobbyRocketEngine.G25)) {
+//            double motorBurnFrac = 1 - (this.engine.getMass(state.get(SystemState.TIME)) - this.engine.getMass(this.engine.getBurnTime())) / (this.engine.getMass(0.0) - this.engine.getMass(this.engine.getBurnTime()));
+//            cpm0Prime = -0.0346 + (-0.0510 + 0.0346) * motorBurnFrac;
+//
+//            cpmAlphaPrime = -0.5479 + (-0.9973 + 0.5479) * motorBurnFrac;
+////            System.out.println(motorBurnFrac);
+//        }
+//
+//        double cpmFromAlpha = cpmAlphaPrime * state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS);
+//        state.set(AeroSystemState.CPMA, cpmFromAlpha);
+//
+//        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
+//        double cpmFromQ = this.cpmQ * qHat;
+//        state.set(AeroSystemState.CPMQ, cpmFromQ);
+//
+//        double cpmFromElevator = this.getElevatorDeflection().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) * this.cpmDeltaE;
+//
+//        double thrust = this.getThrust(state);
+//        double thrustPitchMoment = -1 * zThrust * thrust;
+//        double cpmt = (thrustPitchMoment / (state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar));
+////        double cpmt = 0.0;
+//        state.set(AeroSystemState.CPMT, cpmt);
+//
+//        double cpm = cpm0Prime + cpmFromAlpha + cpmFromElevator + cpmFromQ + cpmt;
+//
+//        state.set(AeroSystemState.CPM, cpm);
+//        return cpm;
+//    }
 
     @Override
-    public double getDrag(AeroSystemState state) {
-        return this.getCd(state) * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef;
+    public SystemState getInitialState() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public double getPitchingMoment(AeroSystemState state) {
-        return this.getCpm(state) * state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar;
+    public Inertia getInertia(double time) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public double getThrust(AeroSystemState state) {
-        double thrust = this.engine.getThrust(state.get(AeroSystemState.TIME));
-        state.set(AeroSystemState.THRUST, thrust);
-        return thrust;
-    }
-
-    public double getCl(AeroSystemState state) {
-        Angle totalAlpha = state.get(AeroSystemState.ANGLE_OF_ATTACK).add(alphaZeroLift.scalarMultiply(-1.0));
-        double cl = this.clAlpha * totalAlpha.getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180);
-
-        double cle = this.getElevatorDeflection().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) * this.clDeltaE;
-        cl += cle;
-
-        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
-        cl += qHat * this.clQ;
-
-        state.set(AeroSystemState.CL, cl);
-        return cl;
-    }
-
-    public double getCd(AeroSystemState state) {
-        // Random constants are empiracle adjustments to match AVL's data, based on the presence of two lifting surfaces, not one.
-        double cdi = (getCl(state) * getCl(state) * (1.8 / 2.4) * (1.8 / 2.4) * 1.05 * 1.05) / (Math.PI * this.spanEfficiency * this.aspectRatio);
-        double cd = this.cd0 + cdi;
-        state.set(AeroSystemState.CD, cd);
-        return cd;
-    }
-
-    public double getCpm(AeroSystemState state) {
-        double cpm0Prime = this.cpm0;
-        double cpmAlphaPrime = this.cpmAlpha;
-
-        if (this.engine.equals(HobbyRocketEngine.G25)) {
-            double motorBurnFrac = 1 - (this.engine.getMass(state.get(SystemState.TIME)) - this.engine.getMass(this.engine.getBurnTime())) / (this.engine.getMass(0.0) - this.engine.getMass(this.engine.getBurnTime()));
-            cpm0Prime = -0.0346 + (-0.0510 + 0.0346) * motorBurnFrac;
-
-            cpmAlphaPrime = -0.5479 + (-0.9973 + 0.5479) * motorBurnFrac;
-//            System.out.println(motorBurnFrac);
-        }
-
-        double cpmFromAlpha = cpmAlphaPrime * state.get(AeroSystemState.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS);
-        state.set(AeroSystemState.CPMA, cpmFromAlpha);
-
-        double qHat = (state.get(AeroSystemState.ANGULAR_VEL) * this.cBar) / (2 * state.get(DynamicSystemState.SPEED));
-        double cpmFromQ = this.cpmQ * qHat;
-        state.set(AeroSystemState.CPMQ, cpmFromQ);
-
-        double cpmFromElevator = this.getElevatorDeflection().getMeasure(AngleType.RADIANS, MeasureRange.PlusMin180) * this.cpmDeltaE;
-
-        double thrust = this.getThrust(state);
-        double thrustPitchMoment = -1 * zThrust * thrust;
-        double cpmt = (thrustPitchMoment / (state.get(AeroSystemState.DYNAMIC_PRESSURE) * this.sRef * this.cBar));
-//        double cpmt = 0.0;
-        state.set(AeroSystemState.CPMT, cpmt);
-
-        double cpm = cpm0Prime + cpmFromAlpha + cpmFromElevator + cpmFromQ + cpmt;
-
-        state.set(AeroSystemState.CPM, cpm);
-        return cpm;
+    public double getReferenceLength() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void updateState(double deltat) {
-        this.getState().set(AeroSystemState.DELTA_E, this.getElevatorDeflection());
-
-        super.updateState(deltat);
+    public FluidState getFluidState(double time, Vector stateVector) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

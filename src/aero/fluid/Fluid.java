@@ -42,4 +42,6 @@ public interface Fluid {
      */
     double getMolarMass();
     
+    double getViscosity();
+    
 }

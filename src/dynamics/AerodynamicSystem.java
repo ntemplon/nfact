@@ -29,6 +29,7 @@ import com.jupiter.ganymede.math.vector.Vector;
 import dynamics.analysis.SystemState;
 import com.jupiter.ganymede.math.geometry.Angle;
 import com.jupiter.ganymede.math.geometry.Angle.AngleType;
+import com.jupiter.ganymede.math.geometry.Plane3;
 import com.jupiter.ganymede.math.vector.Vector3;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,6 +73,10 @@ public abstract class AerodynamicSystem extends DynamicSystem {
         DynamicSystem.Y_POS, DynamicSystem.Y_VEL, DynamicSystem.Y_ACCEL, DynamicSystem.Z_POS, DynamicSystem.Z_VEL, DynamicSystem.Z_ACCEL,
         DynamicSystem.PHI_POS, DynamicSystem.PHI_VEL, DynamicSystem.PHI_ACCEL, DynamicSystem.THETA_POS, DynamicSystem.THETA_VEL,
         DynamicSystem.THETA_ACCEL, DynamicSystem.PSI_POS, DynamicSystem.PSI_VEL, DynamicSystem.PSI_ACCEL};
+    
+    public static final Plane3 XY_PLANE = new Plane3(new Vector3(0, 0, 1));
+    public static final Plane3 XZ_PLANE = new Plane3(new Vector3(0, 1, 0));
+    public static final Plane3 YZ_PLANE = new Plane3(new Vector3(1, 0, 0));
 
 
     // Properties
@@ -98,6 +103,11 @@ public abstract class AerodynamicSystem extends DynamicSystem {
         for (int i = 0; i < this.getVectorVariables().length; i++) {
             props.put(this.getVectorVariables()[i], stateVector.getComponent(i + 1));
         }
+        
+        // Vehicle Axes
+        Angle theta = new Angle((Double)props.get(DynamicSystem.THETA_POS));
+        Angle psi = new Angle((Double)props.get(DynamicSystem.PSI_POS));
+        Angle phi = new Angle((Double)props.get(DynamicSystem.PHI_POS));
         
         // Calculate Derived Parameters
         
@@ -127,10 +137,13 @@ public abstract class AerodynamicSystem extends DynamicSystem {
         Angle gamma = new Angle(0.0);
         Angle alpha = new Angle(0.0);
         Angle beta = new Angle(0.0);
-        Angle phi = new Angle((Double)props.get(AerodynamicSystem.PHI_POS));
         if (speed > ANGLE_CALCULATION_SPEED_THRESHOLD) {
             // angle calculation code
-            gamma = velocity.angleTo(new Vector(0, 0, -1)).plus(new Angle(-90, AngleType.DEGREES));
+            gamma = velocity.angleTo(velocity.projectionOnto(XY_PLANE));
+            if (zVelocity < 0) {
+                gamma = gamma.times(-1.0);
+            }
+//            gamma = velocity.angleTo(new Vector(0, 0, -1)).plus(new Angle(-90, AngleType.DEGREES));
 //            alpha = (new Angle((Double)props.get(DynamicSystem.THETA_POS))).plus(gamma.times(-1));
         }
         props.put(AerodynamicSystem.FLIGHT_PATH_ANGLE, gamma);

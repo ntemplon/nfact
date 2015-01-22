@@ -23,8 +23,8 @@
  */
 package aero;
 
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 import dynamics.analysis.SystemState;
-import function.SingleVariableFunction;
 
 /**
  *
@@ -45,10 +45,10 @@ public abstract class Wing {
 
     public abstract double cpm(SystemState state);
 
-    public abstract SingleVariableFunction clFunction();
+    public abstract SingleVariableRealFunction clFunction();
 
-    public abstract SingleVariableFunction cdFunction();
+    public abstract SingleVariableRealFunction cdFunction();
 
-    public abstract SingleVariableFunction cpmFunction();
+    public abstract SingleVariableRealFunction cpmFunction();
 
 }

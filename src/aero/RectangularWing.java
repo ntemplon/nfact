@@ -23,55 +23,41 @@
  */
 package aero;
 
-import dynamics.AerodynamicSystem;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 import dynamics.analysis.SystemState;
-import function.SingleVariableFunction;
-import com.jupiter.ganymede.math.geometry.Angle;
-import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 
 /**
  *
  * @author nathan
  */
 public class RectangularWing extends Wing {
+
     // Fields
+
     private final RectangularWingPlanform planform;
     private final Airfoil airfoil;
-    
-    private final SingleVariableFunction liftCoeff;
-    private final SingleVariableFunction dragCoeff;
-    private final SingleVariableFunction pmCoeff;
-    
-    
+
+    private final SingleVariableRealFunction liftCoeff;
+    private final SingleVariableRealFunction dragCoeff;
+    private final SingleVariableRealFunction pmCoeff;
+
+
     // Initialization
     public RectangularWing(double chord, double span, Airfoil airfoil) {
         this.planform = new RectangularWingPlanform(chord, span);
         this.airfoil = airfoil;
-        
-        this.liftCoeff = new SingleVariableFunction(this.airfoil.clFunction().domainMin, this.airfoil.clFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                return 0.8 * RectangularWing.this.airfoil.cl(input);
-            }
+
+        this.liftCoeff = (Double input) -> 0.8 * RectangularWing.this.airfoil.cl(input);
+        this.dragCoeff = (Double input) -> {
+            double cd0 = 0.04;
+            double cdi = (liftCoeff.evaluate(input) * liftCoeff.evaluate(input))
+                    / (Math.PI * RectangularWing.this.spanEfficiency() * RectangularWing.this.getPlanform().aspectRatio());
+            return (cd0 + cdi);
         };
-        this.dragCoeff = new SingleVariableFunction(this.airfoil.cdFunction().domainMin, this.airfoil.cdFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                double cd0 = 0.04;
-                double cdi = (liftCoeff.evaluate(input) * liftCoeff.evaluate(input))
-                        / (Math.PI * RectangularWing.this.spanEfficiency() * RectangularWing.this.getPlanform().aspectRatio());
-                return (cd0 + cdi);
-            }
-        };
-        this.pmCoeff = new SingleVariableFunction(this.airfoil.cpmFunction().domainMin, this.airfoil.cpmFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                return RectangularWing.this.airfoil.cpm(input);
-            }
-        };
+        this.pmCoeff = RectangularWing.this.airfoil::cpm;
     }
-    
-    
+
+
     // Public Methods
     @Override
     public double spanEfficiency() {
@@ -80,49 +66,49 @@ public class RectangularWing extends Wing {
 
     @Override
     public WingSection sectionAt(double station) {
-        return new WingSection(this.getPlanform().xPositionAt(station)
-                , this.getPlanform().chordAt(station), this.airfoil);
+        return new WingSection(this.getPlanform().xPositionAt(station), this.getPlanform().chordAt(station),
+                this.airfoil);
     }
 
     @Override
-    public double cl(SystemState state) {
-        return this.liftCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
-    }
-
-    @Override
-    public double cd(SystemState state) {
-        return this.dragCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
-    }
-
-    @Override
-    public double cpm(SystemState state) {
-        return this.pmCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(AngleType.RADIANS, Angle.MeasureRange.PlusMin180));
-    }
-
-    @Override
-    public SingleVariableFunction clFunction() {
+    public SingleVariableRealFunction clFunction() {
         return this.liftCoeff;
     }
 
     @Override
-    public SingleVariableFunction cdFunction() {
+    public SingleVariableRealFunction cdFunction() {
         return this.dragCoeff;
     }
 
     @Override
-    public SingleVariableFunction cpmFunction() {
+    public SingleVariableRealFunction cpmFunction() {
         return this.pmCoeff;
     }
-    
-    
+
+
     // Getters and Setters
     @Override
     public WingPlanform getPlanform() {
         return this.planform;
     }
-    
+
     public Airfoil getAirfoil() {
         return this.airfoil;
     }
-    
+
+    @Override
+    public double cl(SystemState state) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double cd(SystemState state) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public double cpm(SystemState state) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }

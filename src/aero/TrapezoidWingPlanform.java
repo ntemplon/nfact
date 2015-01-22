@@ -23,7 +23,7 @@
  */
 package aero;
 
-import function.SingleVariableFunction;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 import com.jupiter.ganymede.math.geometry.Angle;
 
 /**
@@ -43,9 +43,9 @@ public class TrapezoidWingPlanform extends WingPlanform {
     private final Angle trailSweep;
     private final Angle quarterSweep;
     
-    private final SingleVariableFunction leadingEdgeLocation;
-    private final SingleVariableFunction trailingEdgeLocation;
-    private final SingleVariableFunction quarterChordLocation;
+    private final SingleVariableRealFunction leadingEdgeLocation;
+    private final SingleVariableRealFunction trailingEdgeLocation;
+    private final SingleVariableRealFunction quarterChordLocation;
     
             
     // Initialization
@@ -74,29 +74,11 @@ public class TrapezoidWingPlanform extends WingPlanform {
         this.quarterSweep = new Angle(quarterPosRelative / this.span, Angle.TrigFunction.TANGENT);
         
         // Calculations of functions
-        this.leadingEdgeLocation = new SingleVariableFunction(-1 * this.span, this.span) {
-
-            @Override
-            public Double evaluate(Double input) {
-                return leadSweep.tan() * input;
-            }
-        };
+        this.leadingEdgeLocation = (Double input) -> leadSweep.tan() * input;
         
-        this.quarterChordLocation = new SingleVariableFunction(-1 * this.span, this.span) {
-
-            @Override
-            public Double evaluate(Double input) {
-                return quarterSweep.tan() * input;
-            }
-        };
+        this.quarterChordLocation = (Double input) -> quarterSweep.tan() * input;
         
-        this.trailingEdgeLocation = new SingleVariableFunction(-1 * this.span, this.span) {
-
-            @Override
-            public Double evaluate(Double input) {
-                return trailSweep.tan() * input;
-            }
-        };
+        this.trailingEdgeLocation = (Double input) -> trailSweep.tan() * input;
     }
     
     /**
@@ -179,17 +161,17 @@ public class TrapezoidWingPlanform extends WingPlanform {
     }
 
     @Override
-    public SingleVariableFunction leadingEdgeLocation() {
+    public SingleVariableRealFunction leadingEdgeLocation() {
         return this.leadingEdgeLocation;
     }
 
     @Override
-    public SingleVariableFunction trailingEdgeLocation() {
+    public SingleVariableRealFunction trailingEdgeLocation() {
         return this.trailingEdgeLocation;
     }
 
     @Override
-    public SingleVariableFunction quarterChordLocation() {
+    public SingleVariableRealFunction quarterChordLocation() {
         return this.quarterChordLocation;
     }
     

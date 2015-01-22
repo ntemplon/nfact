@@ -23,10 +23,10 @@
  */
 package aero;
 
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
+import com.jupiter.ganymede.math.geometry.Angle;
 import dynamics.AerodynamicSystem;
 import dynamics.analysis.SystemState;
-import function.SingleVariableFunction;
-import com.jupiter.ganymede.math.geometry.Angle;
 
 /**
  *
@@ -38,9 +38,9 @@ public class TrapezoidalWing extends Wing {
     private final TrapezoidWingPlanform planform;
     private final Airfoil airfoil;
     
-    private SingleVariableFunction liftCoeff;
-    private SingleVariableFunction dragCoeff;
-    private SingleVariableFunction pmCoeff;
+    private SingleVariableRealFunction liftCoeff;
+    private SingleVariableRealFunction dragCoeff;
+    private SingleVariableRealFunction pmCoeff;
     
     
     // Initialization
@@ -53,31 +53,18 @@ public class TrapezoidalWing extends Wing {
     
     private void generateCoeffFunctions() {
         // CL
-        this.liftCoeff = new SingleVariableFunction(this.airfoil.clFunction().domainMin, this.airfoil.clFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                return 0.8 * airfoil.cl(input);
-            }
-        };
+        this.liftCoeff = (Double input) -> 0.8 * airfoil.cl(input);
         
         // CD
-        this.dragCoeff = new SingleVariableFunction(this.airfoil.cdFunction().domainMin, this.airfoil.cdFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                double cd0 = 0.04;
-                double cdi = (liftCoeff.evaluate(input) * liftCoeff.evaluate(input))
-                        / (Math.PI * TrapezoidalWing.this.spanEfficiency() * TrapezoidalWing.this.getPlanform().aspectRatio());
-                return (cd0 + cdi);
-            }
+        this.dragCoeff = (Double input) -> {
+            double cd0 = 0.04;
+            double cdi = (liftCoeff.evaluate(input) * liftCoeff.evaluate(input))
+                    / (Math.PI * TrapezoidalWing.this.spanEfficiency() * TrapezoidalWing.this.getPlanform().aspectRatio());
+            return (cd0 + cdi);
         };
         
         // CPM
-        this.pmCoeff = new SingleVariableFunction(this.airfoil.cpmFunction().domainMin, this.airfoil.cpmFunction().domainMax) {
-            @Override
-            public Double evaluate(Double input) {
-                return airfoil.cpm(input);
-            }
-        };
+        this.pmCoeff = airfoil::cpm;
     }
     
     
@@ -122,17 +109,17 @@ public class TrapezoidalWing extends Wing {
     }
     
     @Override
-    public SingleVariableFunction clFunction() {
+    public SingleVariableRealFunction clFunction() {
         return this.liftCoeff;
     }
     
     @Override
-    public SingleVariableFunction cdFunction() {
+    public SingleVariableRealFunction cdFunction() {
         return this.dragCoeff;
     }
     
     @Override
-    public SingleVariableFunction cpmFunction() {
+    public SingleVariableRealFunction cpmFunction() {
         return this.pmCoeff;
     }
     

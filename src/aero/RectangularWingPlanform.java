@@ -23,7 +23,8 @@
  */
 package aero;
 
-import function.SingleVariableFunction;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
+
 
 /**
  *
@@ -35,9 +36,9 @@ public class RectangularWingPlanform extends WingPlanform{
     private final double span;
     private final double area;
     
-    private final SingleVariableFunction leadingEdgeFunction;
-    private final SingleVariableFunction trailingEdgeFunction;
-    private final SingleVariableFunction quarterChordLocation;
+    private final SingleVariableRealFunction leadingEdgeFunction;
+    private final SingleVariableRealFunction trailingEdgeFunction;
+    private final SingleVariableRealFunction quarterChordLocation;
     
     
     // Initialization
@@ -48,24 +49,9 @@ public class RectangularWingPlanform extends WingPlanform{
         // Calculate fixed parameters
         this.area = chord * span;
         
-        this.leadingEdgeFunction = new SingleVariableFunction(-1 * this.span, this.span) {
-            @Override
-            public Double evaluate(Double input) {
-                return 0.0;
-            }
-        };
-        this.trailingEdgeFunction = new SingleVariableFunction(-1 * this.span, this.span) {
-            @Override
-            public Double evaluate(Double input) {
-                return RectangularWingPlanform.this.chord;
-            }
-        };
-        this.quarterChordLocation = new SingleVariableFunction(-1 * this.span, this.span) {
-            @Override
-            public Double evaluate(Double input) {
-                return RectangularWingPlanform.this.chord / 4.0;
-            }
-        };
+        this.leadingEdgeFunction = (Double input) -> 0.0;
+        this.trailingEdgeFunction = (Double input) -> RectangularWingPlanform.this.chord;
+        this.quarterChordLocation = (Double input) -> RectangularWingPlanform.this.chord / 4.0;
     }
     
     @Override
@@ -94,17 +80,17 @@ public class RectangularWingPlanform extends WingPlanform{
     }
 
     @Override
-    public SingleVariableFunction leadingEdgeLocation() {
+    public SingleVariableRealFunction leadingEdgeLocation() {
         return this.leadingEdgeFunction;
     }
 
     @Override
-    public SingleVariableFunction trailingEdgeLocation() {
+    public SingleVariableRealFunction trailingEdgeLocation() {
         return this.trailingEdgeFunction;
     }
 
     @Override
-    public SingleVariableFunction quarterChordLocation() {
+    public SingleVariableRealFunction quarterChordLocation() {
         return this.quarterChordLocation;
     }
     

@@ -71,6 +71,7 @@ public class RectangularWing extends Wing {
     }
 
     @Override
+
     public SingleVariableRealFunction clFunction() {
         return this.liftCoeff;
     }

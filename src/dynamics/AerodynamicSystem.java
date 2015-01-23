@@ -69,14 +69,18 @@ public abstract class AerodynamicSystem extends DynamicSystem {
     public static final StateVariable<Double> NORMAL_LOAD_FACTOR = new StateVariable<>("Normal Load Factor");
     public static final StateVariable<Double> AXIAL_LOAD_FACTOR = new StateVariable<>("Axial Load Factor");
 
-    public static final StateVariable[] VECTOR_VARIABLES = {DynamicSystem.X_POS, DynamicSystem.X_VEL, DynamicSystem.X_ACCEL,
-        DynamicSystem.Y_POS, DynamicSystem.Y_VEL, DynamicSystem.Y_ACCEL, DynamicSystem.Z_POS, DynamicSystem.Z_VEL, DynamicSystem.Z_ACCEL,
-        DynamicSystem.PHI_POS, DynamicSystem.PHI_VEL, DynamicSystem.PHI_ACCEL, DynamicSystem.THETA_POS, DynamicSystem.THETA_VEL,
-        DynamicSystem.THETA_ACCEL, DynamicSystem.PSI_POS, DynamicSystem.PSI_VEL, DynamicSystem.PSI_ACCEL};
+    public static final StateVariable[] VECTOR_VARIABLES = {DynamicSystem.X_POS, DynamicSystem.X_VEL, 
+        DynamicSystem.Y_POS, DynamicSystem.Y_VEL, DynamicSystem.Z_POS, DynamicSystem.Z_VEL, DynamicSystem.PHI_POS,
+        DynamicSystem.PHI_VEL, DynamicSystem.THETA_POS, DynamicSystem.THETA_VEL, DynamicSystem.PSI_POS,
+        DynamicSystem.PSI_VEL};
     
-    public static final Plane3 XY_PLANE = new Plane3(new Vector3(0, 0, 1));
-    public static final Plane3 XZ_PLANE = new Plane3(new Vector3(0, 1, 0));
-    public static final Plane3 YZ_PLANE = new Plane3(new Vector3(1, 0, 0));
+    public static final Vector3 X_AXIS = new Vector3(1, 0, 0);
+    public static final Vector3 Y_AXIS = new Vector3(0, 1, 0);
+    public static final Vector3 Z_AXIS = new Vector3(0, 0, 1);
+    
+    public static final Plane3 XY_PLANE = new Plane3(Z_AXIS);
+    public static final Plane3 XZ_PLANE = new Plane3(Y_AXIS);
+    public static final Plane3 YZ_PLANE = new Plane3(X_AXIS);
 
 
     // Properties
@@ -97,6 +101,8 @@ public abstract class AerodynamicSystem extends DynamicSystem {
     // Public Methods
     @Override
     public final SystemState buildState(double time, Vector stateVector) {
+        Vector3 wind = new Vector3(0, 0, 0);
+        
         Map<SystemProperty, Object> props = new HashMap<>();
         
         // Copy State Vector values to the properities map
@@ -108,6 +114,13 @@ public abstract class AerodynamicSystem extends DynamicSystem {
         Angle theta = new Angle((Double)props.get(DynamicSystem.THETA_POS));
         Angle psi = new Angle((Double)props.get(DynamicSystem.PSI_POS));
         Angle phi = new Angle((Double)props.get(DynamicSystem.PHI_POS));
+        Matrix bodyToEarth = Matrix.euler3(phi, 1).times(Matrix.euler3(theta, 2)).times(Matrix.euler3(psi, 3));
+        Vector3 bodyXAxis = Vector3.fromVector(bodyToEarth.column(1));
+        Vector3 bodyYAxis = Vector3.fromVector(bodyToEarth.column(2));
+        Vector3 bodyZAxis = Vector3.fromVector(bodyToEarth.column(3));
+        Plane3 bodyXYPlane = new Plane3(bodyZAxis);
+        Plane3 bodyXZPlane = new Plane3(bodyYAxis);
+        Plane3 bodyYZPlane = new Plane3(bodyXAxis);
         
         // Calculate Derived Parameters
         
@@ -120,6 +133,8 @@ public abstract class AerodynamicSystem extends DynamicSystem {
         double zVelocity = (Double)props.get(DynamicSystem.X_VEL);
         Vector3 velocity = new Vector3(xVelocity, yVelocity, zVelocity);
         double speed = velocity.norm();
+        Vector3 airVelocity = velocity.minus(wind);
+        double airspeed = airVelocity.norm();
         props.put(DynamicSystem.SPEED, speed);
         
         // Fluid State and Flow Properties
@@ -128,10 +143,15 @@ public abstract class AerodynamicSystem extends DynamicSystem {
         double mach = speed / fluid.getSpeedOfSound();
         props.put(AerodynamicSystem.MACH, mach);
         double density = fluid.getDensity();
-        double q = 0.5 * speed * speed * density;
+        double q = 0.5 * airspeed * airspeed * density;
         props.put(AerodynamicSystem.DYNAMIC_PRESSURE, q);
-        double reynolds = (this.getReferenceLength() * fluid.getDensity() * speed) / fluid.getViscosity();
+        double reynolds = (this.getReferenceLength() * fluid.getDensity() * airspeed) / fluid.getViscosity();
         props.put(AerodynamicSystem.REYNOLDS, reynolds);
+        
+        // Axis Transformations
+//        Matrix earthToBody = Matrix.euler3(psi.times(-1.0), 3).times(Matrix.euler3(theta.times(-1.0), 2)).times(
+//                Matrix.euler3(phi.times(-1.0), 1));
+        Vector bodyAxisAirVelocity = bodyToEarth.times(airVelocity);
         
         // Aerodynamic Angles
         Angle gamma = new Angle(0.0);
@@ -139,10 +159,19 @@ public abstract class AerodynamicSystem extends DynamicSystem {
         Angle beta = new Angle(0.0);
         if (speed > ANGLE_CALCULATION_SPEED_THRESHOLD) {
             // angle calculation code
-            gamma = velocity.angleTo(velocity.projectionOnto(XY_PLANE));
+            gamma = velocity.angleTo(XY_PLANE);
             if (zVelocity < 0) {
                 gamma = gamma.times(-1.0);
             }
+            
+            alpha = airVelocity.angleTo(bodyXYPlane);
+            if (theta.getMeasure(Angle.MeasureRange.PlusMinus180) < gamma.getMeasure(Angle.MeasureRange.PlusMinus180)) {
+                alpha = alpha.times(-1.0);
+            }
+            
+            beta = airVelocity.angleTo(bodyYZPlane);
+            
+            
 //            gamma = velocity.angleTo(new Vector(0, 0, -1)).plus(new Angle(-90, AngleType.DEGREES));
 //            alpha = (new Angle((Double)props.get(DynamicSystem.THETA_POS))).plus(gamma.times(-1));
         }

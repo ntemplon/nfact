@@ -23,6 +23,12 @@
  */
 package tester;
 
+import com.jupiter.ganymede.math.vector.Vector;
+import com.jupiter.ganymede.neural.NeuralNetwork;
+import com.jupiter.ganymede.neural.NeuralNetworkInputLayer;
+import com.jupiter.ganymede.neural.NeuralNetworkLayer;
+import com.jupiter.ganymede.neural.ThresholdNeuron;
+
 /**
  *
  * @author Nathan Templon
@@ -30,7 +36,18 @@ package tester;
 public class Tester {
 
     public static void main(String args[]) {
+        NeuralNetworkInputLayer inputLayer = new NeuralNetworkInputLayer(2);
+        NeuralNetworkLayer outputLayer = new NeuralNetworkLayer(new ThresholdNeuron(0.5));
+        NeuralNetwork network = new NeuralNetwork(0.6, inputLayer, outputLayer);
         
+        for(int i = 0; i <= 1; i++) {
+            for (int j = 0; j<= 1; j++) {
+                Vector input = new Vector(i, j);
+                Vector output = network.evaluate(input);
+                
+                System.out.println(input + " -> " + output);
+            }
+        }
     }
 
 }

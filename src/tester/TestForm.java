@@ -154,8 +154,8 @@ public class TestForm extends javax.swing.JFrame {
         prms.setSpanEfficiency(0.87);
         prms.setZThrust(0.0);
 
-//        String outputFolder = "/home/nathan/nFACT/";
-        String outputFolder = "D:\\nFACT\\";
+        String outputFolder = "/home/nathan/nFACT/";
+//        String outputFolder = "D:\\nFACT\\";
         DecimalFormat format = new DecimalFormat("0.0000");
         StringBuilder summary = new StringBuilder();
 

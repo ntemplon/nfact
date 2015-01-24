@@ -24,7 +24,7 @@
 package dynamics.analysis.simulation;
 
 import dynamics.DynamicSystem;
-import dynamics.analysis.SystemState;
+import dynamics.SystemState;
 
 /**
  *

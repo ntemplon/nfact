@@ -26,7 +26,7 @@ package aero;
 import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
 import com.jupiter.ganymede.math.geometry.Angle;
 import dynamics.AerodynamicSystem;
-import dynamics.analysis.SystemState;
+import dynamics.SystemState;
 
 /**
  *

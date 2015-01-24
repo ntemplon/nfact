@@ -23,7 +23,7 @@
  */
 package dynamics.analysis.simulation;
 
-import dynamics.analysis.SystemState;
+import dynamics.SystemState;
 
 /**
  *

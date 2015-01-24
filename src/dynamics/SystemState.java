@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,32 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics.analysis.simulation;
+package dynamics;
 
-import dynamics.AerodynamicSystem;
-import dynamics.DynamicSystem;
-import dynamics.SystemState;
+import com.jupiter.ganymede.math.vector.Vector;
+import java.util.Map;
 
 /**
  *
- * @author nathan
+ * @author Nathan Templon
  */
-public class PitchOverExitCondition implements ExitCondition {
-
-    private boolean threshholdReached = false;
-
-    @Override
-    public boolean isFinished(SystemState state) {
-        if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) == null || state.get(DynamicSystem.Z_VEL) == null ||
-                state.get(AerodynamicSystem.THRUST) == null) {
-            return false;
-        }
-        
-        if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) > 1) {
-            threshholdReached = true;
-        }
-        return threshholdReached && !(state.get(DynamicSystem.Z_VEL) > 0
-            || state.get(AerodynamicSystem.THRUST) > 0);
+public class SystemState {
+    
+    // Fields
+    private final double time;
+    private final Map<SystemProperty, Object> properties;
+    private final Vector stateVector;
+    
+    
+    // Properties
+    public double getTime() {
+        return this.time;
     }
-
+    
+    public <T> T get(SystemProperty<T> property) {
+        if (this.properties.containsKey(property)) {
+            return (T)properties.get(property);
+        }
+        return null;
+    }
+    
+    public Vector getStateVector() {
+        return this.stateVector;
+    }
+    
+    
+    // Initialization
+    public SystemState(double time, Vector stateVector, Map<SystemProperty, Object> properties) {
+        this.time = time;
+        this.stateVector = stateVector;
+        this.properties = properties;
+    }
+    
 }

@@ -24,7 +24,7 @@
 package dynamics.analysis.simulation;
 
 import dynamics.SystemProperty;
-import dynamics.analysis.SystemState;
+import dynamics.SystemState;
 import com.jupiter.ganymede.math.geometry.Angle;
 import java.io.BufferedWriter;
 import java.io.File;

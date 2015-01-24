@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,32 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics.analysis.simulation;
+package aero;
 
-import dynamics.AerodynamicSystem;
-import dynamics.DynamicSystem;
+import aero.fluid.Fluid;
+import com.jupiter.ganymede.math.geometry.Angle;
 import dynamics.SystemState;
 
 /**
  *
  * @author nathan
  */
-public class PitchOverExitCondition implements ExitCondition {
-
-    private boolean threshholdReached = false;
-
-    @Override
-    public boolean isFinished(SystemState state) {
-        if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) == null || state.get(DynamicSystem.Z_VEL) == null ||
-                state.get(AerodynamicSystem.THRUST) == null) {
-            return false;
-        }
-        
-        if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) > 1) {
-            threshholdReached = true;
-        }
-        return threshholdReached && !(state.get(DynamicSystem.Z_VEL) > 0
-            || state.get(AerodynamicSystem.THRUST) > 0);
-    }
-
+public interface AerodynamicCoefficientModel {
+    
+    double cl(SystemState state);
+    double cd(SystemState state);
+    double csf(SystemState state);
+    double cpm(SystemState state);
+    double cym(SystemState state);
+    double crm(SystemState state);
+    
 }

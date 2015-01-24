@@ -21,46 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics.analysis;
-
-import com.jupiter.ganymede.math.vector.Vector;
-import dynamics.SystemProperty;
-import java.util.Map;
+package aero;
 
 /**
  *
- * @author Nathan Templon
+ * @author nathan
  */
-public class SystemState {
+public class AeroReferenceQuantities {
     
     // Fields
-    private final double time;
-    private final Map<SystemProperty, Object> properties;
-    private final Vector stateVector;
+    private final double span;
+    private final double chord;
+    private final double area;
     
     
     // Properties
-    public double getTime() {
-        return this.time;
+    public final double getSpan() {
+        return this.span;
     }
     
-    public <T> T get(SystemProperty<T> property) {
-        if (this.properties.containsKey(property)) {
-            return (T)properties.get(property);
-        }
-        return null;
+    public final double getChord() {
+        return this.chord;
     }
     
-    public Vector getStateVector() {
-        return this.stateVector;
+    public final double getArea() {
+        return this.area;
     }
     
     
     // Initialization
-    public SystemState(double time, Vector stateVector, Map<SystemProperty, Object> properties) {
-        this.time = time;
-        this.stateVector = stateVector;
-        this.properties = properties;
+    public AeroReferenceQuantities() {
+        this(1, 1, 1);
+    }
+    
+    public AeroReferenceQuantities(double chord, double area, double span) {
+        this.chord = chord;
+        this.area = area;
+        this.span = span;
     }
     
 }

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,33 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package tester;
+package aero;
 
-import com.jupiter.ganymede.math.vector.Vector;
-import com.jupiter.ganymede.neural.NeuralNetwork;
-import com.jupiter.ganymede.neural.NeuralNetworkInputLayer;
-import com.jupiter.ganymede.neural.NeuralNetworkLayer;
-import com.jupiter.ganymede.neural.ThresholdNeuron;
+import aero.fluid.Fluid;
+import com.jupiter.ganymede.math.geometry.Angle;
+import dynamics.SystemState;
 
 /**
  *
- * @author Nathan Templon
+ * @author nathan
  */
-public class Tester {
-
-    public static void main(String args[]) {
-        NeuralNetworkInputLayer inputLayer = new NeuralNetworkInputLayer(2);
-        NeuralNetworkLayer outputLayer = new NeuralNetworkLayer(new ThresholdNeuron(0.5));
-        NeuralNetwork network = new NeuralNetwork(0.6, inputLayer, outputLayer);
-        
-        for(int i = 0; i <= 1; i++) {
-            for (int j = 0; j<= 1; j++) {
-                Vector input = new Vector(i, j);
-                Vector output = network.evaluate(input);
-                
-                System.out.println(input + " -> " + output);
-            }
-        }
-    }
-
+public interface AerodynamicForceModel {
+    
+    double lift(SystemState state);
+    double drag(SystemState state);
+    double sideForce(SystemState state);
+    double pitchingMoment(SystemState state);
+    double yawingMoment(SystemState state);
+    double rollingMoment(SystemState state);
+    
 }

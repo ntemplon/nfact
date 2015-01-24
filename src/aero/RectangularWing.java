@@ -24,7 +24,7 @@
 package aero;
 
 import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
-import dynamics.analysis.SystemState;
+import dynamics.SystemState;
 
 /**
  *

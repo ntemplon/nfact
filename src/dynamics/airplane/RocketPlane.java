@@ -28,7 +28,7 @@ import com.jupiter.ganymede.math.matrix.Matrix;
 import com.jupiter.ganymede.math.vector.Vector;
 import dynamics.AerodynamicSystem;
 import dynamics.Inertia;
-import dynamics.analysis.SystemState;
+import dynamics.SystemState;
 import com.jupiter.ganymede.math.geometry.Angle;
 import propulsion.rocket.SolidRocketEngine;
 
@@ -36,7 +36,7 @@ import propulsion.rocket.SolidRocketEngine;
  *
  * @author nathant
  */
-public class RocketPlane extends AerodynamicSystem {
+public class RocketPlane {
 
     // Fields
     private final double sRef;
@@ -185,22 +185,18 @@ public class RocketPlane extends AerodynamicSystem {
 //        return cpm;
 //    }
 
-    @Override
     public SystemState getInitialState() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
     public Inertia getInertia(double time) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
     public double getReferenceLength() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
     public FluidState getFluidState(double time, Vector stateVector) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

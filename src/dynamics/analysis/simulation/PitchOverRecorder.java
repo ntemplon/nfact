@@ -26,7 +26,7 @@ package dynamics.analysis.simulation;
 import dynamics.AerodynamicSystem;
 import dynamics.DynamicSystem;
 import dynamics.SystemProperty;
-import dynamics.analysis.SystemState;
+import dynamics.SystemState;
 import com.jupiter.ganymede.math.geometry.Angle;
 import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 import java.io.File;

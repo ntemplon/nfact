@@ -25,7 +25,6 @@ package dynamics;
 
 import com.jupiter.ganymede.math.matrix.Matrix;
 import com.jupiter.ganymede.math.vector.Vector;
-import dynamics.analysis.SystemState;
 
 /**
  *
@@ -87,13 +86,10 @@ public abstract class DynamicSystem {
 
     // Public Methods
     public void update(double deltaT) {
-        Vector stateVector = this.getCurrentState().getStateVector();
-        Matrix stateMatrix = this.getSystemMatrix(this.getCurrentState());
-        
         // Euler's Method, for Debugging
-        Vector yPrime = stateMatrix.times(stateVector);
+        Vector yPrime = this.getAccelerationVector(this.getCurrentState());
         
-        Vector nextStateVector = stateVector.plus(yPrime.times(deltaT));
+        Vector nextStateVector = this.getCurrentState().getStateVector().plus(yPrime.times(deltaT));
         double nextTime = this.getCurrentState().getTime() + deltaT;
         
         this.currentState = this.buildState(nextTime, nextStateVector);
@@ -103,6 +99,6 @@ public abstract class DynamicSystem {
     
     public abstract Inertia getInertia(double time);
     
-    public abstract Matrix getSystemMatrix(SystemState state);
+    public abstract Vector getAccelerationVector(SystemState state);
 
 }

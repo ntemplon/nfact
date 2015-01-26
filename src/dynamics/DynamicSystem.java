@@ -87,7 +87,7 @@ public abstract class DynamicSystem {
     // Public Methods
     public void update(double deltaT) {
         // Euler's Method, for Debugging
-        Vector yPrime = this.getAccelerationVector(this.getCurrentState());
+        Vector yPrime = this.getDeltaVector(this.getCurrentState());
         
         Vector nextStateVector = this.getCurrentState().getStateVector().plus(yPrime.times(deltaT));
         double nextTime = this.getCurrentState().getTime() + deltaT;
@@ -99,6 +99,6 @@ public abstract class DynamicSystem {
     
     public abstract Inertia getInertia(double time);
     
-    public abstract Vector getAccelerationVector(SystemState state);
+    public abstract Vector getDeltaVector(SystemState state);
 
 }

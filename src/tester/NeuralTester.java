@@ -42,13 +42,13 @@ public class NeuralTester {
         NeuralNetworkLayer outputLayer = new NeuralNetworkLayer(new ThresholdNeuron(0.5));
         Perceptron network = new Perceptron(0.1, inputLayer, outputLayer);
         
-        PerceptronTrainer trainer = new PerceptronTrainer(0.1);
-        trainer.addTrainingPair(new TrainingPair(new Vector(0, 0), new Vector(0)));
-        trainer.addTrainingPair(new TrainingPair(new Vector(1, 0), new Vector(1)));
-        trainer.addTrainingPair(new TrainingPair(new Vector(0, 1), new Vector(1)));
-        trainer.addTrainingPair(new TrainingPair(new Vector(1, 1), new Vector(1)));
+        PerceptronTrainer<Perceptron> trainer = new PerceptronTrainer<>(0.22);
+        trainer.addTrainingPair(new TrainingPair(new Vector(0, 0), new Vector(1)));
+        trainer.addTrainingPair(new TrainingPair(new Vector(1, 0), new Vector(0)));
+        trainer.addTrainingPair(new TrainingPair(new Vector(0, 1), new Vector(0)));
+        trainer.addTrainingPair(new TrainingPair(new Vector(1, 1), new Vector(0)));
         
-        trainer.train(network);
+        boolean trained = trainer.train(network, 100);
         
         for(int i = 0; i <= 1; i++) {
             for (int j = 0; j<= 1; j++) {

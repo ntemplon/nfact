@@ -203,9 +203,9 @@ public class AerodynamicSystem extends DynamicSystem {
 
     @Override
     /**
-     * Acceleration Vector in GravityAxis
+     * Acceleration/Velocity Vector in Gravity Axis
      */
-    public final Vector getAccelerationVector(SystemState state) {
+    public final Vector getDeltaVector(SystemState state) {
         // Fetch Parameters
         double reynolds = state.get(AerodynamicSystem.REYNOLDS);
         double q = state.get(AerodynamicSystem.DYNAMIC_PRESSURE);

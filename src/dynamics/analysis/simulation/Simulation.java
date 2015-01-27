@@ -23,7 +23,9 @@
  */
 package dynamics.analysis.simulation;
 
+import com.jupiter.ganymede.event.Listener;
 import dynamics.DynamicSystem;
+import dynamics.DynamicSystem.StateUpdatedEventArgs;
 import dynamics.SystemState;
 
 /**
@@ -33,23 +35,23 @@ import dynamics.SystemState;
  * @param <TState>
  */
 public class Simulation<TSystem extends DynamicSystem> implements Runnable {
-    
+
     // Fields
     private final TSystem system;
     private final ExitCondition exit;
     private final SimulationRecorder recorder;
     private final double deltaT;
-    
-    
+
+
     // Initialization
     public Simulation(TSystem system, ExitCondition exit, double timeIncrement) {
         this.system = system;
         this.deltaT = timeIncrement;
         this.exit = exit;
-        
+
         this.recorder = null;
     }
-    
+
     public Simulation(TSystem system, ExitCondition exit, SimulationRecorder recorder,
             double timeIncrement) {
         this.system = system;
@@ -57,23 +59,26 @@ public class Simulation<TSystem extends DynamicSystem> implements Runnable {
         this.recorder = recorder;
         this.deltaT = timeIncrement;
     }
-    
-    
+
+
     // Public Methods
     @Override
     public void run() {
-        SystemState state = this.system.getCurrentState();
-        
-        this.recorder.start(state);
-        
-        while(!this.exit.isFinished(state)) {
-            this.system.update(deltaT);
-            state = this.system.getCurrentState();
-            this.recorder.recordState(state);
-        }
+        this.system.stateUpdated.addListener(this.recorder);
 
-        state = this.system.getCurrentState();
-        this.recorder.finish(state);
+        SystemState state = this.system.getCurrentState();
+
+        this.recorder.start();
+        try {
+            while (!this.exit.isFinished(state)) {
+                this.system.update(deltaT);
+                state = this.system.getCurrentState();
+            }
+        }
+        catch (Exception ex) {
+            
+        }
+        this.recorder.finish();
     }
-    
+
 }

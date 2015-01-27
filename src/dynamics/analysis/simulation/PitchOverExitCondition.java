@@ -33,10 +33,16 @@ import dynamics.SystemState;
  */
 public class PitchOverExitCondition implements ExitCondition {
 
+    public static final double MAX_TIME = 100;
+    
     private boolean threshholdReached = false;
 
     @Override
     public boolean isFinished(SystemState state) {
+        if (state.getTime() > MAX_TIME) {
+            return true;
+        }
+        
         if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) == null || state.get(DynamicSystem.Z_VEL) == null ||
                 state.get(AerodynamicSystem.THRUST) == null) {
             return false;

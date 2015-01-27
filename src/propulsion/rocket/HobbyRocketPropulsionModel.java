@@ -21,21 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package aero;
+package propulsion.rocket;
 
 import dynamics.SystemState;
+import propulsion.PropulsionForceModel;
 
 /**
  *
- * @author nathan
+ * @author Nathan Templon
  */
-public interface AerodynamicForceModel {
+public class HobbyRocketPropulsionModel implements PropulsionForceModel {
     
-    double lift(SystemState state);
-    double drag(SystemState state);
-    double sideForce(SystemState state);
-    double pitchingMoment(SystemState state);
-    double yawingMoment(SystemState state);
-    double rollingMoment(SystemState state);
+    // Fields
+    private final HobbyRocketEngine engine;
+    
+    
+    // Initialization
+    public HobbyRocketPropulsionModel(HobbyRocketEngine engine) {
+        this.engine = engine;
+    }
+    
+    
+    // Public Methods
+    @Override
+    public double thrust(SystemState state) {
+        return this.engine.getThrust(state.getTime());
+    }
     
 }

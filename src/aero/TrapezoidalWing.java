@@ -95,17 +95,17 @@ public class TrapezoidalWing extends Wing {
 
     @Override
     public double cl(SystemState state) {
-        return this.liftCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMinus180));
+        return this.liftCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK_GEOMETRIC).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMinus));
     }
 
     @Override
     public double cd(SystemState state) {
-        return this.dragCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMinus180));
+        return this.dragCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK_GEOMETRIC).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMinus));
     }
 
     @Override
     public double cpm(SystemState state) {
-        return this.pmCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMinus180));
+        return this.pmCoeff.evaluate(state.get(AerodynamicSystem.ANGLE_OF_ATTACK_GEOMETRIC).getMeasure(Angle.AngleType.RADIANS, Angle.MeasureRange.PlusMinus));
     }
     
     @Override

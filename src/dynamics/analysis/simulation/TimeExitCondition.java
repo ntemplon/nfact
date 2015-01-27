@@ -52,7 +52,7 @@ public class TimeExitCondition implements ExitCondition {
     @Override
     public boolean isFinished(SystemState state) {
         try {
-            if (state.get(DynamicSystem.TIME) > this.simulationTime) {
+            if (state.getTime() > this.simulationTime) {
                 return true;
             }
         }

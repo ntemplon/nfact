@@ -21,21 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package aero;
+package dynamics.analysis;
 
-import dynamics.SystemState;
+import dynamics.Inertia;
 
 /**
  *
- * @author nathan
+ * @author Nathan Templon
  */
-public interface AerodynamicForceModel {
-    
-    double lift(SystemState state);
-    double drag(SystemState state);
-    double sideForce(SystemState state);
-    double pitchingMoment(SystemState state);
-    double yawingMoment(SystemState state);
-    double rollingMoment(SystemState state);
-    
+@FunctionalInterface
+public interface InertiaModel {
+    Inertia getInertia(double time);
 }

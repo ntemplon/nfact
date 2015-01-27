@@ -29,55 +29,74 @@ import aero.fluid.IdealGas;
 import com.jupiter.ganymede.math.geometry.Angle;
 import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 import com.jupiter.ganymede.math.vector.Vector;
+import com.jupiter.ganymede.math.vector.Vector3;
 import dynamics.AerodynamicSystem;
 import dynamics.SystemState;
+import dynamics.airplane.PDRSeniorDesignPlane;
+import dynamics.analysis.simulation.PitchOverExitCondition;
+import dynamics.analysis.simulation.PitchOverRecorder;
+import dynamics.analysis.simulation.Simulation;
+import dynamics.analysis.simulation.SimulationRecorder;
+import java.io.File;
+import java.util.HashMap;
 
 /**
  *
  * @author nathan
  */
 public class SimulationTester {
-    
+
     public static void main(String args[]) {
         /*
-        Conventions:
+         Conventions:
          * X: @Psi = 0, Positive Forward
          * Y: @Phi = 0, Positive Left
          * Z: Positive Against Gravity
-         * Phi: Positive Right Wing Down
+         * Phi: Positive Right Wing Down (no roll -> phi = 180 degrees)
          * Theta: Positive Nose Up
-        */
-        
+         */
+
         AeroReferenceQuantities reference = new AeroReferenceQuantities(
-                0.671,          // Chord
-                1.8,          // Area
-                2.683           // Span
+                0.6708, // Chord
+                1.8, // Area
+                2.683 // Span
         );
-        
+
         Fluid fluid = new IdealGas(
-                28.97,          // Molar Mass
-                1.4,            // Heat Ratio
+                28.97, // Molar Mass
+                1.4, // Heat Ratio
                 3.86e-7);       // Viscosity
-        
-        double testStateVectorTime = 0.0;
-        Vector testStateVector = new Vector(
-                0,          // X Position
-                10,          // X Velocity
-                0,          // Y Position
-                1,          // Y Velocity
-                0,          // Z Position
-                -1,          // Z Velocity
-                0,          // Phi Position
-                0,          // Phi Velocity
-                (new Angle(5.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus180),          // Theta Position
-                0,          // Theta Velocity
-                (new Angle(10.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus180),          // Psi PositionA
-                0           // Psi Velocity
+
+        double intialTime = 0.0;
+        Vector initialVector = new Vector(
+                0, // X Position
+                0, // X Velocity
+                0, // Y Position
+                0, // Y Velocity
+                0, // Z Position
+                0.1, // Z Velocity
+                (new Angle(180.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Phi Position
+                0, // Phi Velocity
+                (new Angle(89.5, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Theta Position
+                0, // Theta Velocity
+                (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Psi PositionA
+                0 // Psi Velocity
         );
+
+        SystemState initialState = new SystemState(intialTime, initialVector, new HashMap<>());
         
-        AerodynamicSystem system = new AerodynamicSystem(null, reference, null, fluid);
+        PDRSeniorDesignPlane plane = new PDRSeniorDesignPlane();
+
+        AerodynamicSystem system = new AerodynamicSystem(plane, reference, plane, plane,
+                initialState, fluid,
+                (double time) -> new Vector3(0, 0, 0) // Wind Model
+        );
+
+        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 50);
+        Simulation sim = new Simulation(system, new PitchOverExitCondition(), recorder, 0.001);
+//        sim.run();
         
-        SystemState resultant = system.buildState(testStateVectorTime, testStateVector);
+        system.computeStep(intialTime, initialVector);
     }
-    
+
 }

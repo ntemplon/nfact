@@ -23,7 +23,7 @@
  */
 package dynamics;
 
-import com.jupiter.ganymede.math.matrix.Matrix;
+import com.jupiter.ganymede.event.Event;
 import com.jupiter.ganymede.math.vector.Vector;
 
 /**
@@ -31,7 +31,7 @@ import com.jupiter.ganymede.math.vector.Vector;
  * @author nathant
  */
 public abstract class DynamicSystem {
-    
+
     // Constants
     public static final StateVariable<Double> TIME = new StateVariable<>("Time");
 
@@ -57,13 +57,17 @@ public abstract class DynamicSystem {
     public static final StateVariable<Double> PSI_POS = new StateVariable<>("Psi");
 
     public static final StateVariable<Inertia> INERTIA = new StateVariable<>("Inertia");
-    
+
     public static final StateVariable<Double> SPEED = new StateVariable<>("Speed");
-    
-    
+
+
+    // Events
+    public final Event<StateUpdatedEventArgs> stateUpdated = new Event<>();
+
+
     // Fields
     private SystemState currentState;
-    
+
 
     // Properties
     public final SystemState getCurrentState() {
@@ -72,33 +76,76 @@ public abstract class DynamicSystem {
         }
         return this.currentState;
     }
-    
+
     public abstract StateVariable[] getVectorVariables();
-    
+
     public abstract SystemState getInitialState();
-    
-    
+
+
     // Initialization
     public DynamicSystem() {
-        
+
     }
 
 
     // Public Methods
     public void update(double deltaT) {
         // Euler's Method, for Debugging
-        Vector yPrime = this.getDeltaVector(this.getCurrentState());
+        SystemState startingState = this.getCurrentState();
+        Vector initialStateVector = startingState.getStateVector();
+        double startingTime = startingState.getTime();
+
+        ComputeStepResults k1Results = this.computeStep(startingTime, initialStateVector);
+        Vector k1 = k1Results.deltaVector;
+
+        ComputeStepResults k2Results = this.computeStep(startingTime + deltaT / 2.0, initialStateVector.plus(
+                k1.times(deltaT / 2.0)));
+        Vector k2 = k2Results.deltaVector;
+
+        ComputeStepResults k3Results = this.computeStep(startingTime + deltaT / 2.0, initialStateVector.plus(
+                k2.times(deltaT / 2.0)));
+        Vector k3 = k2Results.deltaVector;
         
-        Vector nextStateVector = this.getCurrentState().getStateVector().plus(yPrime.times(deltaT));
-        double nextTime = this.getCurrentState().getTime() + deltaT;
+        ComputeStepResults k4Results = this.computeStep(startingTime + deltaT, initialStateVector.plus(k3.times(deltaT)));
+        Vector k4 = k4Results.deltaVector;
         
-        this.currentState = this.buildState(nextTime, nextStateVector);
+        double nextTime = startingTime + deltaT;
+        Vector nextStateVector = initialStateVector.plus(k1.plus(k2.times(2)).plus(k3.times(2)).plus(k4).times(deltaT / 6.0));
+
+        this.currentState = new SystemState(nextTime, nextStateVector, k1Results.initialState.getProperties());
+
+        this.stateUpdated.dispatch(new StateUpdatedEventArgs(this.currentState));
     }
-    
-    public abstract SystemState buildState(double time, Vector stateVector);
-    
-    public abstract Inertia getInertia(double time);
-    
-    public abstract Vector getDeltaVector(SystemState state);
+
+    public abstract ComputeStepResults computeStep(double time, Vector stateVector);
+
+
+    // Nested Classes
+    public static class ComputeStepResults {
+
+        // Fields
+        public final SystemState initialState;
+        public final Vector deltaVector;
+
+
+        // Initialization
+        public ComputeStepResults(SystemState state, Vector deltaVector) {
+            this.initialState = state;
+            this.deltaVector = deltaVector;
+        }
+    }
+
+    public static class StateUpdatedEventArgs {
+
+        // Fields
+        public final SystemState state;
+
+
+        // Initialization
+        public StateUpdatedEventArgs(SystemState state) {
+            this.state = state;
+        }
+
+    }
 
 }

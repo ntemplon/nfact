@@ -21,21 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package aero;
+package dynamics.airplane;
 
-import dynamics.SystemState;
+import com.jupiter.ganymede.math.vector.Vector3;
 
 /**
  *
- * @author nathan
+ * @author Nathan Templon
  */
-public interface AerodynamicForceModel {
+@FunctionalInterface
+public interface WindModel {
     
-    double lift(SystemState state);
-    double drag(SystemState state);
-    double sideForce(SystemState state);
-    double pitchingMoment(SystemState state);
-    double yawingMoment(SystemState state);
-    double rollingMoment(SystemState state);
+    Vector3 getWind(double time);
     
 }

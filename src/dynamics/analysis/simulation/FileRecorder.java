@@ -23,9 +23,10 @@
  */
 package dynamics.analysis.simulation;
 
+import com.jupiter.ganymede.math.geometry.Angle;
 import dynamics.SystemProperty;
 import dynamics.SystemState;
-import com.jupiter.ganymede.math.geometry.Angle;
+import dynamics.DynamicSystem.StateUpdatedEventArgs;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -48,6 +49,9 @@ public class FileRecorder implements SimulationRecorder, AutoCloseable {
     private FileWriter fw;
     private BufferedWriter bw;
     private PrintWriter pw;
+    
+//    private final Set<SystemProperty> props = new TreeSet<>();
+//    private boolean writtenHeader = false;
 
 
     // Properties
@@ -103,7 +107,7 @@ public class FileRecorder implements SimulationRecorder, AutoCloseable {
 
     // SimulationRecorder implementation
     @Override
-    public void start(SystemState initialState) {
+    public void start() {
         if (!this.getOutputFile().exists()) {
             try {
                 if (!this.getOutputFile().getParentFile().exists()) {
@@ -131,8 +135,6 @@ public class FileRecorder implements SimulationRecorder, AutoCloseable {
                     pw.println("");
                 }
             }
-
-            this.writeState(initialState);
         }
         catch (IOException ex) {
 
@@ -140,7 +142,9 @@ public class FileRecorder implements SimulationRecorder, AutoCloseable {
     }
 
     @Override
-    public void recordState(SystemState state) {
+    public void handle(StateUpdatedEventArgs e) {
+        SystemState state = e.state;
+        
         if (fw == null || pw == null) {
             return;
         }
@@ -149,9 +153,7 @@ public class FileRecorder implements SimulationRecorder, AutoCloseable {
     }
 
     @Override
-    public void finish(SystemState finalState) {
-        this.writeState(finalState);
-
+    public void finish() {
         this.close();
     }
 
@@ -205,5 +207,28 @@ public class FileRecorder implements SimulationRecorder, AutoCloseable {
             }
         }
 
+//        if (!this.writtenHeader) {
+//            this.props.addAll(state.getProperties().keySet());
+//            this.writtenHeader = true;
+//            this.props.stream().forEach((SystemProperty prop) -> {
+//                pw.print(prop.getName() + ",");
+//            });
+//            pw.println();
+//        }
+//        props.stream().forEach((SystemProperty prop) -> {
+//            Object value = state.get(prop);
+//            pw.print("\"");
+//            if (value instanceof Angle) {
+//                pw.print(format.format(((Angle) value).getMeasure(Angle.AngleType.DEGREES)));
+//            }
+//            else if (value instanceof Double) {
+//                pw.print(format.format((Double) value));
+//            }
+//            else {
+//                pw.print(value);
+//            }
+//            pw.print("\",");
+//        });
+//        pw.println();
     }
 }

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,18 +23,16 @@
  */
 package dynamics.analysis.simulation;
 
-import dynamics.SystemState;
-
+import com.jupiter.ganymede.event.Listener;
+import dynamics.DynamicSystem.StateUpdatedEventArgs;
 
 /**
  *
- * @author nathan
- * @param <TState>
+ * @author Nathan Templon
  */
-public interface SimulationRecorder {
+public interface SimulationRecorder extends Listener<StateUpdatedEventArgs> {
     
-    void start(SystemState initialState);
-    void recordState(SystemState state);
-    void finish(SystemState finalState);
+    void start();
+    void finish();
     
 }

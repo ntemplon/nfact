@@ -39,19 +39,23 @@ public class SystemState {
     
     
     // Properties
-    public double getTime() {
+    public final double getTime() {
         return this.time;
     }
     
-    public <T> T get(SystemProperty<T> property) {
+    public final <T> T get(SystemProperty<T> property) {
         if (this.properties.containsKey(property)) {
             return (T)properties.get(property);
         }
         return null;
     }
     
-    public Vector getStateVector() {
+    public final Vector getStateVector() {
         return this.stateVector;
+    }
+    
+    public final Map<SystemProperty, Object> getProperties() {
+        return this.properties;
     }
     
     
@@ -60,6 +64,11 @@ public class SystemState {
         this.time = time;
         this.stateVector = stateVector;
         this.properties = properties;
+        
+        // Make sure time is present in the properties
+        if (!this.properties.containsKey(DynamicSystem.TIME)) {
+            this.properties.put(DynamicSystem.TIME, time);
+        }
     }
     
 }

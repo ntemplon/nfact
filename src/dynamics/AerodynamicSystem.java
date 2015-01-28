@@ -233,7 +233,10 @@ public class AerodynamicSystem extends DynamicSystem {
             }
 
             alpha = airVelocity.angleTo(bodyXYPlane);
-            if (theta.times(-1).getMeasure(Angle.MeasureRange.PlusMinus) < gamma.getMeasure(Angle.MeasureRange.PlusMinus)) {
+//            if (theta.times(-1).getMeasure(Angle.MeasureRange.PlusMinus) < gamma.getMeasure(Angle.MeasureRange.PlusMinus)) {
+//                alpha = alpha.times(-1.0);
+//            }
+            if (airVelocity.dot(bodyZAxis) < 0) {
                 alpha = alpha.times(-1.0);
             }
 
@@ -355,11 +358,9 @@ public class AerodynamicSystem extends DynamicSystem {
         double yawRateDot = crSolution.getComponent(2, 3);
 
         // Load Factors
-        //  First and second definition differ because the first accounts for acceleration due to gravity as zero load factor.
         double nAxial = xForce / (mass * PhysicalConstants.GRAVITY_ACCELERATION);
-        double nNormal = zForce / (mass * PhysicalConstants.GRAVITY_ACCELERATION);
-//        double nAxial = ueDot / PhysicalConstants.GRAVITY_ACCELERATION;
-//        double nNormal = weDot / PhysicalConstants.GRAVITY_ACCELERATION;
+        // -1 is because force is positive down, but load factor is positive up
+        double nNormal = -1.0 * zForce / (mass * PhysicalConstants.GRAVITY_ACCELERATION);
         props.put(AerodynamicSystem.AXIAL_LOAD_FACTOR, nAxial);
         props.put(AerodynamicSystem.NORMAL_LOAD_FACTOR, nNormal);
 
@@ -385,7 +386,6 @@ public class AerodynamicSystem extends DynamicSystem {
         props.put(X_ACCEL, deltaVelocity.getComponent(1));
         props.put(Z_ACCEL, deltaVelocity.getComponent(3));
         props.put(THETA_ACCEL, deltaRotationVelocity.getComponent(2));
-//        props.put(THETA_ACCEL, pitchRateDot);
         
         Vector delta = new Vector(
                 deltaPosition.getComponent(1),

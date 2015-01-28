@@ -74,8 +74,8 @@ public class SimulationTester {
                 0, // Y Position
                 0, // Y Velocity
                 0, // Z Position
-                0.1, // Z Velocity
-                (new Angle(180.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Phi Position
+                -.5, // Z Velocity
+                (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Phi Position
                 0, // Phi Velocity
                 (new Angle(89.5, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Theta Position
                 0, // Theta Velocity
@@ -92,11 +92,12 @@ public class SimulationTester {
                 (double time) -> new Vector3(0, 0, 0) // Wind Model
         );
 
-        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 50);
+        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 250);
         Simulation sim = new Simulation(system, new PitchOverExitCondition(), recorder, 0.001);
-//        sim.run();
+        sim.run();
         
-        system.computeStep(intialTime, initialVector);
+//        double testTime = 0.5;
+//        system.computeStep(testTime, initialVector);
     }
 
 }

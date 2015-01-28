@@ -65,7 +65,8 @@ public class PitchOverRecorder extends FileRecorder {
         AerodynamicSystem.PITCHING_MOMENT,
         AerodynamicSystem.AXIAL_LOAD_FACTOR,
         AerodynamicSystem.NORMAL_LOAD_FACTOR,
-        AerodynamicSystem.THRUST
+        AerodynamicSystem.THRUST,
+        AerodynamicSystem.Q_HAT
     };
 
 

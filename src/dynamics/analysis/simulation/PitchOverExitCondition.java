@@ -51,7 +51,7 @@ public class PitchOverExitCondition implements ExitCondition {
         if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) > 1) {
             threshholdReached = true;
         }
-        return threshholdReached && !(state.get(DynamicSystem.Z_VEL) > 0
+        return threshholdReached && !(state.get(DynamicSystem.Z_VEL) < 0
             || state.get(AerodynamicSystem.THRUST) > 0);
     }
 

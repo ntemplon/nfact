@@ -69,15 +69,15 @@ public class Simulation<TSystem extends DynamicSystem> implements Runnable {
         SystemState state = this.system.getCurrentState();
 
         this.recorder.start();
-        try {
+//        try {
             while (!this.exit.isFinished(state)) {
                 this.system.update(deltaT);
                 state = this.system.getCurrentState();
             }
-        }
-        catch (Exception ex) {
-            
-        }
+//        }
+//        catch (Exception ex) {
+//            System.out.println(ex.getClass());
+//        }
         this.recorder.finish();
     }
 

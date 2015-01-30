@@ -65,8 +65,13 @@ public class PitchOverRecorder extends FileRecorder {
         AerodynamicSystem.PITCHING_MOMENT,
         AerodynamicSystem.AXIAL_LOAD_FACTOR,
         AerodynamicSystem.NORMAL_LOAD_FACTOR,
+        DynamicSystem.MASS,
         AerodynamicSystem.THRUST,
-        AerodynamicSystem.Q_HAT
+        AerodynamicSystem.Q_HAT,
+        AerodynamicSystem.CPM0,
+        AerodynamicSystem.CPMA,
+        AerodynamicSystem.CPM_FROM_A,
+        AerodynamicSystem.CPM_FROM_Q
     };
 
 
@@ -86,7 +91,7 @@ public class PitchOverRecorder extends FileRecorder {
     private double finalVelocity = 0.0;
     private double simulationTime = 0.0;
     private double finalTheta = 0.0;
-    
+
     private boolean writtenFirst = false;
     private SystemState lastWrittenState;
 
@@ -131,29 +136,31 @@ public class PitchOverRecorder extends FileRecorder {
     // FileRecorder Overrides
     @Override
     public void finish() {
-        if (!this.lastState.equals(this.lastWrittenState)) {
-            super.writeState(this.lastState);
+        if (this.lastState != null) {
+            if (!this.lastState.equals(this.lastWrittenState)) {
+                super.writeState(this.lastState);
+            }
+
+            this.finalVelocity = this.lastState.get(DynamicSystem.SPEED);
+            this.simulationTime = this.lastState.get(DynamicSystem.TIME);
+            this.finalTheta = this.lastState.get(DynamicSystem.THETA_POS);
+
+            // Write maximum / final metrics to file
+            super.println("Max Q: " + this.getDecimalFormat().format(this.maxQ));
+            super.println("Max Speed: " + this.getDecimalFormat().format(this.maxSpeed));
+            super.println("Max Height: " + this.getDecimalFormat().format(this.maxH));
+            super.println("Max Normal Load Factor: " + this.getDecimalFormat().format(this.maxNormalLoadFactor));
+            super.println("Min Normal Load Factor: " + this.getDecimalFormat().format(this.minNormalLoadFactor));
+            super.println("Max Axial Load Factor: " + this.getDecimalFormat().format(this.maxAxialLoadFactor));
+            super.println("Min Axial Load Factor: " + this.getDecimalFormat().format(this.minAxialLoadFactor));
+
+            super.println("Final X: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.X_POS)));
+            super.println("Final Z: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.Z_POS)));
+            super.println("Final Theta: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.THETA_POS)));
+            super.println("Final X Velocity: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.X_VEL)));
+            super.println("Final Z Velocity: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.Z_VEL)));
+            super.println("Final Angular Velocity: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.THETA_VEL)));
         }
-        
-        this.finalVelocity = this.lastState.get(DynamicSystem.SPEED);
-        this.simulationTime = this.lastState.get(DynamicSystem.TIME);
-        this.finalTheta = this.lastState.get(DynamicSystem.THETA_POS);
-
-        // Write maximum / final metrics to file
-        super.println("Max Q: " + this.getDecimalFormat().format(this.maxQ));
-        super.println("Max Speed: " + this.getDecimalFormat().format(this.maxSpeed));
-        super.println("Max Height: " + this.getDecimalFormat().format(this.maxH));
-        super.println("Max Normal Load Factor: " + this.getDecimalFormat().format(this.maxNormalLoadFactor));
-        super.println("Min Normal Load Factor: " + this.getDecimalFormat().format(this.minNormalLoadFactor));
-        super.println("Max Axial Load Factor: " + this.getDecimalFormat().format(this.maxAxialLoadFactor));
-        super.println("Min Axial Load Factor: " + this.getDecimalFormat().format(this.minAxialLoadFactor));
-
-        super.println("Final X: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.X_POS)));
-        super.println("Final Z: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.Z_POS)));
-        super.println("Final Theta: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.THETA_POS)));
-        super.println("Final X Velocity: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.X_VEL)));
-        super.println("Final Z Velocity: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.Z_VEL)));
-        super.println("Final Angular Velocity: " + this.getDecimalFormat().format(this.lastState.get(DynamicSystem.THETA_VEL)));
 
         this.close();
     }
@@ -161,7 +168,7 @@ public class PitchOverRecorder extends FileRecorder {
     @Override
     public void handle(StateUpdatedEventArgs e) {
         SystemState state = e.state;
-        
+
         double q = state.get(AerodynamicSystem.DYNAMIC_PRESSURE);
         if (q > this.maxQ) {
             this.maxQ = q;
@@ -196,7 +203,7 @@ public class PitchOverRecorder extends FileRecorder {
             super.writeState(state);
             this.lastWrittenState = state;
         }
-        
+
         this.lastState = state;
     }
 }

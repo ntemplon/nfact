@@ -48,7 +48,7 @@ import util.PhysicalConstants;
 public class AerodynamicSystem extends DynamicSystem {
 
     // Constants
-    public static final double ANGLE_CALCULATION_SPEED_THRESHOLD = 5;
+    public static final double ANGLE_CALCULATION_SPEED_THRESHOLD = 1;
 
     public static final StateVariable<FluidState> FLUID_STATE = new StateVariable<>("Fluid State");
     public static final StateVariable<Double> CL = new StateVariable<>("CL");
@@ -67,9 +67,10 @@ public class AerodynamicSystem extends DynamicSystem {
 
     public static final StateVariable<Double> Q_HAT = new StateVariable<>("Q Hat");
 
-    public static final StateVariable<Double> CPMQ = new StateVariable<>("CPM from Q");
-    public static final StateVariable<Double> CPMT = new StateVariable<>("CPM from Thrust");
-    public static final StateVariable<Double> CPMA = new StateVariable<>("CPM from Alpha");
+    public static final StateVariable<Double> CPM0 = new StateVariable<>("CPM0");
+    public static final StateVariable<Double> CPMA = new StateVariable<>("CPM Alpha");
+    public static final StateVariable<Double> CPM_FROM_Q = new StateVariable<>("CPM from Q");
+    public static final StateVariable<Double> CPM_FROM_A = new StateVariable<>("CPM from Alpha");
 
     public static final StateVariable<Angle> DELTA_E = new StateVariable<>("Elevator Deflection");
 
@@ -81,7 +82,7 @@ public class AerodynamicSystem extends DynamicSystem {
     public static final StateVariable<Angle> ANGLE_OF_ATTACK_TOTAL = new StateVariable<>("Alpha Total");
     public static final StateVariable<Angle> SIDESLIP_ANGLE = new StateVariable<>("Beta");
     public static final StateVariable<Angle> ROLL_ANGLE = new StateVariable<>("Phi (Roll)");
-    
+
     public static final StateVariable<Double> ROLL_RATE = new StateVariable<>("Roll Rate");
     public static final StateVariable<Double> PITCH_RATE = new StateVariable<>("Pitch Rate");
     public static final StateVariable<Double> YAW_RATE = new StateVariable<>("Yaw Rate");
@@ -161,8 +162,9 @@ public class AerodynamicSystem extends DynamicSystem {
      *
      * Factors Taken Into Account: - Inertial Coupling - Nonlinear Aerodynamics
      *
-     * @param time The time since simulation start for this computational step (used for motor force calculations, etc.)
+     * @param time        The time since simulation start for this computational step (used for motor force calculations, etc.)
      * @param stateVector The state vector (positions and velocities) at the start of this time step;
+     *
      * @return Returns the results of the computational step
      */
     @Override
@@ -200,7 +202,7 @@ public class AerodynamicSystem extends DynamicSystem {
         double zVelocity = (Double) props.get(DynamicSystem.Z_VEL);
         Vector3 velocity = new Vector3(xVelocity, yVelocity, zVelocity);
         double speed = velocity.norm();
-        Vector3 airVelocity = velocity.minus(wind);
+        Vector3 airVelocity = velocity.minus(wind); // Velocity of plane wrt air
         double airspeed = airVelocity.norm();
         props.put(DynamicSystem.SPEED, speed);
 
@@ -233,9 +235,9 @@ public class AerodynamicSystem extends DynamicSystem {
             }
 
             alpha = airVelocity.angleTo(bodyXYPlane);
-//            if (theta.times(-1).getMeasure(Angle.MeasureRange.PlusMinus) < gamma.getMeasure(Angle.MeasureRange.PlusMinus)) {
-//                alpha = alpha.times(-1.0);
-//            }
+            if (airVelocity.dot(bodyXAxis) < 0) {
+                alpha = (new Angle(Math.PI)).plus(alpha.times(-1.0));
+            }
             if (airVelocity.dot(bodyZAxis) < 0) {
                 alpha = alpha.times(-1.0);
             }
@@ -269,8 +271,10 @@ public class AerodynamicSystem extends DynamicSystem {
         Matrix earthToBody = bodyToEarth.inverse();
 
         // Body Axis Rates
-        Vector bodyAxisVelocity = earthToBody.times(airVelocity);
-        Vector bodyAxisRotation = earthToBody.times(earthRotations);
+        Vector bodyAxisVelocity;
+        Vector bodyAxisRotation;
+        bodyAxisVelocity = earthToBody.times(airVelocity);
+        bodyAxisRotation = earthToBody.times(earthRotations);
         double ue = bodyAxisVelocity.getComponent(1);
         double ve = bodyAxisVelocity.getComponent(2);
         double we = bodyAxisVelocity.getComponent(3);
@@ -334,6 +338,7 @@ public class AerodynamicSystem extends DynamicSystem {
         Inertia inertia = this.inertiaModel.getInertia(time);
         final double mass = inertia.getMass();
         props.put(DynamicSystem.INERTIA, inertia);
+        props.put(DynamicSystem.MASS, mass);
 
         // Velocity Accelerations
         final double g = PhysicalConstants.GRAVITY_ACCELERATION;
@@ -364,14 +369,12 @@ public class AerodynamicSystem extends DynamicSystem {
         props.put(AerodynamicSystem.AXIAL_LOAD_FACTOR, nAxial);
         props.put(AerodynamicSystem.NORMAL_LOAD_FACTOR, nNormal);
 
-        SystemState finalState = new SystemState(time, stateVector, props);
-        
         // To Earth Axis
         Vector deltaPosition = bodyToEarth.times(new Vector3(ue, ve, we));
         Vector deltaVelocity = bodyToEarth.times(new Vector3(ueDot, veDot, weDot));
-        
+
         // Matrix from Etkin (he calls it 'T')
-        Matrix rotationToEarth = new Matrix(new double[][] {
+        Matrix rotationToEarth = new Matrix(new double[][]{
             {1.0, phi.sin() * theta.tan(), phi.cos() * theta.tan()},
             {0.0, phi.cos(), -1.0 * phi.sin()},
             {0.0, phi.sin() * theta.sec(), phi.cos() * theta.sec()}
@@ -379,14 +382,22 @@ public class AerodynamicSystem extends DynamicSystem {
         Vector deltaRotationPosition = rotationToEarth.times(new Vector3(rollRate, pitchRate, yawRate));
         Vector deltaRotationVelocity = rotationToEarth.times(new Vector3(rollRateDot, pitchRateDot, yawRateDot));
         
+        // Launch Rod
+//        if (Math.abs((Double) props.get(DynamicSystem.Z_POS)) < 4) {
+//            deltaPosition = new Vector3(0.0, 0.0, deltaPosition.getComponent(3));
+//            deltaVelocity = new Vector3(0.0, 0.0, deltaVelocity.getComponent(3));
+//            deltaRotationPosition = new Vector3(0.0, 0.0, 0.0);
+//            deltaRotationVelocity = new Vector3(0.0, 0.0, 0.0);
+//        }
+
         // Put Final Velocities
         props.put(PITCH_RATE, deltaRotationPosition.getComponent(2));
-        
+
         // Put Final Accelerations
         props.put(X_ACCEL, deltaVelocity.getComponent(1));
         props.put(Z_ACCEL, deltaVelocity.getComponent(3));
         props.put(THETA_ACCEL, deltaRotationVelocity.getComponent(2));
-        
+
         Vector delta = new Vector(
                 deltaPosition.getComponent(1),
                 deltaVelocity.getComponent(1),
@@ -401,6 +412,16 @@ public class AerodynamicSystem extends DynamicSystem {
                 deltaRotationPosition.getComponent(3),
                 deltaRotationVelocity.getComponent(3)
         );
+
+        SystemState finalState = new SystemState(time, stateVector, props);
+        
+        // Check for NaN's
+//        props.keySet().stream().forEach((SystemProperty prop) -> {
+//            Object val = props.get(prop);
+//            if (val instanceof Double && Double.isNaN((Double) val)) {
+//                System.out.println(prop.getName());
+//            }
+//        });
 
         return new ComputeStepResults(finalState, delta);
     }

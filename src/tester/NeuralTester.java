@@ -24,11 +24,11 @@
 package tester;
 
 import com.jupiter.ganymede.math.vector.Vector;
+import com.jupiter.ganymede.neural.ManagedTrainer.TrainingPair;
 import com.jupiter.ganymede.neural.NeuralNetworkInputLayer;
 import com.jupiter.ganymede.neural.NeuralNetworkLayer;
 import com.jupiter.ganymede.neural.Perceptron;
 import com.jupiter.ganymede.neural.PerceptronTrainer;
-import com.jupiter.ganymede.neural.PerceptronTrainer.TrainingPair;
 import com.jupiter.ganymede.neural.ThresholdNeuron;
 
 /**
@@ -43,12 +43,14 @@ public class NeuralTester {
         Perceptron network = new Perceptron(0.1, inputLayer, outputLayer);
         
         PerceptronTrainer<Perceptron> trainer = new PerceptronTrainer<>(0.22);
-        trainer.addTrainingPair(new TrainingPair(new Vector(0, 0), new Vector(1)));
-        trainer.addTrainingPair(new TrainingPair(new Vector(1, 0), new Vector(0)));
+        trainer.addTrainingPair(new TrainingPair(new Vector(0, 0), new Vector(0)));
         trainer.addTrainingPair(new TrainingPair(new Vector(0, 1), new Vector(0)));
-        trainer.addTrainingPair(new TrainingPair(new Vector(1, 1), new Vector(0)));
+        trainer.addTrainingPair(new TrainingPair(new Vector(1, 0), new Vector(1)));
+        trainer.addTrainingPair(new TrainingPair(new Vector(1, 1), new Vector(1)));
         
         boolean trained = trainer.train(network, 100);
+        
+        System.out.println("Trained: " + trained);
         
         for(int i = 0; i <= 1; i++) {
             for (int j = 0; j<= 1; j++) {

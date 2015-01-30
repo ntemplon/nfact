@@ -33,10 +33,10 @@ import com.jupiter.ganymede.math.vector.Vector3;
 import dynamics.AerodynamicSystem;
 import dynamics.SystemState;
 import dynamics.airplane.PDRSeniorDesignPlane;
-import dynamics.analysis.simulation.PitchOverExitCondition;
 import dynamics.analysis.simulation.PitchOverRecorder;
 import dynamics.analysis.simulation.Simulation;
 import dynamics.analysis.simulation.SimulationRecorder;
+import dynamics.analysis.simulation.TimeExitCondition;
 import java.io.File;
 import java.util.HashMap;
 
@@ -48,7 +48,7 @@ public class SimulationTester {
 
     public static void main(String args[]) {
         /*
-         Conventions:
+         * Conventions:
          * X: @Psi = 0, Positive Forward
          * Y: @Phi = 0, Positive Left
          * Z: Positive Against Gravity
@@ -70,32 +70,32 @@ public class SimulationTester {
         double intialTime = 0.0;
         Vector initialVector = new Vector(
                 0, // X Position
-                0, // X Velocity
+                50, // X Velocity
                 0, // Y Position
                 0, // Y Velocity
                 0, // Z Position
                 -.5, // Z Velocity
                 (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Phi Position
                 0, // Phi Velocity
-                (new Angle(89.5, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Theta Position
+                (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Theta Position
                 0, // Theta Velocity
                 (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Psi PositionA
                 0 // Psi Velocity
         );
 
         SystemState initialState = new SystemState(intialTime, initialVector, new HashMap<>());
-        
+
         PDRSeniorDesignPlane plane = new PDRSeniorDesignPlane();
 
         AerodynamicSystem system = new AerodynamicSystem(plane, reference, plane, plane,
                 initialState, fluid,
-                (double time) -> new Vector3(0, 0, 0) // Wind Model
+                (double time) -> new Vector3(-20, 0, 0) // Wind Model
         );
 
-        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 250);
-        Simulation sim = new Simulation(system, new PitchOverExitCondition(), recorder, 0.001);
+        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 25);
+        Simulation sim = new Simulation(system, new TimeExitCondition(20), recorder, 0.01);
         sim.run();
-        
+
 //        double testTime = 0.5;
 //        system.computeStep(testTime, initialVector);
     }

@@ -57,6 +57,7 @@ public abstract class DynamicSystem {
     public static final StateVariable<Double> PSI_POS = new StateVariable<>("Psi");
 
     public static final StateVariable<Inertia> INERTIA = new StateVariable<>("Inertia");
+    public static final StateVariable<Double> MASS = new StateVariable<>("Mass");
 
     public static final StateVariable<Double> SPEED = new StateVariable<>("Speed");
 
@@ -104,7 +105,7 @@ public abstract class DynamicSystem {
 
         ComputeStepResults k3Results = this.computeStep(startingTime + deltaT / 2.0, initialStateVector.plus(
                 k2.times(deltaT / 2.0)));
-        Vector k3 = k2Results.deltaVector;
+        Vector k3 = k3Results.deltaVector;
         
         ComputeStepResults k4Results = this.computeStep(startingTime + deltaT, initialStateVector.plus(k3.times(deltaT)));
         Vector k4 = k4Results.deltaVector;

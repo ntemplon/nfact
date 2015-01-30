@@ -149,8 +149,10 @@ public class HobbyRocketEngine implements SolidRocketEngine {
     );
 
     public static final HobbyRocketEngine G25_POST_BURN = new HobbyRocketEngine("G25 - Post Burn",
-            (Double time) -> 0.0, 
-            (Double time) -> 0.007326,
+            (Double time) ->
+            0.0,
+            (Double time) ->
+            0.007326,
             0.0
     );
 
@@ -245,6 +247,7 @@ public class HobbyRocketEngine implements SolidRocketEngine {
     /**
      *
      * @param time the time since ignition, in seconds
+     *
      * @return the thrust of the engine, in pounds
      */
     @Override
@@ -259,7 +262,8 @@ public class HobbyRocketEngine implements SolidRocketEngine {
 
     public HobbyRocketEngine getThrustVariationEngine(double variation) {
         String newName = this.getName() + " THRUST_VAR_" + variation;
-        SingleVariableRealFunction newThrust = (Double input) -> HobbyRocketEngine.this.thrust.evaluate(input) * variation;
+        SingleVariableRealFunction newThrust = (Double input) ->
+                HobbyRocketEngine.this.thrust.evaluate(input) * variation;
 
         return new HobbyRocketEngine(newName, newThrust, mass, this.burnTime);
     }

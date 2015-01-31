@@ -32,6 +32,7 @@ import aero.fluid.IdealGasState;
 import com.jupiter.ganymede.math.matrix.Matrix;
 import com.jupiter.ganymede.math.vector.Vector;
 import com.jupiter.ganymede.math.geometry.Angle;
+import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 import com.jupiter.ganymede.math.geometry.Plane3;
 import com.jupiter.ganymede.math.vector.Vector3;
 import dynamics.airplane.WindModel;
@@ -233,6 +234,14 @@ public class AerodynamicSystem extends DynamicSystem {
             if (zVelocity < 0) {
                 gamma = gamma.times(-1.0);
             }
+            if (Double.isNaN(gamma.getMeasure())) {
+                if (zVelocity > 0.0) {
+                    gamma = new Angle(90.0, AngleType.DEGREES);
+                }
+                else {
+                    gamma = new Angle(-90.0, AngleType.DEGREES);
+                }
+            }
 
             alpha = airVelocity.angleTo(bodyXYPlane);
             if (airVelocity.dot(bodyXAxis) < 0) {
@@ -281,6 +290,9 @@ public class AerodynamicSystem extends DynamicSystem {
         double rollRate = bodyAxisRotation.getComponent(1);
         double pitchRate = bodyAxisRotation.getComponent(2);
         double yawRate = bodyAxisRotation.getComponent(3);
+        props.put(ROLL_RATE, rollRate);
+        props.put(PITCH_RATE, pitchRate);
+        props.put(YAW_RATE, yawRate);
 
         // Nondimensional Rates
         double nonDimPitchRate = (pitchRate * this.reference.getChord()) / (2.0 * airspeed);
@@ -354,13 +366,19 @@ public class AerodynamicSystem extends DynamicSystem {
         double pitchRateDot = (yMoment - yawRate * rollRate * (ix - iz) + izx * (rollRate * rollRate - yawRate * yawRate)) / iy;
 
         // Coupled Rotations - Use a Matrix to solve
-        Matrix coupledRotations = new Matrix(new double[][]{
-            {ix, -1.0 * izx, xMoment - pitchRate * yawRate * (iz - iy) + izx * rollRate * pitchRate},
-            {-1.0 * izx, iz, zMoment - rollRate * pitchRate * (iy - ix) - izx * pitchRate * yawRate}
-        });
-        Matrix crSolution = coupledRotations.rref();
-        double rollRateDot = crSolution.getComponent(1, 3);
-        double yawRateDot = crSolution.getComponent(2, 3);
+//        Matrix coupledRotations = new Matrix(new double[][]{
+//            {ix, -1.0 * izx, xMoment - pitchRate * yawRate * (iz - iy) + izx * rollRate * pitchRate},
+//            {-1.0 * izx, iz, zMoment - rollRate * pitchRate * (iy - ix) - izx * pitchRate * yawRate}
+//        });
+//        Matrix crSolution = coupledRotations.rref();
+//        double rollRateDot = crSolution.getComponent(1, 3);
+//        double yawRateDot = crSolution.getComponent(2, 3);
+//        if (rollRateDot > 10 || yawRateDot > 10 || Double.isNaN(rollRateDot) || Double.isNaN(yawRateDot)) {
+//            System.out.println(coupledRotations + "\n\n" + crSolution);
+//        }
+        // Debug
+        double rollRateDot = 0.0;
+        double yawRateDot = 0.0;
 
         // Load Factors
         double nAxial = xForce / (mass * PhysicalConstants.GRAVITY_ACCELERATION);
@@ -372,6 +390,10 @@ public class AerodynamicSystem extends DynamicSystem {
         // To Earth Axis
         Vector deltaPosition = bodyToEarth.times(new Vector3(ue, ve, we));
         Vector deltaVelocity = bodyToEarth.times(new Vector3(ueDot, veDot, weDot));
+        
+//        if (deltaPosition.getComponent(1) > 50) {
+//            System.out.println("Pause");
+//        }
 
         // Matrix from Etkin (he calls it 'T')
         Matrix rotationToEarth = new Matrix(new double[][]{
@@ -383,15 +405,12 @@ public class AerodynamicSystem extends DynamicSystem {
         Vector deltaRotationVelocity = rotationToEarth.times(new Vector3(rollRateDot, pitchRateDot, yawRateDot));
         
         // Launch Rod
-//        if (Math.abs((Double) props.get(DynamicSystem.Z_POS)) < 4) {
-//            deltaPosition = new Vector3(0.0, 0.0, deltaPosition.getComponent(3));
-//            deltaVelocity = new Vector3(0.0, 0.0, deltaVelocity.getComponent(3));
-//            deltaRotationPosition = new Vector3(0.0, 0.0, 0.0);
-//            deltaRotationVelocity = new Vector3(0.0, 0.0, 0.0);
-//        }
-
-        // Put Final Velocities
-        props.put(PITCH_RATE, deltaRotationPosition.getComponent(2));
+        if (Math.abs((Double) props.get(DynamicSystem.Z_POS)) < 4) {
+            deltaPosition = new Vector3(0.0, 0.0, deltaPosition.getComponent(3));
+            deltaVelocity = new Vector3(0.0, 0.0, deltaVelocity.getComponent(3));
+            deltaRotationPosition = new Vector3(0.0, 0.0, 0.0);
+            deltaRotationVelocity = new Vector3(0.0, 0.0, 0.0);
+        }
 
         // Put Final Accelerations
         props.put(X_ACCEL, deltaVelocity.getComponent(1));

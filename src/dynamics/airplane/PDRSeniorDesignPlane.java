@@ -49,24 +49,46 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
     private static final double CL_ALPHA = 4.97;
     private static final double CL_Q = 11.77;
     private static final double CL_DELTA_E = 0.3014;
+    
     private static final double CD0 = 0.023;
     private static final double OSWALD_EFFICIENCY = 0.87;
 
-    private static final double CPM0_TAKEOFF = -0.03048;
-    private static final double CPM0_BURNOUT = -0.05026;
-    private static final double CPM_ALPHA_TAKEOFF = -0.5479;
+    private static final double CPM0_TAKEOFF = -0.11804;
+    private static final double CPM0_BURNOUT = -0.13659;
+    private static final double CPM_ALPHA_TAKEOFF = -0.4179;
     private static final double CPM_ALPHA_BURNOUT = -0.9723;
     private static final double CPM_Q = -25.51;
     private static final double CPM_DELTA_E = 1.1708;
+    
+    private static final double CSF_BETA = -0.5737;
+    private static final double CSF_ROLL = -0.0181;
+    private static final double CSF_YAW = 0.3272;
+    
+    private static final double CYM_BETA = 0.107;
+    private static final double CYM_ROLL = -0.0017;
+    private static final double CYM_YAW = -0.2138;
+    
+    private static final double CRM_BETA = -0.0501;
+    private static final double CRM_ROLL = -0.3654;
+    private static final double CRM_YAW = 0.08013;
 
     private static final Angle ALPHA_ZERO_LIFT = new Angle(-2.11, AngleType.DEGREES);
     
-    private static final Angle DELTA_E = new Angle(7.0, AngleType.DEGREES);
-    
     
     // Fields
-    private final HobbyRocketEngine engine = HobbyRocketEngine.G25_POST_BURN;
+    private final HobbyRocketEngine engine = HobbyRocketEngine.G25;
     private final Inertia inertia = new Inertia();
+    private Angle deltaE = new Angle(0.0, AngleType.DEGREES);
+    
+    
+    // Properties
+    public Angle getDeltaE() {
+        return this.deltaE;
+    }
+    
+    public void setDeltaE(Angle deltaE) {
+        this.deltaE = deltaE;
+    }
     
     
     // Initialization
@@ -85,9 +107,10 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
     public double cl(SystemState state) {
         Angle totalAlpha = state.get(AerodynamicSystem.ANGLE_OF_ATTACK_GEOMETRIC).plus(ALPHA_ZERO_LIFT.times(-1.0));
         state.getProperties().put(AerodynamicSystem.ANGLE_OF_ATTACK_TOTAL, totalAlpha);
+        
         double cl = CL_ALPHA * totalAlpha.getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus);
 
-        double cle = DELTA_E.getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus) * CL_DELTA_E;
+        double cle = this.getDeltaE().getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus) * CL_DELTA_E;
         cl += cle;
         
         double qHat = state.get(AerodynamicSystem.Q_HAT);
@@ -106,16 +129,18 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
 
     @Override
     public double csf(SystemState state) {
-        return 0.0;
+        double beta = state.get(AerodynamicSystem.SIDESLIP_ANGLE).getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus);
+        
+        double csf = beta * CSF_BETA;
+        csf += CSF_ROLL * state.get(AerodynamicSystem.ROLL_RATE);
+        csf += CSF_YAW * state.get(AerodynamicSystem.YAW_RATE);
+        
+        return csf;
     }
 
     @Override
     public double cpm(SystemState state) {
-        double motorBurnFrac = 1.0;
-        if (this.engine.getBurnTime() > 0.0) {
-            motorBurnFrac = 1 - (this.engine.getMass(state.getTime()) - this.engine.getMass(
-                this.engine.getBurnTime())) / (this.engine.getMass(0.0) - this.engine.getMass(this.engine.getBurnTime()));
-        }
+        double motorBurnFrac = this.getBurnFraction(state.getTime());
         
         double cpm0 = CPM0_TAKEOFF + (CPM0_BURNOUT - CPM0_TAKEOFF) * motorBurnFrac;
         state.getProperties().put(AerodynamicSystem.CPM0, cpm0);
@@ -130,7 +155,7 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
         double cpmFromQ = CPM_Q * qHat;
         state.getProperties().put(AerodynamicSystem.CPM_FROM_Q, cpmFromQ);
 
-        double cpmFromElevator = DELTA_E.getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus) * CPM_DELTA_E;
+        double cpmFromElevator = this.getDeltaE().getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus) * CPM_DELTA_E;
         
         double cpm = cpm0 + cpmFromAlpha + cpmFromElevator + cpmFromQ;
 
@@ -139,12 +164,24 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
 
     @Override
     public double cym(SystemState state) {
-        return 0.0;
+        double beta = state.get(AerodynamicSystem.SIDESLIP_ANGLE).getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus);
+        
+        double cym = beta * CYM_BETA;
+        cym += CYM_ROLL * state.get(AerodynamicSystem.ROLL_RATE);
+        cym += CYM_YAW * state.get(AerodynamicSystem.YAW_RATE);
+        
+        return cym;
     }
 
     @Override
     public double crm(SystemState state) {
-        return 0.0;
+        double beta = state.get(AerodynamicSystem.SIDESLIP_ANGLE).getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus);
+        
+        double crm = beta * CRM_BETA;
+        crm += CRM_ROLL * state.get(AerodynamicSystem.ROLL_RATE);
+        crm += CRM_YAW * state.get(AerodynamicSystem.YAW_RATE);
+        
+        return crm;
     }
 
     
@@ -160,6 +197,22 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
     public Inertia getInertia(double time) {
         this.inertia.setMass(BASE_MASS + this.engine.getMass(time));
         return this.inertia;
+    }
+    
+    
+    // Private Methods
+    private double getBurnFraction(double time) {
+        double initialMass = this.engine.getMass(0.0);
+        double finalMass = this.engine.getMass(this.engine.getBurnTime());
+        double currentMass = this.engine.getMass(time);
+        
+        double totalDifference = finalMass - initialMass;
+        if (totalDifference == 0.0) {
+            return 1.0;
+        }
+        
+        double currentDifference = currentMass - initialMass;
+        return Math.max(0.0, Math.min(1.0, currentDifference / totalDifference));
     }
 
 }

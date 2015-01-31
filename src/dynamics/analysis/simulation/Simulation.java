@@ -23,9 +23,7 @@
  */
 package dynamics.analysis.simulation;
 
-import com.jupiter.ganymede.event.Listener;
 import dynamics.DynamicSystem;
-import dynamics.DynamicSystem.StateUpdatedEventArgs;
 import dynamics.SystemState;
 
 /**
@@ -69,15 +67,15 @@ public class Simulation<TSystem extends DynamicSystem> implements Runnable {
         SystemState state = this.system.getCurrentState();
 
         this.recorder.start();
-//        try {
+        try {
             while (!this.exit.isFinished(state)) {
                 this.system.update(deltaT);
                 state = this.system.getCurrentState();
             }
-//        }
-//        catch (Exception ex) {
-//            System.out.println(ex.getClass());
-//        }
+        }
+        catch (Exception ex) {
+            System.out.println("Simulation exited with exception.");
+        }
         this.recorder.finish();
     }
 

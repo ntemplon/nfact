@@ -37,6 +37,7 @@ import com.jupiter.ganymede.math.geometry.Plane3;
 import com.jupiter.ganymede.math.vector.Vector3;
 import dynamics.airplane.WindModel;
 import dynamics.analysis.InertiaModel;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import propulsion.PropulsionForceModel;
@@ -128,6 +129,8 @@ public class AerodynamicSystem extends DynamicSystem {
     private final Fluid fluid;
     private final WindModel windModel;
 
+    private boolean useLaunchRod = false;
+
 
     // Properties
     @Override
@@ -138,6 +141,14 @@ public class AerodynamicSystem extends DynamicSystem {
     @Override
     public final SystemState getInitialState() {
         return this.initialState;
+    }
+
+    public final void setUseLaunchRod(boolean useLaunchRod) {
+        this.useLaunchRod = useLaunchRod;
+    }
+
+    public final boolean getUseLaunchRod() {
+        return this.useLaunchRod;
     }
 
 
@@ -366,19 +377,15 @@ public class AerodynamicSystem extends DynamicSystem {
         double pitchRateDot = (yMoment - yawRate * rollRate * (ix - iz) + izx * (rollRate * rollRate - yawRate * yawRate)) / iy;
 
         // Coupled Rotations - Use a Matrix to solve
-//        Matrix coupledRotations = new Matrix(new double[][]{
-//            {ix, -1.0 * izx, xMoment - pitchRate * yawRate * (iz - iy) + izx * rollRate * pitchRate},
-//            {-1.0 * izx, iz, zMoment - rollRate * pitchRate * (iy - ix) - izx * pitchRate * yawRate}
-//        });
-//        Matrix crSolution = coupledRotations.rref();
-//        double rollRateDot = crSolution.getComponent(1, 3);
-//        double yawRateDot = crSolution.getComponent(2, 3);
-//        if (rollRateDot > 10 || yawRateDot > 10 || Double.isNaN(rollRateDot) || Double.isNaN(yawRateDot)) {
-//            System.out.println(coupledRotations + "\n\n" + crSolution);
-//        }
-        // Debug
-        double rollRateDot = 0.0;
-        double yawRateDot = 0.0;
+        double a1 = ix;
+        double a2 = -1.0 * izx;
+        double a3 = xMoment - pitchRate * yawRate * (iz - iy) + izx * rollRate * pitchRate;
+        double b1 = -1.0 * izx;
+        double b2 = iz;
+        double b3 = zMoment - rollRate * pitchRate * (iy - ix) - izx * pitchRate * yawRate;
+
+        double yawRateDot = (b3 - (b1 * a3) / a1) / (b2 - (b1 * a2) / a1);
+        double rollRateDot = (a3 - a2 * yawRateDot) / a1;
 
         // Load Factors
         double nAxial = xForce / (mass * PhysicalConstants.GRAVITY_ACCELERATION);
@@ -390,10 +397,6 @@ public class AerodynamicSystem extends DynamicSystem {
         // To Earth Axis
         Vector deltaPosition = bodyToEarth.times(new Vector3(ue, ve, we));
         Vector deltaVelocity = bodyToEarth.times(new Vector3(ueDot, veDot, weDot));
-        
-//        if (deltaPosition.getComponent(1) > 50) {
-//            System.out.println("Pause");
-//        }
 
         // Matrix from Etkin (he calls it 'T')
         Matrix rotationToEarth = new Matrix(new double[][]{
@@ -401,11 +404,59 @@ public class AerodynamicSystem extends DynamicSystem {
             {0.0, phi.cos(), -1.0 * phi.sin()},
             {0.0, phi.sin() * theta.sec(), phi.cos() * theta.sec()}
         });
-        Vector deltaRotationPosition = rotationToEarth.times(new Vector3(rollRate, pitchRate, yawRate));
-        Vector deltaRotationVelocity = rotationToEarth.times(new Vector3(rollRateDot, pitchRateDot, yawRateDot));
         
+        double[][] angleVelocityCalcItems = new double[][] {
+            {1.0, 0.0, -theta.sin(), rollRate},
+            {0.0, phi.cos(), phi.sin() * theta.cos(), pitchRate},
+            {0.0, -1.0 * phi.sin(), phi.cos() * theta.cos(), yawRate}
+        };
+        for (double[] angleVelocityCalcItem : angleVelocityCalcItems) {
+            for (int j = 0; j < angleVelocityCalcItems[0].length; j++) {
+                if (Math.abs(angleVelocityCalcItem[j]) < 1e-8) {
+                    angleVelocityCalcItem[j] = 0.0;
+                }
+            }
+        }
+        if (theta.sec() > 100) {
+            angleVelocityCalcItems[2][2] = 0.0;
+        }
+        Matrix angleVelocityCalc = new Matrix(angleVelocityCalcItems);
+        Matrix angleVelocityResult = angleVelocityCalc.rref();
+        
+        double[][] angleAccelerationCalcItems = new double[][] {
+            {1.0, 0.0, -theta.sin(), rollRateDot},
+            {0.0, phi.cos(), phi.sin() * theta.cos(), pitchRateDot},
+            {0.0, -1.0 * phi.sin(), phi.cos() * theta.cos(), yawRateDot}
+        };
+        for (double[] angleAccelerationCalcItem : angleAccelerationCalcItems) {
+            for (int j = 0; j < angleAccelerationCalcItems[0].length; j++) {
+                if (Math.abs(angleAccelerationCalcItem[j]) < 1e-8) {
+                    angleAccelerationCalcItem[j] = 0.0;
+                }
+            }
+        }
+        if (theta.sec() > 100) {
+            angleAccelerationCalcItems[2][2] = 0.0;
+        }
+        Matrix angleAccelerationCalc = new Matrix(angleAccelerationCalcItems);
+        Matrix angleAccelerationResult = angleAccelerationCalc.rref();
+
+        // Account for theta = 90 deg breaking things
+//        if (theta.tan() > 1e3 || theta.sec() > 1e3) {
+//            rotationToEarth = new Matrix(new double[][]{
+//                {1.0, phi.sin() * theta.tan(), phi.cos() * theta.tan()},
+//                {0.0, phi.cos(), -1.0 * phi.sin()},
+//                {0.0, phi.sin() * theta.sec(), phi.cos() * theta.sec()}
+//            });
+//        }
+
+//        Vector deltaRotationPosition = rotationToEarth.times(new Vector3(rollRate, pitchRate, yawRate));
+//        Vector deltaRotationVelocity = rotationToEarth.times(new Vector3(rollRateDot, pitchRateDot, yawRateDot));
+        Vector deltaRotationPosition = angleVelocityResult.column(4);
+        Vector deltaRotationVelocity = angleAccelerationResult.column(4);
+
         // Launch Rod
-        if (Math.abs((Double) props.get(DynamicSystem.Z_POS)) < 4) {
+        if (this.getUseLaunchRod() && Math.abs((Double) props.get(DynamicSystem.Z_POS)) < 4) {
             deltaPosition = new Vector3(0.0, 0.0, deltaPosition.getComponent(3));
             deltaVelocity = new Vector3(0.0, 0.0, deltaVelocity.getComponent(3));
             deltaRotationPosition = new Vector3(0.0, 0.0, 0.0);
@@ -418,29 +469,43 @@ public class AerodynamicSystem extends DynamicSystem {
         props.put(THETA_ACCEL, deltaRotationVelocity.getComponent(2));
 
         Vector delta = new Vector(
-                deltaPosition.getComponent(1),
-                deltaVelocity.getComponent(1),
-                deltaPosition.getComponent(2),
-                deltaVelocity.getComponent(2),
-                deltaPosition.getComponent(3),
-                deltaVelocity.getComponent(3),
-                deltaRotationPosition.getComponent(1),
-                deltaRotationVelocity.getComponent(1),
-                deltaRotationPosition.getComponent(2),
-                deltaRotationVelocity.getComponent(2),
-                deltaRotationPosition.getComponent(3),
-                deltaRotationVelocity.getComponent(3)
+                deltaPosition.getComponent(1), // X Velocity
+                deltaVelocity.getComponent(1), // X Acceleration
+                deltaPosition.getComponent(2), // Y Velocity
+                deltaVelocity.getComponent(2), // Y Acceleration
+                deltaPosition.getComponent(3), // Z Velocity
+                deltaVelocity.getComponent(3), // Z Acceleration
+                deltaRotationPosition.getComponent(1), // Phi Velocity
+                deltaRotationVelocity.getComponent(1), // Phi Roll Angle
+                deltaRotationPosition.getComponent(2), // Theta Velocity
+                deltaRotationVelocity.getComponent(2), // Theta Acceleration
+                deltaRotationPosition.getComponent(3), // Psi Velocity
+                deltaRotationVelocity.getComponent(3) // Psi Acceleration
         );
 
         SystemState finalState = new SystemState(time, stateVector, props);
-        
+
         // Check for NaN's
-//        props.keySet().stream().forEach((SystemProperty prop) -> {
-//            Object val = props.get(prop);
-//            if (val instanceof Double && Double.isNaN((Double) val)) {
-//                System.out.println(prop.getName());
-//            }
-//        });
+        boolean foundNaN = false;
+        for (SystemProperty curProp : props.keySet()) {
+            Object val = props.get(curProp);
+            if (val instanceof Double) {
+                if (Double.isNaN((Double) val)) {
+                    System.out.println("NaN: " + curProp.getName());
+                    foundNaN = true;
+                }
+            }
+            else if (val instanceof Angle) {
+                if (Double.isNaN(((Angle) val).getMeasure())) {
+                    System.out.println("NaN: " + curProp.getName());
+                    foundNaN = true;
+                }
+            }
+        }
+        if (foundNaN) {
+            System.out.println(time);
+            System.out.println();
+        }
 
         return new ComputeStepResults(finalState, delta);
     }

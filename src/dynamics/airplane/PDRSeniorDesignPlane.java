@@ -76,7 +76,8 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
     
     
     // Fields
-    private final HobbyRocketEngine engine = HobbyRocketEngine.G25;
+//    private final HobbyRocketEngine engine = HobbyRocketEngine.G25;
+    private final HobbyRocketEngine engine = HobbyRocketEngine.G25_POST_BURN;
     private final Inertia inertia = new Inertia();
     private Angle deltaE = new Angle(0.0, AngleType.DEGREES);
     
@@ -135,6 +136,10 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
         csf += CSF_ROLL * state.get(AerodynamicSystem.ROLL_RATE);
         csf += CSF_YAW * state.get(AerodynamicSystem.YAW_RATE);
         
+        if (Math.abs(csf) < 1e-6) {
+            csf = 0.0;
+        }
+        
         return csf;
     }
 
@@ -158,6 +163,10 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
         double cpmFromElevator = this.getDeltaE().getMeasure(AngleType.RADIANS, MeasureRange.PlusMinus) * CPM_DELTA_E;
         
         double cpm = cpm0 + cpmFromAlpha + cpmFromElevator + cpmFromQ;
+        
+        if (Math.abs(cpm) < 1e-6) { 
+            cpm = 0.0;
+        }
 
         return cpm;
     }
@@ -170,6 +179,10 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
         cym += CYM_ROLL * state.get(AerodynamicSystem.ROLL_RATE);
         cym += CYM_YAW * state.get(AerodynamicSystem.YAW_RATE);
         
+        if (Math.abs(cym) < 1e-6) {
+            cym = 0.0;
+        }
+        
         return cym;
     }
 
@@ -180,6 +193,10 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
         double crm = beta * CRM_BETA;
         crm += CRM_ROLL * state.get(AerodynamicSystem.ROLL_RATE);
         crm += CRM_YAW * state.get(AerodynamicSystem.YAW_RATE);
+        
+        if (Math.abs(crm) < 1e-6) {
+            crm = 0.0;
+        }
         
         return crm;
     }

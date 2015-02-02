@@ -70,14 +70,14 @@ public class SimulationTester {
         double intialTime = 0.0;
         Vector initialVector = new Vector(
                 0, // X Position
-                0, // X Velocity
+                50, // X Velocity
                 0, // Y Position
                 0, // Y Velocity
                 0, // Z Position
-                -0.5, // Z Velocity
+                0, // Z Velocity
                 (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Phi Position
                 0, // Phi Velocity
-                (new Angle(90.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Theta Position
+                (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Theta Position
                 0, // Theta Velocity
                 (new Angle(0.0, AngleType.DEGREES)).getMeasure(Angle.MeasureRange.PlusMinus), // Psi PositionA
                 0 // Psi Velocity
@@ -86,16 +86,17 @@ public class SimulationTester {
         SystemState initialState = new SystemState(intialTime, initialVector, new HashMap<>());
 
         PDRSeniorDesignPlane plane = new PDRSeniorDesignPlane();
-        plane.setDeltaE(new Angle(4.0, AngleType.DEGREES));
+        plane.setDeltaE(new Angle(11.15, AngleType.DEGREES));
 
         AerodynamicSystem system = new AerodynamicSystem(plane, reference, plane, plane,
                 initialState, fluid,
-                (double time) -> new Vector3(0, 0, 0) // Wind Model
+                (double time) -> new Vector3(0, -10, 0) // Wind Model
         );
+        system.setUseLaunchRod(false);
 
-        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 1);
-        Simulation sim = new Simulation(system, new PitchOverExitCondition(), recorder, 0.01);
-//        Simulation sim = new Simulation(system, new TimeExitCondition(5), recorder, 0.1);
+        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 25);
+//        Simulation sim = new Simulation(system, new PitchOverExitCondition(), recorder, 0.01);
+        Simulation sim = new Simulation(system, new TimeExitCondition(20), recorder, 0.01);
         sim.run();
     }
 

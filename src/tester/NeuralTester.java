@@ -24,11 +24,14 @@
 package tester;
 
 import com.jupiter.ganymede.math.vector.Vector;
+import com.jupiter.ganymede.neural.BackPropagationTrainer;
+import com.jupiter.ganymede.neural.FeedForwardNetwork;
+import com.jupiter.ganymede.neural.ManagedTrainer;
 import com.jupiter.ganymede.neural.ManagedTrainer.TrainingPair;
 import com.jupiter.ganymede.neural.NeuralNetworkInputLayer;
 import com.jupiter.ganymede.neural.NeuralNetworkLayer;
 import com.jupiter.ganymede.neural.Perceptron;
-import com.jupiter.ganymede.neural.PerceptronTrainer;
+import com.jupiter.ganymede.neural.SigmoidNeuron;
 import com.jupiter.ganymede.neural.ThresholdNeuron;
 
 /**
@@ -39,16 +42,18 @@ public class NeuralTester {
 
     public static void main(String args[]) {
         NeuralNetworkInputLayer inputLayer = new NeuralNetworkInputLayer(2);
-        NeuralNetworkLayer outputLayer = new NeuralNetworkLayer(new ThresholdNeuron(0.5));
-        Perceptron network = new Perceptron(0.1, inputLayer, outputLayer);
+        NeuralNetworkLayer hiddenLayer = new NeuralNetworkLayer(new SigmoidNeuron(), new SigmoidNeuron(), new SigmoidNeuron(), new SigmoidNeuron(), new SigmoidNeuron());
+        NeuralNetworkLayer outputLayer = new NeuralNetworkLayer(new SigmoidNeuron());
+//        Perceptron network = new Perceptron(0.1, inputLayer, outputLayer);
+        FeedForwardNetwork network = new FeedForwardNetwork(0.1, inputLayer, hiddenLayer, outputLayer);
         
-        PerceptronTrainer<Perceptron> trainer = new PerceptronTrainer<>(0.22);
+        ManagedTrainer<FeedForwardNetwork> trainer = new BackPropagationTrainer<>(0.22);
         trainer.addTrainingPair(new TrainingPair(new Vector(0, 0), new Vector(0)));
-        trainer.addTrainingPair(new TrainingPair(new Vector(0, 1), new Vector(0)));
+        trainer.addTrainingPair(new TrainingPair(new Vector(0, 1), new Vector(1)));
         trainer.addTrainingPair(new TrainingPair(new Vector(1, 0), new Vector(1)));
         trainer.addTrainingPair(new TrainingPair(new Vector(1, 1), new Vector(1)));
         
-        boolean trained = trainer.train(network, 100);
+        boolean trained = trainer.train(network, 1000);
         
         System.out.println("Trained: " + trained);
         

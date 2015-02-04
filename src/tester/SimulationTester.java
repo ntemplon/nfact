@@ -85,7 +85,7 @@ public class SimulationTester {
         SystemState initialState = new SystemState(intialTime, initialVector, new HashMap<>());
 
         PDRSeniorDesignPlane plane = new PDRSeniorDesignPlane();
-        plane.setDeltaE(new Angle(3.0, AngleType.DEGREES));
+        plane.setDeltaE(new Angle(3.5, AngleType.DEGREES));
 
         AerodynamicSystem system = new AerodynamicSystem(plane, reference, plane, plane,
                 initialState, fluid,

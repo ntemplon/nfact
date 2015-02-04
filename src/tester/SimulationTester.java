@@ -92,8 +92,18 @@ public class SimulationTester {
                 (double time) -> new Vector3(0, 0, 0) // Wind Model
         );
         system.setUseLaunchRod(false);
+        
+        File linuxFile = new File("/home/nathan/out.csv");
+        File windowsFile = new File("D:\\out.csv");
+        File file;
+        if (linuxFile.exists()) {
+            file = linuxFile;
+        }
+        else {
+            file = windowsFile;
+        }
 
-        SimulationRecorder recorder = new PitchOverRecorder(new File("/home/nathan/out.csv"), 25);
+        SimulationRecorder recorder = new PitchOverRecorder(file, 25);
         Simulation sim = new Simulation(system, new PitchOverExitCondition(), recorder, 0.01);
 //        Simulation sim = new Simulation(system, new TimeExitCondition(20), recorder, 0.01);
         sim.run();

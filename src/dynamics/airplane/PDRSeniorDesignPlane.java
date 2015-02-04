@@ -43,7 +43,7 @@ import util.PhysicalConstants;
 public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, PropulsionForceModel, InertiaModel {
 
     // Constants (for the plane)
-    private static final double BASE_MASS = 2.28 / PhysicalConstants.GRAVITY_ACCELERATION;
+    private static final double BASE_MASS = 2.84 / PhysicalConstants.GRAVITY_ACCELERATION;
     private static final double AR = 4;
 
     private static final double CL_ALPHA = 4.97;
@@ -76,8 +76,8 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
     
     
     // Fields
-//    private final HobbyRocketEngine engine = HobbyRocketEngine.G25;
-    private final HobbyRocketEngine engine = HobbyRocketEngine.G25_POST_BURN;
+    private final HobbyRocketEngine engine = HobbyRocketEngine.G25;
+//    private final HobbyRocketEngine engine = HobbyRocketEngine.G25_POST_BURN;
     private final Inertia inertia = new Inertia();
     private Angle deltaE = new Angle(0.0, AngleType.DEGREES);
     
@@ -95,11 +95,11 @@ public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, Propul
     // Initialization
     public PDRSeniorDesignPlane() {
         inertia.setMass(BASE_MASS + this.engine.getMass(0.0));
-        inertia.setIxx(0.02043);
-        inertia.setIyy(0.0764);
-        inertia.setIzz(0.09646);
-        inertia.setIxy(0.0001233);
-        inertia.setIxz(-0.0009557);
+        inertia.setIxx(0.011801);
+        inertia.setIyy(0.056055);
+        inertia.setIzz(0.0671182);
+        inertia.setIxy(0.0000064);
+        inertia.setIxz(-0.0005178);
     }
 
 

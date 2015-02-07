@@ -43,7 +43,7 @@ import util.PhysicalConstants;
 public class PDRSeniorDesignPlane implements AerodynamicCoefficientModel, PropulsionForceModel, InertiaModel {
 
     // Constants (for the plane)
-    private static final double BASE_MASS = (2.84 - 0.166) / PhysicalConstants.GRAVITY_ACCELERATION;
+    private static final double BASE_MASS = (2.84 - 0.166 + 0.25) / PhysicalConstants.GRAVITY_ACCELERATION;
     private static final double AR = 4;
 
     private static final double CL_ALPHA = 4.97;

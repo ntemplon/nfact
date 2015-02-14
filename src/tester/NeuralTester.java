@@ -80,8 +80,8 @@ public class NeuralTester {
 
         final int timesToTrain = 100000;
 
-        TrainingRateFormulation trf = (int epoch) -> Math.max(0.01, 0.75 - ((double) epoch) / 200000.0);
-        BackPropagationTrainer<FeedForwardNetwork> trainer = new BackPropagationTrainer<>(0.5);
+        TrainingRateFormulation trf = (int epoch) -> Math.max(0.25, 1.5 - ((double) epoch) / 75000.0);
+        BackPropagationTrainer<FeedForwardNetwork> trainer = new BackPropagationTrainer<>(trf);
         ExitCriteria<FeedForwardNetwork> exitCondition = (TrainingResults results, int epoch) -> {
             return epoch >= timesToTrain;
         };

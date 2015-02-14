@@ -213,6 +213,57 @@ public class HobbyRocketEngine implements SolidRocketEngine {
             2.06
     );
 
+    public static final HobbyRocketEngine M750 = new HobbyRocketEngine("M750",
+            new SingleVariableTableFunction(0, 16.0, new FuncPoint[]{
+                new FuncPoint(-1.0, 232.00),
+                new FuncPoint(0.0, 232.00),
+                new FuncPoint(0.1, 223.01),
+                new FuncPoint(0.3, 218.96),
+                new FuncPoint(0.48, 217.17),
+                new FuncPoint(1.0, 237.17),
+                new FuncPoint(1.5, 258.98),
+                new FuncPoint(2.0, 267.97),
+                new FuncPoint(2.5, 273.82),
+                new FuncPoint(4.0, 247.96),
+                new FuncPoint(6.0, 183.89),
+                new FuncPoint(8.0, 126.12),
+                new FuncPoint(10.0, 71.49),
+                new FuncPoint(11.0, 48.56),
+                new FuncPoint(12.0, 28.10),
+                new FuncPoint(13.0, 17.09),
+                new FuncPoint(14.0, 10.57),
+                new FuncPoint(15.0, 5.17),
+                new FuncPoint(15.5, 2.02),
+                new FuncPoint(16.0, 0.0),
+                new FuncPoint(17.0, 0.0)
+            }),
+            new SingleVariableTableFunction(0, 16.0, new FuncPoint[]{
+                new FuncPoint(-1.0, 0.60009),
+                new FuncPoint(0.0, 0.60009),
+                new FuncPoint(0.1, 0.59807),
+                new FuncPoint(0.2, 0.59410),
+                new FuncPoint(0.3, 0.59026),
+                new FuncPoint(0.48, 0.58342),
+                new FuncPoint(1.0, 0.56385),
+                new FuncPoint(1.5, 0.54124),
+                new FuncPoint(2.0, 0.51830),
+                new FuncPoint(2.5, 0.49471),
+                new FuncPoint(4.0, 0.42655),
+                new FuncPoint(6.0, 0.35134),
+                new FuncPoint(8.0, 0.29734),
+                new FuncPoint(10.0, 0.26293),
+                new FuncPoint(11.0, 0.25247),
+                new FuncPoint(12.0, 0.24580),
+                new FuncPoint(13.0, 0.241860),
+                new FuncPoint(14.0, 0.23945),
+                new FuncPoint(15.0, 0.23808),
+                new FuncPoint(15.5, 0.23777),
+                new FuncPoint(16.0, 0.23768),
+                new FuncPoint(17.0, 0.23768)
+            }),
+            16.0
+    );
+
 
     // Fields
     private final String name;

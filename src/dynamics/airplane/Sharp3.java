@@ -24,22 +24,50 @@
 package dynamics.airplane;
 
 import aero.AerodynamicCoefficientModel;
+import dynamics.AerodynamicSystem;
 import dynamics.Inertia;
 import dynamics.SystemState;
 import dynamics.analysis.InertiaModel;
 import propulsion.PropulsionForceModel;
 import propulsion.rocket.HobbyRocketEngine;
+import util.PhysicalConstants;
 
 /**
  *
  * @author Nathan Templon
  */
 public class Sharp3 implements AerodynamicCoefficientModel, PropulsionForceModel, InertiaModel {
+
+    // Fields
+    private final HobbyRocketEngine engine = HobbyRocketEngine.M750;
+    private final double baseMass = 32.13 / PhysicalConstants.GRAVITY_ACCELERATION;
+    private final double length = 9.5;
+    private final double baseDiameter = 2.0 / 3.0;
+    private final double baseArea = Math.PI * (baseDiameter * baseDiameter) / 4.0;
+    private final double maximumDiameter = 2.0 / 3.0;
+    private final double maximumArea = Math.PI * (maximumDiameter * maximumDiameter) / 4.0;
+    private final double refrenceArea = this.maximumArea;
+    private final double wettedArea = this.length * this.maximumDiameter * Math.PI;
+    
     
     // Fields
-    private final HobbyRocketEngine engine = HobbyRocketEngine.G25;
+    private final Inertia inertia;
     
     
+    // Initialization
+    public Sharp3() {
+        this.inertia = new Inertia();
+        
+        this.inertia.setIxx(1.0);
+        this.inertia.setIxy(1.0);
+        this.inertia.setIxz(1.0);
+        this.inertia.setIyy(1.0);
+        this.inertia.setIyz(1.0);
+        this.inertia.setIzz(1.0);
+        this.inertia.setMass(this.getMass(0.0));
+    }
+    
+
     // Public Methods
     @Override
     public double cl(SystemState state) {
@@ -48,7 +76,17 @@ public class Sharp3 implements AerodynamicCoefficientModel, PropulsionForceModel
 
     @Override
     public double cd(SystemState state) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        double cd = 0.0;
+        
+        double reynolds = state.get(AerodynamicSystem.REYNOLDS);
+        double mach = state.get(AerodynamicSystem.MACH);
+        double cdsf = 0.455 / (Math.pow(Math.log10(reynolds), 2.58) * Math.pow(1.0 + 0.144 * Math.pow(mach, 2), 0.65) * (this.wettedArea / this.refrenceArea));
+        cd += cdsf;
+        
+        double cdbase = (0.139 + 0.419 * Math.pow(mach, 2)) * (this.baseArea / this.refrenceArea);
+        cd += cdbase;
+        
+        return cd;
     }
 
     @Override
@@ -78,7 +116,14 @@ public class Sharp3 implements AerodynamicCoefficientModel, PropulsionForceModel
 
     @Override
     public Inertia getInertia(double time) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.inertia.setMass(this.getMass(time));
+        return this.inertia;
     }
     
+    
+    // Private Methods
+    private double getMass(double time) {
+        return this.baseMass + this.engine.getMass(time);
+    }
+
 }

@@ -462,6 +462,19 @@ public class AerodynamicSystem extends DynamicSystem {
             deltaRotationPosition = new Vector3(0.0, 0.0, 0.0);
             deltaRotationVelocity = new Vector3(0.0, 0.0, 0.0);
         }
+        
+        // Check for and Remove NaN's
+        for (int i = 1; i <= deltaRotationVelocity.getDimension(); i++) {
+            if (Double.isNaN(deltaRotationVelocity.getComponent(i))) {
+                double[] newValues = new double[deltaRotationVelocity.getDimension()];
+                for (int j = 0; j < deltaRotationVelocity.getDimension(); j++) {
+                    newValues[j] = deltaRotationVelocity.getComponent(j + 1);
+                }
+                newValues[i - 1] = 0.0;
+                deltaRotationVelocity = new Vector(newValues);
+                System.out.println("NaN corrected for rotation component #" + i + ".");
+            }
+        }
 
         // Put Final Accelerations
         props.put(X_ACCEL, deltaVelocity.getComponent(1));

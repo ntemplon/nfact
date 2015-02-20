@@ -32,11 +32,12 @@ import com.jupiter.ganymede.neural.NeuralDecoder;
 import com.jupiter.ganymede.neural.NeuralEncoder;
 import com.jupiter.ganymede.neural.NeuralInterface;
 import com.jupiter.ganymede.neural.SigmoidNeuron;
-import com.jupiter.ganymede.neural.TestResults;
+import com.jupiter.ganymede.neural.training.TestResults;
 import com.jupiter.ganymede.neural.training.BackPropagationTrainer;
 import com.jupiter.ganymede.neural.training.BackPropagationTrainer.TrainingRateFormulation;
+import com.jupiter.ganymede.neural.training.DataSet;
 import com.jupiter.ganymede.neural.training.ExitCriteria;
-import com.jupiter.ganymede.neural.training.ManagedTrainer.TrainingPair;
+import com.jupiter.ganymede.neural.training.TrainingPair;
 import com.jupiter.ganymede.neural.training.TrainingResults;
 
 /**
@@ -66,45 +67,45 @@ public class NeuralTester {
         FeedForwardNetwork network = new FeedForwardNetwork(10, new DefaultWeightSettings(.1, 0.3), new NeuralNetLayer(20, new HyperbolicTangentNeuron()),
                 new NeuralNetLayer(10, new SigmoidNeuron()));
 
-        TrainingPair[] pairs = new TrainingPair[]{
+        DataSet pairs = new DataSet(new TrainingPair[]{
             new TrainingPair(encoder.encode("QAPLA'"), encoder.encode("SUCCESS")),
             new TrainingPair(encoder.encode("BAT'LETH"), encoder.encode("WEAPON")),
             new TrainingPair(encoder.encode("NUQNEH"), encoder.encode("HELLO"))
-        };
+        });
 
-        for (TrainingPair pair : pairs) {
+        pairs.getTrainingPairs().stream().forEach((pair) -> {
             System.out.println(decoder.decode(pair.input) + " -> " + decoder.decode(network.evaluate(pair.input)));
-        }
+        });
 
         NeuralInterface<String, String> iface = new NeuralInterface<>(encoder, decoder, network);
 
-        final int timesToTrain = 100000;
+        final int timesToTrain = 10000;
 
-        TrainingRateFormulation trf = (int epoch) -> Math.max(0.25, 1.5 - ((double) epoch) / 75000.0);
+        TrainingRateFormulation trf = (int epoch) -> Math.max(0.25, 2.5 - epoch / 75000.0);
         BackPropagationTrainer<FeedForwardNetwork> trainer = new BackPropagationTrainer<>(trf);
         ExitCriteria<FeedForwardNetwork> exitCondition = (TrainingResults results, int epoch) -> {
             return epoch >= timesToTrain;
         };
-        trainer.addTrainingPairs(pairs);
+        trainer.setTrainingSet(pairs);
 
         int trainingTimes = 0;
 
         do {
             trainingTimes++;
-            
+
             trainer.train(network, exitCondition);
 
             System.out.println(System.lineSeparator() + "Results from round: " + trainingTimes);
-            for (TrainingPair pair : pairs) {
+            pairs.getTrainingPairs().stream().forEach((pair) -> {
                 System.out.println(decoder.decode(pair.input) + " -> " + decoder.decode(network.evaluate(pair.input)));
-            }
+            });
         }
         while (trainingTimes <= 50 && !iface.evaluate("QAPLA'").trim().equals("SUCCESS"));
 
         System.out.println();
-        for (TrainingPair pair : pairs) {
+        pairs.getTrainingPairs().stream().forEach((pair) -> {
             System.out.println(decoder.decode(pair.input) + " -> " + decoder.decode(network.evaluate(pair.input)));
-        }
+        });
 
         TestResults results = network.test(pairs);
         System.out.println(System.lineSeparator() + "RMS: " + results.calculateMetric(TestResults.RMS));

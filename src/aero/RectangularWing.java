@@ -50,7 +50,7 @@ public class RectangularWing extends Wing {
         this.liftCoeff = (Double input) -> 0.8 * RectangularWing.this.airfoil.cl(input);
         this.dragCoeff = (Double input) -> {
             double cd0 = 0.04;
-            double cdi = (liftCoeff.evaluate(input) * liftCoeff.evaluate(input))
+            double cdi = (liftCoeff.apply(input) * liftCoeff.apply(input))
                     / (Math.PI * RectangularWing.this.spanEfficiency() * RectangularWing.this.getPlanform().aspectRatio());
             return (cd0 + cdi);
         };

@@ -62,11 +62,11 @@ public class Airfoil {
     
     // Public Methods
     public double cl(Angle alpha) {
-        return this.liftCoeff.evaluate(getDataMeasureFor(alpha));
+        return this.liftCoeff.apply(getDataMeasureFor(alpha));
     }
     
     public double cl(double alpha) {
-        return this.liftCoeff.evaluate(alpha);
+        return this.liftCoeff.apply(alpha);
     }
     
     public SingleVariableRealFunction clFunction() {
@@ -74,11 +74,11 @@ public class Airfoil {
     }
     
     public double cd(Angle alpha) {
-        return this.dragCoeff.evaluate(getDataMeasureFor(alpha));
+        return this.dragCoeff.apply(getDataMeasureFor(alpha));
     }
     
     public double cd(double alpha) {
-        return this.dragCoeff.evaluate(alpha);
+        return this.dragCoeff.apply(alpha);
     }
     
     public SingleVariableRealFunction cdFunction() {
@@ -86,11 +86,11 @@ public class Airfoil {
     }
     
     public double cpm(Angle alpha) {
-        return this.pmCoeff.evaluate(getDataMeasureFor(alpha));
+        return this.pmCoeff.apply(getDataMeasureFor(alpha));
     }
     
     public double cpm(double alpha) {
-        return this.pmCoeff.evaluate(alpha);
+        return this.pmCoeff.apply(alpha);
     }
     
     public SingleVariableRealFunction cpmFunction() {

@@ -36,6 +36,14 @@ import tester.neuralnetclass.RobotArm;
 public class RobotGenerationTester {
     
     public static void main(String[] args) {
+        
+    }
+    
+    private static void generatePoints() {
+        
+    }
+    
+    private static void test() {
         final RobotArm arm = new RobotArm();
         
         final FuncPoint point = arm.endPoint(new Angle(90, AngleType.DEGREES), new Angle(90, AngleType.DEGREES));

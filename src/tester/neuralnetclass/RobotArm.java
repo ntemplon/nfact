@@ -27,6 +27,7 @@ import com.jupiter.ganymede.math.function.FuncPoint;
 import com.jupiter.ganymede.math.geometry.Angle;
 import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 import com.jupiter.ganymede.math.geometry.Angle.TrigFunction;
+import com.jupiter.ganymede.math.vector.Vector3;
 
 /**
  *
@@ -93,8 +94,13 @@ public class RobotArm {
         final Angle beta = alpha.plus(new Angle(90, AngleType.DEGREES));
         
         AngleSet angles = this.getAngles(p0, p1, p2, h, beta);
-        if (angles.theta2.getMeasure(AngleType.DEGREES) > 180.0) {
-            return this.getAngles(p0, p1, p2, h, beta.minus(new Angle(180, AngleType.DEGREES)));
+        final double theta2Measure = angles.theta2.getMeasure(AngleType.DEGREES);
+        if (theta2Measure > 180.0) {
+//            System.out.println("Using other Angle");
+            return new AngleSet(
+                    angles.theta1,
+                    angles.theta2.minus(new Angle(180.0, AngleType.DEGREES))
+            );
         }
         return angles;
     }
@@ -109,11 +115,41 @@ public class RobotArm {
         
         final double arm1x = inter.x - p0.x;
         final double arm1y = inter.y - p0.y;
-        final Angle theta1 = new Angle(arm1y / arm1x, Angle.TrigFunction.TANGENT).plus(new Angle(90, AngleType.DEGREES));
+//        System.out.println("Arm 1: " + arm1x + ", " + arm1y);
+        final double horizonTangent = arm1y / arm1x;
+        Angle arm1Horizon = new Angle(Math.atan(horizonTangent));
+        if (arm1x < 0) {
+            arm1Horizon = arm1Horizon.minus(new Angle(Math.PI));
+        }
+        
+        Angle theta1 = arm1Horizon.plus(new Angle(90, AngleType.DEGREES));
+//        if (theta1.getMeasure(AngleType.DEGREES) < 0) {
+//            System.out.println("Shifting Theta");
+////            theta1 = theta1.times(-1.0);
+//            System.out.println(theta1.getMeasure());
+//            theta1 = (new Angle(360, AngleType.DEGREES)).plus(theta1);
+//            System.out.println(theta1.getMeasure());
+//        }
+//        System.out.println("Arm 1 to Horizon: " + arm1Horizon.getMeasure(AngleType.DEGREES));
+//        System.out.println("Tangent: " + (arm1y / arm1x));
+//        boolean thetaAdjustment = false;
+//        if (theta1.getMeasure(AngleType.DEGREES) < 30) {
+//            theta1 = (new Angle(Math.PI)).minus(theta1);
+//            thetaAdjustment = true;
+//        }
         
         final double arm2x = p1.x - inter.x;
         final double arm2y = p1.y - inter.y;
-        final Angle theta2 = new Angle(arm2y / arm2x, Angle.TrigFunction.TANGENT).plus(new Angle(90, AngleType.DEGREES).plus(theta1));
+        Angle gamma = new Angle(arm2y / arm2x, Angle.TrigFunction.TANGENT);
+//        if (p1.x < 0) {
+//            gamma = theta1;
+//        }
+        Angle alpha = theta1.plus(new Angle(-90, AngleType.DEGREES));
+        
+//        System.out.println("P0: " + p0 + "\nP1: " + p1 + "\nP2: " + p2);
+//        System.out.println("Gamma: " + gamma.getMeasure(AngleType.DEGREES));
+//        System.out.println("Alpha: " + alpha.getMeasure(AngleType.DEGREES));
+        Angle theta2 = new Angle(180, AngleType.DEGREES).plus(gamma).minus(alpha);
         
         return new AngleSet(theta1, theta2);
     }

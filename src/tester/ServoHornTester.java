@@ -40,7 +40,7 @@ public class ServoHornTester {
 
     public static void main(String[] args) {
         final double hs = 1.0;
-        final double ls = 1.0;
+        final double ls = 0.5;
         final double xf = 1.0;
         final double xh = 1.0;
         final double hf = 1.0;
@@ -51,6 +51,8 @@ public class ServoHornTester {
         final double l = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
         
         final List<Point<Double, Double>> inters = Arrays.asList(getIntersections(ls, 0, hs, l, -xf - xh * theta.cos() - hf * theta.sin(), -xh * theta.sin() + hf * theta.cos()));
+        inters.stream()
+                .forEach((Point<Double, Double> point) -> System.out.println("Intersection: " + point));
         final List<Angle> angles = inters.stream()
                 .map((Point<Double, Double> point) -> getServoAngle(hs, point))
                 .collect(Collectors.toList());
@@ -77,7 +79,7 @@ public class ServoHornTester {
             return new Point[0];
         }
         if (distance == 0.0 && r0 == r1) {
-            // Same Circel
+            // Same Circle
             return new Point[0];
         }
 

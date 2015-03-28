@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,46 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package aero.fluid;
+package propulsion;
+
+import dynamics.SystemState;
 
 /**
  *
- * @author nathant
+ * @author Nathan Templon
  */
-public class IdealGas implements Fluid {
-    
-    // Fields
-    private final double molarMass;
-    private final double heatRatio;
-    private final double gasConstant;
-    private final double viscosity;
-    
-    // Properties
-    @Override
-    public double getMolarMass() {
-        return this.molarMass;
-    }
-    
-    public double getHeatRatio() {
-        return this.heatRatio;
-    }
-    
-    public double getGasConstant() {
-        return this.gasConstant;
-    }
-    
-    @Override
-    public double getViscosity() {
-        return this.viscosity;
-    }
-    
-    // Initialization
-    public IdealGas(double molarMass, double heatRatio, double viscosity) {
-        this.molarMass = molarMass;
-        this.heatRatio = heatRatio;
-        this.viscosity = viscosity;
-        
-        this.gasConstant = Fluid.GAS_CONSTANT / this.molarMass;
-    }
-    
+@FunctionalInterface
+public interface PropulsionForceModel {
+    double thrust(SystemState state);
 }

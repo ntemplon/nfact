@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,44 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+package tester.neuralnetclass;
 
-package propulsion.propellant;
-
-import propulsion.thermo.Gas;
-import propulsion.thermo.Gas.Temperature;
-
+import com.jupiter.ganymede.math.geometry.Angle;
 
 /**
  *
  * @author Nathan Templon
  */
-public class LiquidPropellant implements Propellant {
+public class AngleSet {
     
-    public LiquidPropellant( Gas exhaust, Temperature flameTemp ) {
-        this.flameTemp = flameTemp;
-        this.exhaust = exhaust;
-        
-        double heatRatio = exhaust.heatRatio().value();
-        this.charVelocity = Math.sqrt( (1/heatRatio) * Math.pow( 
-                (heatRatio + 1) / 2, (heatRatio + 1) / (heatRatio - 1)) 
-                * exhaust.specificGasConstant() * flameTemp.value());
+    // Fields
+    public final Angle theta1;
+    public final Angle theta2;
+    
+    
+    // Initialization
+    public AngleSet(Angle theta1, Angle theta2) {
+        this.theta1 = theta1;
+        this.theta2 = theta2;
     }
-    
-    
-    public Gas exhaust() {
-        return exhaust;
-    }
-    
-    public Temperature flameTemp() {
-        return flameTemp;
-    }
-    
-    public double charVelocity() {
-        return charVelocity;
-    }
-    
-    private Gas exhaust;
-    private Temperature flameTemp;
-    private double charVelocity;
     
 }

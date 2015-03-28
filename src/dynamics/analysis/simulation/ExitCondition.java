@@ -28,10 +28,9 @@ import dynamics.SystemState;
 /**
  *
  * @author nathan
- * @param <TState>
  */
-public interface ExitCondition<TState extends SystemState> {
+public interface ExitCondition {
     
-    boolean isFinished(TState state);
+    boolean isFinished(SystemState state);
     
 }

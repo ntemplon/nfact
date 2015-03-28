@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,40 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics;
+package dynamics.analysis;
 
-import function.Function;
+import dynamics.Inertia;
 
 /**
  *
- * @author nathan
- * @param <TState>
- * @param <TValue>
+ * @author Nathan Templon
  */
-public class StateFunction<TState extends SystemState, TValue> implements Function<TState, TValue> {
-
-    // Fields
-    private final Function<TState, TValue> function;
-    private final SystemProperty[] dependencies;
-    
-    
-    // Properties
-    public SystemProperty[] getDependencies() {
-        return this.dependencies;
-    }
-    
-    
-    // Initialization
-    public StateFunction(Function<TState, TValue> function, SystemProperty... dependencies) {
-        this.function = function;
-        this.dependencies = dependencies;
-    }
-    
-    
-    // Function Implementation
-    @Override
-    public  TValue evaluate(TState input) {
-        return this.function.evaluate(input);
-    }
-    
+@FunctionalInterface
+public interface InertiaModel {
+    Inertia getInertia(double time);
 }

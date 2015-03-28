@@ -23,9 +23,9 @@
  */
 package aero;
 
-import function.SingleVariableFunction;
-import geometry.angle.Angle;
-import geometry.angle.Angle.AngleType;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
+import com.jupiter.ganymede.math.geometry.Angle;
+import com.jupiter.ganymede.math.geometry.Angle.AngleType;
 
 /**
  *
@@ -45,15 +45,15 @@ public class Airfoil {
     
     // Protected Members
     protected String name;
-    protected SingleVariableFunction liftCoeff;
-    protected SingleVariableFunction dragCoeff;
-    protected SingleVariableFunction pmCoeff;
+    protected SingleVariableRealFunction liftCoeff;
+    protected SingleVariableRealFunction dragCoeff;
+    protected SingleVariableRealFunction pmCoeff;
     
     
     // Initialization
-    public Airfoil(String name, SingleVariableFunction liftCoeff,
-                    SingleVariableFunction dragCoeff,
-                    SingleVariableFunction pmCoeff) {
+    public Airfoil(String name, SingleVariableRealFunction liftCoeff,
+                    SingleVariableRealFunction dragCoeff,
+                    SingleVariableRealFunction pmCoeff) {
         this.liftCoeff = liftCoeff;
         this.dragCoeff = dragCoeff;
         this.pmCoeff = pmCoeff;
@@ -62,38 +62,38 @@ public class Airfoil {
     
     // Public Methods
     public double cl(Angle alpha) {
-        return this.liftCoeff.evaluate(getDataMeasureFor(alpha));
+        return this.liftCoeff.apply(getDataMeasureFor(alpha));
     }
     
     public double cl(double alpha) {
-        return this.liftCoeff.evaluate(alpha);
+        return this.liftCoeff.apply(alpha);
     }
     
-    public SingleVariableFunction clFunction() {
+    public SingleVariableRealFunction clFunction() {
         return this.liftCoeff;
     }
     
     public double cd(Angle alpha) {
-        return this.dragCoeff.evaluate(getDataMeasureFor(alpha));
+        return this.dragCoeff.apply(getDataMeasureFor(alpha));
     }
     
     public double cd(double alpha) {
-        return this.dragCoeff.evaluate(alpha);
+        return this.dragCoeff.apply(alpha);
     }
     
-    public SingleVariableFunction cdFunction() {
+    public SingleVariableRealFunction cdFunction() {
         return this.dragCoeff;
     }
     
     public double cpm(Angle alpha) {
-        return this.pmCoeff.evaluate(getDataMeasureFor(alpha));
+        return this.pmCoeff.apply(getDataMeasureFor(alpha));
     }
     
     public double cpm(double alpha) {
-        return this.pmCoeff.evaluate(alpha);
+        return this.pmCoeff.apply(alpha);
     }
     
-    public SingleVariableFunction cpmFunction() {
+    public SingleVariableRealFunction cpmFunction() {
         return this.pmCoeff;
     }
     

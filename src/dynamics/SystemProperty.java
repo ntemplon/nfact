@@ -28,7 +28,7 @@ package dynamics;
  * @author nathan
  * @param <T>
  */
-public abstract class SystemProperty<T> implements Comparable<SystemProperty> {
+public abstract class SystemProperty<T> implements Comparable<SystemProperty<T>> {
     
     // Fields
     private final String name;
@@ -52,9 +52,10 @@ public abstract class SystemProperty<T> implements Comparable<SystemProperty> {
         return this.getName();
     }
     
+    
     // Comparable Implementation
     @Override
-    public int compareTo(SystemProperty other) {
+    public int compareTo(SystemProperty<T> other) {
         return this.getName().compareTo(other.getName());
     }
     

@@ -32,48 +32,51 @@ import dynamics.SystemState;
  * @param <TSystem>
  * @param <TState>
  */
-public class Simulation<TSystem extends DynamicSystem<TState>, TState extends SystemState> implements Runnable {
-    
+public class Simulation<TSystem extends DynamicSystem> implements Runnable {
+
     // Fields
-    private final DynamicSystem<TState> system;
-    private final ExitCondition<TState> exit;
-    private final SimulationRecorder<TState> recorder;
+    private final TSystem system;
+    private final ExitCondition exit;
+    private final SimulationRecorder recorder;
     private final double deltaT;
-    
-    
+
+
     // Initialization
-    public Simulation(TSystem system, ExitCondition<TState> exit, double timeIncrement) {
+    public Simulation(TSystem system, ExitCondition exit, double timeIncrement) {
         this.system = system;
         this.deltaT = timeIncrement;
         this.exit = exit;
-        
+
         this.recorder = null;
     }
-    
-    public Simulation(TSystem system, ExitCondition<TState> exit, SimulationRecorder<TState> recorder,
+
+    public Simulation(TSystem system, ExitCondition exit, SimulationRecorder recorder,
             double timeIncrement) {
         this.system = system;
         this.exit = exit;
         this.recorder = recorder;
         this.deltaT = timeIncrement;
     }
-    
-    
+
+
     // Public Methods
     @Override
     public void run() {
-        TState state = this.system.getState();
-        
-        this.recorder.start(state);
-        
-        while(!this.exit.isFinished(state)) {
-            this.system.updateState(deltaT);
-            state = this.system.getState();
-            this.recorder.recordState(state);
-        }
+        this.system.stateUpdated.addListener(this.recorder);
 
-        state = this.system.getState();
-        this.recorder.finish(state);
+        SystemState state = this.system.getCurrentState();
+
+        this.recorder.start();
+        try {
+            while (!this.exit.isFinished(state)) {
+                this.system.update(deltaT);
+                state = this.system.getCurrentState();
+            }
+        }
+        catch (Exception ex) {
+            System.out.println("Simulation exited with exception.");
+        }
+        this.recorder.finish();
     }
-    
+
 }

@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,98 +23,52 @@
  */
 package dynamics;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import com.jupiter.ganymede.math.vector.Vector;
 import java.util.Map;
 
 /**
  *
- * @author nathant
+ * @author Nathan Templon
  */
-public abstract class SystemState {
-
-    // Constants
-    public static final StateVariable<Double> TIME = new StateVariable<>("Time");
-
-
+public class SystemState {
+    
     // Fields
-    private final Map<SystemProperty, Object> values;
-    private final List<DerivedProperty> derived;
-
-
+    private final double time;
+    private final Map<SystemProperty, Object> properties;
+    private final Vector stateVector;
+    
+    
     // Properties
-    public Collection<SystemProperty> getVariables() {
-        return this.values.keySet();
+    public final double getTime() {
+        return this.time;
     }
-
-    @SuppressWarnings("unchecked")
-    public <T> T get(SystemProperty<T> variable) {
-        if (variable == null || !this.values.containsKey(variable)) {
-            return null;
+    
+    public final <T> T get(SystemProperty<T> property) {
+        if (this.properties.containsKey(property)) {
+            return (T)properties.get(property);
         }
-        try {
-            return (T) this.values.get(variable);
-        }
-        catch (Exception ex) {
-            return null;
-        }
+        return null;
     }
-
-    public <T> void set(SystemProperty<T> variable, T value) {
-        this.values.put(variable, value);
-
-        this.updateDerivedVariables(variable);
+    
+    public final Vector getStateVector() {
+        return this.stateVector;
     }
-
-
+    
+    public final Map<SystemProperty, Object> getProperties() {
+        return this.properties;
+    }
+    
+    
     // Initialization
-    public SystemState(SystemProperty[] variables) {
-        this.values = new HashMap<>();
-        this.derived = new ArrayList<>();
-
-        this.values.put(TIME, 0.0);
-        for (SystemProperty variable : variables) {
-            if (variable instanceof DerivedProperty) {
-                this.derived.add((DerivedProperty) variable);
-            }
-            this.values.put(variable, null);
+    public SystemState(double time, Vector stateVector, Map<SystemProperty, Object> properties) {
+        this.time = time;
+        this.stateVector = stateVector;
+        this.properties = properties;
+        
+        // Make sure time is present in the properties
+        if (!this.properties.containsKey(DynamicSystem.TIME)) {
+            this.properties.put(DynamicSystem.TIME, time);
         }
     }
-
-    public SystemState(SystemState other) {
-        this.values = new HashMap<>();
-        this.derived = new ArrayList<>();
-
-        other.getVariables().stream().forEach((variable) -> {
-            if (variable instanceof DerivedProperty) {
-                this.derived.add((DerivedProperty) variable);
-            }
-            this.values.put(variable, other.get(variable));
-        });
-    }
-
-
-    // Private Methods
-    private void updateDerivedVariables(SystemProperty property) {
-        this.derived.stream().forEach((variable) -> {
-            try {
-                List<SystemProperty> props = null;
-                if (variable.getDependencies() != null) {
-                    props = Arrays.asList(variable.getDependencies());
-                }
-                if (props == null || props.isEmpty() || props.contains(property)) {
-                    Object value = variable.valueAt(this);
-                    this.values.put(variable, value);
-                    this.updateDerivedVariables(variable);
-                }
-            }
-            catch (Exception ex) {
-                this.values.put(variable, null);
-            }
-        });
-    }
-
+    
 }

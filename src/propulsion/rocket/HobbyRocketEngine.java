@@ -23,10 +23,9 @@
  */
 package propulsion.rocket;
 
-import function.Function;
-import function.Function.FuncPoint;
-import function.SingleVariableFunction;
-import function.SingleVariableTableFunction;
+import com.jupiter.ganymede.math.function.FuncPoint;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
+import com.jupiter.ganymede.math.function.SingleVariableTableFunction;
 
 /**
  *
@@ -38,125 +37,127 @@ public class HobbyRocketEngine implements SolidRocketEngine {
     public static final double NEWT0NS_TO_POUNDS = 0.224808943;
 
 //    public static final HobbyRocketEngine G78 = new HobbyRocketEngine("G78",
-//            new SingleVariableTableFunction(0.0, 1.808, new Function.FuncPoint[]{
-//                new Function.FuncPoint(0.0, 0.0),
-//                new Function.FuncPoint(0.006, 0.260),
-//                new Function.FuncPoint(0.008, 1.684),
-//                new Function.FuncPoint(0.010, 7.589),
-//                new Function.FuncPoint(0.012, 14.522),
-//                new Function.FuncPoint(0.014, 14.148),
-//                new Function.FuncPoint(0.016, 13.225),
-//                new Function.FuncPoint(0.018, 16.841),
-//                new Function.FuncPoint(0.020, 19.110),
-//                new Function.FuncPoint(0.022, 20.482),
-//                new Function.FuncPoint(0.026, 21.130),
-//                new Function.FuncPoint(0.028, 22.128),
-//                new Function.FuncPoint(0.032, 21.953),
-//                new Function.FuncPoint(0.038, 22.975),
-//                new Function.FuncPoint(0.074, 21.878),
-//                new Function.FuncPoint(0.124, 21.454),
-//                new Function.FuncPoint(0.376, 22.327),
-//                new Function.FuncPoint(0.680, 22.352),
-//                new Function.FuncPoint(0.994, 20.606),
-//                new Function.FuncPoint(1.246, 18.661),
-//                new Function.FuncPoint(1.282, 13.923),
-//                new Function.FuncPoint(1.316, 13.923),
-//                new Function.FuncPoint(1.360, 10.033),
-//                new Function.FuncPoint(1.424, 6.542),
-//                new Function.FuncPoint(1.504, 4.771),
-//                new Function.FuncPoint(1.598, 4.347),
-//                new Function.FuncPoint(1.656, 3.674),
-//                new Function.FuncPoint(1.676, 1.145),
-//                new Function.FuncPoint(1.678, 0.312),
-//                new Function.FuncPoint(1.714, 1.145),
-//                new Function.FuncPoint(1.734, 0.312),
-//                new Function.FuncPoint(1.808, 0)
+//            new SingleVariableTableFunction(0.0, 1.808, new FuncPoint[]{
+//                new FuncPoint(0.0, 0.0),
+//                new FuncPoint(0.006, 0.260),
+//                new FuncPoint(0.008, 1.684),
+//                new FuncPoint(0.010, 7.589),
+//                new FuncPoint(0.012, 14.522),
+//                new FuncPoint(0.014, 14.148),
+//                new FuncPoint(0.016, 13.225),
+//                new FuncPoint(0.018, 16.841),
+//                new FuncPoint(0.020, 19.110),
+//                new FuncPoint(0.022, 20.482),
+//                new FuncPoint(0.026, 21.130),
+//                new FuncPoint(0.028, 22.128),
+//                new FuncPoint(0.032, 21.953),
+//                new FuncPoint(0.038, 22.975),
+//                new FuncPoint(0.074, 21.878),
+//                new FuncPoint(0.124, 21.454),
+//                new FuncPoint(0.376, 22.327),
+//                new FuncPoint(0.680, 22.352),
+//                new FuncPoint(0.994, 20.606),
+//                new FuncPoint(1.246, 18.661),
+//                new FuncPoint(1.282, 13.923),
+//                new FuncPoint(1.316, 13.923),
+//                new FuncPoint(1.360, 10.033),
+//                new FuncPoint(1.424, 6.542),
+//                new FuncPoint(1.504, 4.771),
+//                new FuncPoint(1.598, 4.347),
+//                new FuncPoint(1.656, 3.674),
+//                new FuncPoint(1.676, 1.145),
+//                new FuncPoint(1.678, 0.312),
+//                new FuncPoint(1.714, 1.145),
+//                new FuncPoint(1.734, 0.312),
+//                new FuncPoint(1.808, 0)
 //            })
 //    );
 
     public static final HobbyRocketEngine G25 = new HobbyRocketEngine("G25",
-            new SingleVariableTableFunction(0.0, 5.3, new Function.FuncPoint[]{
-                new Function.FuncPoint(0.0, 0.0),
-                new Function.FuncPoint(0.0001, 1.124),
-                new Function.FuncPoint(0.13, 9.143),
-                new Function.FuncPoint(0.177, 8.761),
-                new Function.FuncPoint(0.295, 8.761),
-                new Function.FuncPoint(0.343, 9.205),
-                new Function.FuncPoint(0.413, 9.078),
-                new Function.FuncPoint(0.437, 8.698),
-                new Function.FuncPoint(0.484, 8.953),
-                new Function.FuncPoint(0.532, 8.508),
-                new Function.FuncPoint(0.65, 8.443),
-                new Function.FuncPoint(0.721, 8.761),
-                new Function.FuncPoint(0.803, 8.698),
-                new Function.FuncPoint(0.85, 8.381),
-                new Function.FuncPoint(0.98, 8.888),
-                new Function.FuncPoint(1.063, 8.191),
-                new Function.FuncPoint(1.098, 8.571),
-                new Function.FuncPoint(1.252, 8.508),
-                new Function.FuncPoint(1.37, 8.381),
-                new Function.FuncPoint(1.583, 8.318),
-                new Function.FuncPoint(1.819, 7.936),
-                new Function.FuncPoint(1.984, 7.556),
-                new Function.FuncPoint(2.185, 7.046),
-                new Function.FuncPoint(2.315, 6.477),
-                new Function.FuncPoint(2.622, 5.460),
-                new Function.FuncPoint(3.024, 4.253),
-                new Function.FuncPoint(3.39, 3.111),
-                new Function.FuncPoint(3.839, 1.714),
-                new Function.FuncPoint(4.323, 1.016),
-                new Function.FuncPoint(4.783, 0.571),
-                new Function.FuncPoint(5.3, 0),}),
-            new SingleVariableTableFunction(0.0, 5.3, new Function.FuncPoint[]{
-                new Function.FuncPoint(0.0, 0.011455),
-                new Function.FuncPoint(0.0001, 0.011455),
-                new Function.FuncPoint(0.13, 0.011455),
-                new Function.FuncPoint(0.177, 0.011387),
-                new Function.FuncPoint(0.295, 0.011219),
-                new Function.FuncPoint(0.343, 0.011149),
-                new Function.FuncPoint(0.413, 0.011045),
-                new Function.FuncPoint(0.437, 0.011011),
-                new Function.FuncPoint(0.484, 0.010943),
-                new Function.FuncPoint(0.532, 0.010875),
-                new Function.FuncPoint(0.65, 0.010713),
-                new Function.FuncPoint(0.721, 0.010614),
-                new Function.FuncPoint(0.803, 0.010498),
-                new Function.FuncPoint(0.85, 0.010433),
-                new Function.FuncPoint(0.98, 0.010088),
-                new Function.FuncPoint(1.063, 0.010136),
-                new Function.FuncPoint(1.098, 0.010088),
-                new Function.FuncPoint(1.252, 0.009875),
-                new Function.FuncPoint(1.37, 0.009713),
-                new Function.FuncPoint(1.583, 0.009424),
-                new Function.FuncPoint(1.819, 0.009113),
-                new Function.FuncPoint(1.984, 0.008906),
-                new Function.FuncPoint(2.185, 0.008668),
-                new Function.FuncPoint(2.315, 0.008525),
-                new Function.FuncPoint(2.622, 0.008228),
-                new Function.FuncPoint(3.024, 0.007911),
-                new Function.FuncPoint(3.39, 0.007693),
-                new Function.FuncPoint(3.839, 0.007517),
-                new Function.FuncPoint(4.323, 0.007410),
-                new Function.FuncPoint(4.783, 0.007350),
-                new Function.FuncPoint(5.3, 0.007326),})
+            new SingleVariableTableFunction(0.0, 5.3, new FuncPoint[]{
+                new FuncPoint(-1, 0.0),
+                new FuncPoint(0.0, 0.0),
+                new FuncPoint(0.0001, 1.124),
+                new FuncPoint(0.13, 9.143),
+                new FuncPoint(0.177, 8.761),
+                new FuncPoint(0.295, 8.761),
+                new FuncPoint(0.343, 9.205),
+                new FuncPoint(0.413, 9.078),
+                new FuncPoint(0.437, 8.698),
+                new FuncPoint(0.484, 8.953),
+                new FuncPoint(0.532, 8.508),
+                new FuncPoint(0.65, 8.443),
+                new FuncPoint(0.721, 8.761),
+                new FuncPoint(0.803, 8.698),
+                new FuncPoint(0.85, 8.381),
+                new FuncPoint(0.98, 8.888),
+                new FuncPoint(1.063, 8.191),
+                new FuncPoint(1.098, 8.571),
+                new FuncPoint(1.252, 8.508),
+                new FuncPoint(1.37, 8.381),
+                new FuncPoint(1.583, 8.318),
+                new FuncPoint(1.819, 7.936),
+                new FuncPoint(1.984, 7.556),
+                new FuncPoint(2.185, 7.046),
+                new FuncPoint(2.315, 6.477),
+                new FuncPoint(2.622, 5.460),
+                new FuncPoint(3.024, 4.253),
+                new FuncPoint(3.39, 3.111),
+                new FuncPoint(3.839, 1.714),
+                new FuncPoint(4.323, 1.016),
+                new FuncPoint(4.783, 0.571),
+                new FuncPoint(5.3, 0),
+                new FuncPoint(5.4, 0)
+            }),
+            new SingleVariableTableFunction(0.0, 5.3, new FuncPoint[]{
+                new FuncPoint(-1.0, 0.011455),
+                new FuncPoint(0.0, 0.011455),
+                new FuncPoint(0.0001, 0.011455),
+                new FuncPoint(0.13, 0.011455),
+                new FuncPoint(0.177, 0.011387),
+                new FuncPoint(0.295, 0.011219),
+                new FuncPoint(0.343, 0.011149),
+                new FuncPoint(0.413, 0.011045),
+                new FuncPoint(0.437, 0.011011),
+                new FuncPoint(0.484, 0.010943),
+                new FuncPoint(0.532, 0.010875),
+                new FuncPoint(0.65, 0.010713),
+                new FuncPoint(0.721, 0.010614),
+                new FuncPoint(0.803, 0.010498),
+                new FuncPoint(0.85, 0.010433),
+                new FuncPoint(0.98, 0.010088),
+                new FuncPoint(1.063, 0.010136),
+                new FuncPoint(1.098, 0.010088),
+                new FuncPoint(1.252, 0.009875),
+                new FuncPoint(1.37, 0.009713),
+                new FuncPoint(1.583, 0.009424),
+                new FuncPoint(1.819, 0.009113),
+                new FuncPoint(1.984, 0.008906),
+                new FuncPoint(2.185, 0.008668),
+                new FuncPoint(2.315, 0.008525),
+                new FuncPoint(2.622, 0.008228),
+                new FuncPoint(3.024, 0.007911),
+                new FuncPoint(3.39, 0.007693),
+                new FuncPoint(3.839, 0.007517),
+                new FuncPoint(4.323, 0.007410),
+                new FuncPoint(4.783, 0.007350),
+                new FuncPoint(5.3, 0.007326),
+                new FuncPoint(5.4, 0.007326)
+            }),
+            5.3
     );
 
     public static final HobbyRocketEngine G25_POST_BURN = new HobbyRocketEngine("G25 - Post Burn",
-            new SingleVariableFunction() {
-                @Override
-                public Double evaluate(Double time) {
-                    return 0.0;
-                }
-            },
-            new SingleVariableFunction() {
-                @Override
-                public Double evaluate(Double time) {
-                    return 0.007326;
-                }
-            });
-    
+            (Double time) ->
+            0.0,
+            (Double time) ->
+            0.007326,
+            0.0
+    );
+
     public static final HobbyRocketEngine F40 = new HobbyRocketEngine("F40",
-            new SingleVariableTableFunction(0, 2.06, new FuncPoint[] {
+            new SingleVariableTableFunction(0, 2.06, new FuncPoint[]{
+                new FuncPoint(-1, 0.0),
                 new FuncPoint(0, 0.0),
                 new FuncPoint(0.015, 3.996),
                 new FuncPoint(0.049, 9.221),
@@ -179,9 +180,10 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new FuncPoint(1.665, 3.586),
                 new FuncPoint(1.808, 1.947),
                 new FuncPoint(1.942, 0.717),
-                new FuncPoint(2.06, 0.0)
+                new FuncPoint(2.06, 0.0),
+                new FuncPoint(2.1, 0.0)
             }),
-            new SingleVariableTableFunction(0, 2.06, new FuncPoint[] {
+            new SingleVariableTableFunction(0, 2.06, new FuncPoint[]{
                 new FuncPoint(0, 0.00857),
                 new FuncPoint(0.015, 0.00857),
                 new FuncPoint(0.049, 0.00856),
@@ -204,16 +206,69 @@ public class HobbyRocketEngine implements SolidRocketEngine {
                 new FuncPoint(1.665, 0.00604),
                 new FuncPoint(1.808, 0.00592),
                 new FuncPoint(1.942, 0.00586),
-                new FuncPoint(2.06, 0.00582)
-            })
+                new FuncPoint(2.06, 0.00582),
+                new FuncPoint(2.1, 0.00582)
+            }),
+            2.06
+    );
+
+    public static final HobbyRocketEngine M750 = new HobbyRocketEngine("M750",
+            new SingleVariableTableFunction(0, 16.0, new FuncPoint[]{
+                new FuncPoint(-1.0, 232.00),
+                new FuncPoint(0.0, 232.00),
+                new FuncPoint(0.1, 223.01),
+                new FuncPoint(0.3, 218.96),
+                new FuncPoint(0.48, 217.17),
+                new FuncPoint(1.0, 237.17),
+                new FuncPoint(1.5, 258.98),
+                new FuncPoint(2.0, 267.97),
+                new FuncPoint(2.5, 273.82),
+                new FuncPoint(4.0, 247.96),
+                new FuncPoint(6.0, 183.89),
+                new FuncPoint(8.0, 126.12),
+                new FuncPoint(10.0, 71.49),
+                new FuncPoint(11.0, 48.56),
+                new FuncPoint(12.0, 28.10),
+                new FuncPoint(13.0, 17.09),
+                new FuncPoint(14.0, 10.57),
+                new FuncPoint(15.0, 5.17),
+                new FuncPoint(15.5, 2.02),
+                new FuncPoint(16.0, 0.0),
+                new FuncPoint(17.0, 0.0)
+            }),
+            new SingleVariableTableFunction(0, 16.0, new FuncPoint[]{
+                new FuncPoint(-1.0, 0.60009),
+                new FuncPoint(0.0, 0.60009),
+                new FuncPoint(0.1, 0.59807),
+                new FuncPoint(0.2, 0.59410),
+                new FuncPoint(0.3, 0.59026),
+                new FuncPoint(0.48, 0.58342),
+                new FuncPoint(1.0, 0.56385),
+                new FuncPoint(1.5, 0.54124),
+                new FuncPoint(2.0, 0.51830),
+                new FuncPoint(2.5, 0.49471),
+                new FuncPoint(4.0, 0.42655),
+                new FuncPoint(6.0, 0.35134),
+                new FuncPoint(8.0, 0.29734),
+                new FuncPoint(10.0, 0.26293),
+                new FuncPoint(11.0, 0.25247),
+                new FuncPoint(12.0, 0.24580),
+                new FuncPoint(13.0, 0.241860),
+                new FuncPoint(14.0, 0.23945),
+                new FuncPoint(15.0, 0.23808),
+                new FuncPoint(15.5, 0.23777),
+                new FuncPoint(16.0, 0.23768),
+                new FuncPoint(17.0, 0.23768)
+            }),
+            16.0
     );
 
 
     // Fields
     private final String name;
     private final double burnTime;
-    private final SingleVariableFunction thrust;
-    private final SingleVariableFunction mass;
+    private final SingleVariableRealFunction thrust;
+    private final SingleVariableRealFunction mass;
 
 
     // Properties
@@ -229,18 +284,12 @@ public class HobbyRocketEngine implements SolidRocketEngine {
 
 
     // Initialization
-    public HobbyRocketEngine(String name, SingleVariableFunction thrust, SingleVariableFunction mass) {
+    public HobbyRocketEngine(String name, SingleVariableRealFunction thrust, SingleVariableRealFunction mass, double burnTime) {
         this.name = name;
         this.thrust = thrust;
         this.mass = mass;
 
-        // Calculate burn time
-        if (this.thrust.hasFiniteDomain) {
-            this.burnTime = this.thrust.domainMax - this.thrust.domainMin;
-        }
-        else {
-            this.burnTime = 0.0;
-        }
+        this.burnTime = burnTime;
     }
 
 
@@ -248,42 +297,25 @@ public class HobbyRocketEngine implements SolidRocketEngine {
     /**
      *
      * @param time the time since ignition, in seconds
+     *
      * @return the thrust of the engine, in pounds
      */
     @Override
     public double getThrust(double time) {
-        if (thrust.hasFiniteDomain) {
-            if (time < thrust.domainMin || thrust.domainMax < time) {
-                return 0;
-            }
-        }
-        return thrust.evaluate(time);
+        return thrust.apply(time);
     }
 
     @Override
     public double getMass(double time) {
-        if (mass.hasFiniteDomain) {
-            if (time < mass.domainMin) {
-                return mass.evaluate(mass.domainMin);
-            }
-            else if (time > mass.domainMax) {
-                return mass.evaluate(mass.domainMax);
-            }
-        }
-        return mass.evaluate(time);
+        return mass.apply(time);
     }
 
     public HobbyRocketEngine getThrustVariationEngine(double variation) {
         String newName = this.getName() + " THRUST_VAR_" + variation;
-        SingleVariableFunction newThrust = new SingleVariableFunction(
-                this.thrust.domainMin, this.thrust.domainMax) {
-                    @Override
-                    public Double evaluate(Double input) {
-                        return HobbyRocketEngine.this.thrust.evaluate(input) * variation;
-                    }
-                };
+        SingleVariableRealFunction newThrust = (Double input) ->
+                HobbyRocketEngine.this.thrust.apply(input) * variation;
 
-        return new HobbyRocketEngine(newName, newThrust, mass);
+        return new HobbyRocketEngine(newName, newThrust, mass, this.burnTime);
     }
 
 }

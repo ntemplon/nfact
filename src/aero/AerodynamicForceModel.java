@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,36 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package dynamics;
+package aero;
+
+import dynamics.SystemState;
 
 /**
  *
  * @author nathan
- * @param <TState>
- * @param <TType>
  */
-public class DerivedProperty<TState extends SystemState, TType> extends SystemProperty<TType> {
+public interface AerodynamicForceModel {
     
-    // Fields
-    protected StateFunction<TState, TType> value;
-    
-    
-    // Properties
-    public SystemProperty[] getDependencies() {
-        return this.value.getDependencies();
-    }
-    
-    
-    // Initialization
-    public DerivedProperty(String name, StateFunction<TState, TType> value) {
-        super(name);
-        this.value = value;
-    }
-    
-    
-    // Public Methods
-    public TType valueAt(TState state) {
-        return this.value.evaluate(state);
-    }
+    double lift(SystemState state);
+    double drag(SystemState state);
+    double sideForce(SystemState state);
+    double pitchingMoment(SystemState state);
+    double yawingMoment(SystemState state);
+    double rollingMoment(SystemState state);
     
 }

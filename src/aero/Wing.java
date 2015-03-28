@@ -23,9 +23,8 @@
  */
 package aero;
 
-import dynamics.AeroSystemState;
-import function.SingleVariableFunction;
-import geometry.angle.Angle;
+import com.jupiter.ganymede.math.function.SingleVariableRealFunction;
+import dynamics.SystemState;
 
 /**
  *
@@ -40,16 +39,16 @@ public abstract class Wing {
 
     public abstract WingSection sectionAt(double station);
 
-    public abstract double cl(AeroSystemState state);
+    public abstract double cl(SystemState state);
 
-    public abstract double cd(AeroSystemState state);
+    public abstract double cd(SystemState state);
 
-    public abstract double cpm(AeroSystemState state);
+    public abstract double cpm(SystemState state);
 
-    public abstract SingleVariableFunction clFunction();
+    public abstract SingleVariableRealFunction clFunction();
 
-    public abstract SingleVariableFunction cdFunction();
+    public abstract SingleVariableRealFunction cdFunction();
 
-    public abstract SingleVariableFunction cpmFunction();
+    public abstract SingleVariableRealFunction cpmFunction();
 
 }

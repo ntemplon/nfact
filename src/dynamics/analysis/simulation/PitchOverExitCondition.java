@@ -23,28 +23,36 @@
  */
 package dynamics.analysis.simulation;
 
-import dynamics.AeroSystemState;
+import dynamics.AerodynamicSystem;
+import dynamics.DynamicSystem;
+import dynamics.SystemState;
 
 /**
  *
  * @author nathan
  */
-public class PitchOverExitCondition implements ExitCondition<AeroSystemState> {
+public class PitchOverExitCondition implements ExitCondition {
 
+    public static final double MAX_TIME = 100;
+    
     private boolean threshholdReached = false;
 
     @Override
-    public boolean isFinished(AeroSystemState state) {
-        if (state.get(AeroSystemState.DYNAMIC_PRESSURE) == null || state.get(AeroSystemState.Z_VEL) == null ||
-                state.get(AeroSystemState.THRUST) == null) {
+    public boolean isFinished(SystemState state) {
+        if (state.getTime() > MAX_TIME) {
+            return true;
+        }
+        
+        if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) == null || state.get(DynamicSystem.Z_VEL) == null ||
+                state.get(AerodynamicSystem.THRUST) == null) {
             return false;
         }
         
-        if (state.get(AeroSystemState.DYNAMIC_PRESSURE) > 1) {
+        if (state.get(AerodynamicSystem.DYNAMIC_PRESSURE) > 1) {
             threshholdReached = true;
         }
-        return threshholdReached && !(state.get(AeroSystemState.Z_VEL) > 0
-            || state.get(AeroSystemState.THRUST) > 0);
+        return threshholdReached && !(state.get(DynamicSystem.Z_VEL) < 0
+            || state.get(AerodynamicSystem.THRUST) > 0);
     }
 
 }

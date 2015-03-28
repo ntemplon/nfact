@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2014 Nathan Templon.
+ * Copyright 2015 Nathan Templon.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,16 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package tester;
+package dynamics.airplane;
+
+import com.jupiter.ganymede.math.vector.Vector3;
 
 /**
  *
  * @author Nathan Templon
  */
-public class Tester {
-
-    public static void main(String args[]) {
-        
-    }
-
+@FunctionalInterface
+public interface WindModel {
+    
+    Vector3 getWind(double time);
+    
 }
